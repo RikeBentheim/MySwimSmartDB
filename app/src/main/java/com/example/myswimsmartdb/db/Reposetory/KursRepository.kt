@@ -1,0 +1,138 @@
+package com.example.myswimsmartdb.db
+
+import android.content.ContentValues
+import android.content.Context
+import com.example.myswimsmartdb.db.entities.*
+
+class KursRepository(context: Context) {
+
+    private val dbHelper = DatabaseHelper(context)
+
+    fun getAllKurseWithDetails(): List<Kurs> {
+        val db = dbHelper.readableDatabase
+        val kursQuery = "SELECT * FROM ${DatabaseHelper.TABLE_KURS}"
+        val kursCursor = db.rawQuery(kursQuery, null)
+
+        val kurse = mutableListOf<Kurs>()
+
+        while (kursCursor.moveToNext()) {
+            val kursId = kursCursor.getInt(kursCursor.getColumnIndexOrThrow("KURS_ID"))
+            val kursName = kursCursor.getString(kursCursor.getColumnIndexOrThrow("KURS_NAME"))
+            val levelId = kursCursor.getInt(kursCursor.getColumnIndexOrThrow("KURS_LEVEL_ID"))
+
+            // Fetch Level Name
+            val levelQuery = "SELECT LEVEL_NAME FROM ${DatabaseHelper.TABLE_LEVEL} WHERE LEVEL_ID = ?"
+            val levelCursor = db.rawQuery(levelQuery, arrayOf(levelId.toString()))
+            var levelName = ""
+            if (levelCursor.moveToFirst()) {
+                levelName = levelCursor.getString(levelCursor.getColumnIndexOrThrow("LEVEL_NAME"))
+            }
+            levelCursor.close()
+
+            // Fetch Mitglieder
+            val mitgliederQuery = """
+                SELECT * FROM ${DatabaseHelper.TABLE_MITGLIED} 
+                WHERE MITGLIED_KURS_ID = ?
+            """
+            val mitgliederCursor = db.rawQuery(mitgliederQuery, arrayOf(kursId.toString()))
+
+            val mitglieder = mutableListOf<Mitglied>()
+            while (mitgliederCursor.moveToNext()) {
+                val mitgliedId = mitgliederCursor.getInt(mitgliederCursor.getColumnIndexOrThrow("MITGLIED_ID"))
+                val vorname = mitgliederCursor.getString(mitgliederCursor.getColumnIndexOrThrow("MITGLIED_VORNAME"))
+                val nachname = mitgliederCursor.getString(mitgliederCursor.getColumnIndexOrThrow("MITGLIED_NACHNAME"))
+                val geburtsdatum = mitgliederCursor.getString(mitgliederCursor.getColumnIndexOrThrow("MITGLIED_GEBURTSDATUM"))
+                val telefon = mitgliederCursor.getString(mitgliederCursor.getColumnIndexOrThrow("MITGLIED_TELEFON"))
+
+                val mitglied = Mitglied(mitgliedId, vorname, nachname, geburtsdatum, telefon, kursId)
+                mitglieder.add(mitglied)
+            }
+            mitgliederCursor.close()
+
+            // Fetch Trainings
+            val trainingsQuery = """
+                SELECT t.* FROM ${DatabaseHelper.TABLE_TRAINING} t
+                INNER JOIN ${DatabaseHelper.TABLE_KURS_TRAINING} kt
+                ON t.TRAINING_ID = kt.KURS_TRAINING_TRAINING_ID
+                WHERE kt.KURS_TRAINING_KURS_ID = ?
+            """
+            val trainingsCursor = db.rawQuery(trainingsQuery, arrayOf(kursId.toString()))
+
+            val trainings = mutableListOf<Training>()
+            while (trainingsCursor.moveToNext()) {
+                val trainingId = trainingsCursor.getInt(trainingsCursor.getColumnIndexOrThrow("TRAINING_ID"))
+                val datum = trainingsCursor.getString(trainingsCursor.getColumnIndexOrThrow("TRAINING_DATUM"))
+                val bemerkung = trainingsCursor.getString(trainingsCursor.getColumnIndexOrThrow("TRAINING_BEMERKUNG"))
+
+                val training = Training(trainingId, datum, bemerkung)
+                trainings.add(training)
+            }
+            trainingsCursor.close()
+
+            // Fetch Aufgaben
+            val aufgabenQuery = """
+                SELECT a.* FROM ${DatabaseHelper.TABLE_AUFGABE} a
+                INNER JOIN ${DatabaseHelper.TABLE_LEVEL_AUFGABE} la
+                ON a.AUFGABE_ID = la.LEVEL_AUFGABE_AUFGABE_ID
+                WHERE la.LEVEL_AUFGABE_LEVEL_ID = ?
+            """
+            val aufgabenCursor = db.rawQuery(aufgabenQuery, arrayOf(levelId.toString()))
+
+            val aufgaben = mutableListOf<Aufgabe>()
+            while (aufgabenCursor.moveToNext()) {
+                val aufgabeId = aufgabenCursor.getInt(aufgabenCursor.getColumnIndexOrThrow("AUFGABE_ID"))
+                val erledigt = aufgabenCursor.getInt(aufgabenCursor.getColumnIndexOrThrow("AUFGABE_ERLEDIGT")) > 0
+                val aufgabe = aufgabenCursor.getString(aufgabenCursor.getColumnIndexOrThrow("AUFGABE_TEXT"))
+                val beschreibung = aufgabenCursor.getString(aufgabenCursor.getColumnIndexOrThrow("AUFGABE_BESCHREIBUNG"))
+
+                aufgaben.add(Aufgabe(aufgabeId, erledigt, aufgabe, beschreibung))
+            }
+            aufgabenCursor.close()
+
+            kurse.add(Kurs(kursId, kursName, levelId, levelName, mitglieder, trainings, aufgaben))
+        }
+        kursCursor.close()
+
+        return kurse
+    }
+
+    fun insertKursWithDetails(kurs: Kurs): Long {
+        val db = dbHelper.writableDatabase
+        val kursValues = ContentValues().apply {
+            put("KURS_NAME", kurs.name)
+            put("KURS_LEVEL_ID", kurs.levelId)
+            put("KURS_AKTIV", 1) // Assuming 1 means active
+        }
+        val kursId = db.insert(DatabaseHelper.TABLE_KURS, null, kursValues)
+
+        if (kursId != -1L) {
+            for (mitglied in kurs.mitglieder) {
+                val mitgliedValues = ContentValues().apply {
+                    put("MITGLIED_VORNAME", mitglied.vorname)
+                    put("MITGLIED_NACHNAME", mitglied.nachname)
+                    put("MITGLIED_GEBURTSDATUM", mitglied.geburtsdatum)
+                    put("MITGLIED_TELEFON", mitglied.telefon)
+                    put("MITGLIED_KURS_ID", kursId)
+                }
+                db.insert(DatabaseHelper.TABLE_MITGLIED, null, mitgliedValues)
+            }
+
+            for (training in kurs.trainings) {
+                val trainingValues = ContentValues().apply {
+                    put("TRAINING_DATUM", training.datum)
+                    put("TRAINING_BEMERKUNG", training.bemerkung)
+                }
+                val trainingId = db.insert(DatabaseHelper.TABLE_TRAINING, null, trainingValues)
+
+                if (trainingId != -1L) {
+                    val kursTrainingValues = ContentValues().apply {
+                        put("KURS_TRAINING_KURS_ID", kursId)
+                        put("KURS_TRAINING_TRAINING_ID", trainingId)
+                    }
+                    db.insert(DatabaseHelper.TABLE_KURS_TRAINING, null, kursTrainingValues)
+                }
+            }
+        }
+        return kursId
+    }
+}
