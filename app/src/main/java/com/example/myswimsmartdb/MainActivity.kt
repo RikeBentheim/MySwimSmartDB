@@ -3,29 +3,44 @@ package com.example.myswimsmartdb
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.example.myswimsmartdb.db.KursRepository
-import com.example.myswimsmartdb.db.LevelRepository
-import com.example.myswimsmartdb.db.MitgliedRepository
-import com.example.myswimsmartdb.db.TrainingRepository
-import com.example.myswimsmartdb.ui.Composable.KursScreen
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.navigation.compose.rememberNavController
+import com.example.myswimsmartdb.ui.Composable.DrawerContent
+import com.example.myswimsmartdb.ui.navigation.AppNavigation
+import com.example.myswimsmartdb.ui.theme.AppTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    private lateinit var kursRepository: KursRepository
-    private lateinit var levelRepository: LevelRepository
-    private lateinit var mitgliedRepository: MitgliedRepository
-    private lateinit var trainingRepository: TrainingRepository
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Initialisieren Sie Ihre Repositories hier
-        kursRepository = KursRepository(this)
-        levelRepository = LevelRepository(this)
-        mitgliedRepository = MitgliedRepository(this)
-        trainingRepository = TrainingRepository(this)
-
         setContent {
-            KursScreen(kursRepository, levelRepository, mitgliedRepository, trainingRepository)
+            MyApp()
+        }
+    }
+}
+
+@Composable
+fun MyApp() {
+    AppTheme {
+        val navController = rememberNavController()
+        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+        val scaffoldState = rememberScaffoldState()
+        val scope = rememberCoroutineScope()
+
+        Scaffold(
+            scaffoldState = scaffoldState,
+            drawerContent = {
+                DrawerContent(navController = navController)
+            }
+        ) { paddingValues ->
+            Box(modifier = Modifier.padding(paddingValues)) {
+                AppNavigation(navController = navController)
+            }
         }
     }
 }
