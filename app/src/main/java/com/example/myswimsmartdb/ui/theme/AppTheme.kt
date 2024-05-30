@@ -4,11 +4,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.layout.ui.theme.IndigoDye
-import com.example.layout.ui.theme.Platinum
-import com.example.layout.ui.theme.Cerulean
-import com.example.layout.ui.theme.SkyBlue
-import com.example.layout.ui.theme.LapisLazuli
+import com.example.myswimsmartdb.ui.theme.IndigoDye
+import com.example.myswimsmartdb.ui.theme.Platinum
+import com.example.myswimsmartdb.ui.theme.Cerulean
+import com.example.myswimsmartdb.ui.theme.SkyBlue
+import com.example.myswimsmartdb.ui.theme.LapisLazuli
 
 
 
