@@ -1,6 +1,5 @@
 package com.example.myswimsmartdb.ui.Composable
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,16 +19,13 @@ fun AddKursScreen(
     kursRepository: KursRepository,
     levelRepository: LevelRepository,
     mitgliedRepository: MitgliedRepository,
-    trainingRepository: TrainingRepository,
-    showAddMember: Boolean,
-    setShowAddMember: (Boolean) -> Unit,
-    newKursId: Long,
-    setNewKursId: (Long) -> Unit
+    trainingRepository: TrainingRepository
 ) {
     var kursName by remember { mutableStateOf("") }
     var selectedLevel by remember { mutableStateOf<Level?>(null) }
     var message by remember { mutableStateOf("") }
-    var expanded by remember { mutableStateOf(false) }
+    var showAddMember by remember { mutableStateOf(false) }
+    var newKursId by remember { mutableStateOf(0L) }
 
     val levels = levelRepository.getAllLevels()
     val levelNames = levels.map { it.name }
@@ -40,7 +36,7 @@ fun AddKursScreen(
             selectedLevel = selectedLevel!!,
             mitgliedRepository = mitgliedRepository,
             onFinish = {
-                setShowAddMember(false)
+                showAddMember = false
                 message = "Mitglieder erfolgreich hinzugefügt"
             }
         )
@@ -57,35 +53,23 @@ fun AddKursScreen(
             OutlinedTextField(
                 value = kursName,
                 onValueChange = { kursName = it },
-                label = { Text("Kursname") },
+                label = { Text("Kurs Name") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
             )
 
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = selectedLevel?.name ?: "Level auswählen",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                        .clickable (onClick = { expanded = true })
-                )
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    levelNames.forEach { levelName ->
-                        DropdownMenuItem(
-                            text = { Text(levelName) },
-                            onClick = {
-                                selectedLevel = levels.find { it.name == levelName }
-                                expanded = false
-                            }
-                        )
-                    }
-                }
-            }
+            StringSelectionDropdown(
+                label = "Level",
+                options = levelNames,
+                selectedOption = selectedLevel?.name ?: "Level auswählen",
+                onOptionSelected = { selectedName ->
+                    selectedLevel = levels.find { it.name == selectedName }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
 
             Button(
                 onClick = {
@@ -98,10 +82,9 @@ fun AddKursScreen(
                         trainings = emptyList(),
                         aufgaben = emptyList()
                     )
-                    val id = kursRepository.insertKursWithDetails(kurs)
-                    setNewKursId(id)
-                    message = if (id != -1L) {
-                        setShowAddMember(true)
+                    newKursId = kursRepository.insertKursWithDetails(kurs)
+                    message = if (newKursId != -1L) {
+                        showAddMember = true
                         "Kurs erfolgreich hinzugefügt"
                     } else {
                         "Fehler beim Hinzufügen des Kurses"
