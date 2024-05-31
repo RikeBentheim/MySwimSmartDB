@@ -60,9 +60,8 @@ fun DrawerContent(navController: NavController) {
             "Schwimmkurs",
             modifier = Modifier
                 .padding(16.dp)
-                .clickable { navController.navigate("Schwimmmkurs") },
+                .clickable { navController.navigate("schwimmkurs") },
             color = Platinum
         )
-
     }
 }
