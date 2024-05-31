@@ -6,8 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.rememberNavController
-import com.example.myswimsmartdb.ui.screens.HomeScreen
 import com.example.myswimsmartdb.ui.theme.AppTheme
+import com.example.myswimsmartdb.ui.Composable.AppNavHost
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,6 +22,8 @@ class MainActivity : ComponentActivity() {
 fun MyApp() {
     AppTheme {
         val navController = rememberNavController()
-        HomeScreen(navController = navController)
+        Scaffold {
+            AppNavHost(navController = navController)
+        }
     }
 }
