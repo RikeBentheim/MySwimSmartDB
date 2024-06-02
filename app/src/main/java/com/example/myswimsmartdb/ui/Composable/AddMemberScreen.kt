@@ -31,6 +31,7 @@ fun AddMemberScreen(
 
     val mitglieder = remember { mutableStateOf(mitgliedRepository.getMitgliederByKursId(kursId)) }
     val scrollState = rememberScrollState()
+    var showInputFields by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
@@ -41,87 +42,85 @@ fun AddMemberScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Kurs: ${selectedLevel.name}")
-
-        Text(text = "Teilnehmer")
-
-        mitglieder.value.forEach { mitglied ->
-            Text(text = "${mitglied.vorname} ${mitglied.nachname}")
-        }
-
-        OutlinedTextField(
-            value = vorname,
-            onValueChange = { vorname = it },
-            label = { Text("Vorname") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        )
-
-        OutlinedTextField(
-            value = nachname,
-            onValueChange = { nachname = it },
-            label = { Text("Nachname") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        )
-
-        DatePickerButton(
-            selectedDate = geburtsdatum,
-            onDateSelected = { geburtsdatum = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        )
-
-        OutlinedTextField(
-            value = telefon,
-            onValueChange = { telefon = it },
-            label = { Text("Telefon") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        )
-
-        Button(
-            onClick = {
-                val mitglied = Mitglied(
-                    id = 0,
-                    vorname = vorname,
-                    nachname = nachname,
-                    geburtsdatumString = geburtsdatum,
-                    telefon = telefon,
-                    kursId = kursId
-                )
-                val aufgaben = selectedLevel.aufgaben
-                val mitgliedId = mitgliedRepository.insertMitgliedWithAufgaben(mitglied, aufgaben)
-                if (mitgliedId != -1L) {
-                    message = "Mitglied erfolgreich hinzugefügt"
-                    mitglieder.value = mitgliedRepository.getMitgliederByKursId(kursId)
-                    vorname = ""
-                    nachname = ""
-                    geburtsdatum = ""
-                    telefon = ""
-                } else {
-                    message = "Fehler beim Hinzufügen des Mitglieds"
-                }
-            },
-            modifier = Modifier.padding(vertical = 16.dp)
-        ) {
-            Text(text = "Mitglied hinzufügen")
-        }
-
-        Button(
-            onClick = {
-                onFinish()
-            },
-            modifier = Modifier.padding(vertical = 16.dp)
-        ) {
-            Text(text = "Eingabe beenden")
-        }
-
-        if (message.isNotEmpty()) {
-            Text(text = message, modifier = Modifier.padding(vertical = 8.dp))
+        if (showInputFields) {
+            Text(text = "Teilnehmer")
+            mitglieder.value.forEach { mitglied ->
+                Text(text = "${mitglied.vorname} ${mitglied.nachname}")
+            }
+            OutlinedTextField(
+                value = vorname,
+                onValueChange = { vorname = it },
+                label = { Text("Vorname") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+            OutlinedTextField(
+                value = nachname,
+                onValueChange = { nachname = it },
+                label = { Text("Nachname") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+            DatePickerButton(
+                selectedDate = geburtsdatum,
+                onDateSelected = { geburtsdatum = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+            OutlinedTextField(
+                value = telefon,
+                onValueChange = { telefon = it },
+                label = { Text("Telefon") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+            Button(
+                onClick = {
+                    val mitglied = Mitglied(
+                        id = 0,
+                        vorname = vorname,
+                        nachname = nachname,
+                        geburtsdatumString = geburtsdatum,
+                        telefon = telefon,
+                        kursId = kursId
+                    )
+                    val aufgaben = selectedLevel.aufgaben
+                    val mitgliedId = mitgliedRepository.insertMitgliedWithAufgaben(mitglied, aufgaben)
+                    if (mitgliedId != -1L) {
+                        message = "Mitglied erfolgreich hinzugefügt"
+                        mitglieder.value = mitgliedRepository.getMitgliederByKursId(kursId)
+                        vorname = ""
+                        nachname = ""
+                        geburtsdatum = ""
+                        telefon = ""
+                    } else {
+                        message = "Fehler beim Hinzufügen des Mitglieds"
+                    }
+                },
+                modifier = Modifier.padding(vertical = 16.dp)
+            ) {
+                Text(text = "Mitglied hinzufügen")
+            }
+            Button(
+                onClick = {
+                    showInputFields = false
+                    onFinish()
+                },
+                modifier = Modifier.padding(vertical = 16.dp)
+            ) {
+                Text(text = "Eingabe beenden")
+            }
+            if (message.isNotEmpty()) {
+                Text(text = message, modifier = Modifier.padding(vertical = 8.dp))
+            }
+        } else {
+            mitglieder.value.forEach { mitglied ->
+                Text(text = "${mitglied.vorname} ${mitglied.nachname}")
+            }
         }
     }
 }

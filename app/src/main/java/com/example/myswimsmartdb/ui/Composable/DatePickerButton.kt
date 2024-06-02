@@ -29,7 +29,7 @@ fun DatePickerButton(
         OutlinedTextField(
             value = date,
             onValueChange = { date = it },
-            label = { Text("Geburtsdatum") },
+            label = { Text("Datum") },
             readOnly = true,
             trailingIcon = {
                 IconButton(onClick = {

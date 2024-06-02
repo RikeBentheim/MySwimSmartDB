@@ -13,67 +13,80 @@ import com.example.myswimsmartdb.db.KursRepository
 import com.example.myswimsmartdb.db.LevelRepository
 import com.example.myswimsmartdb.db.entities.Kurs
 import com.example.myswimsmartdb.db.entities.Level
+import com.example.myswimsmartdb.ui.theme.Platinum
+import com.example.myswimsmartdb.R
 
 @Composable
 fun AddKursScreen(
     navController: NavController,
     kursRepository: KursRepository,
-    levelRepository: LevelRepository
+    levelRepository: LevelRepository,
+    onKursSaved: (String, Level, Int) -> Unit
 ) {
     var kursName by remember { mutableStateOf("") }
     val levels = levelRepository.getAllLevels()
     var selectedLevel by remember { mutableStateOf<Level?>(null) }
+    var showInputFields by remember { mutableStateOf(true) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        TextField(
-            value = kursName,
-            onValueChange = { kursName = it },
-            label = { Text("Kurs Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        StringSelectionDropdown(
-            label = "Level",
-            options = levels.map { it.name },
-            selectedOption = selectedLevel?.name ?: "",
-            onOptionSelected = { selectedLevel = levels.find { level -> level.name == it } },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        Button(
-            onClick = {
-                selectedLevel?.let { level ->
-                    val kurs = Kurs(
-                        id = 0,
-                        name = kursName,
-                        levelId = level.id,
-                        levelName = level.name,
-                        mitglieder = emptyList(),
-                        trainings = emptyList(),
-                        aufgaben = emptyList()
-                    )
-                    kursRepository.insertKursWithDetails(kurs)
-                    // Optionale Benachrichtigung über das erfolgreiche Speichern
-                    // oder andere Aktionen, die an dieser Stelle gewünscht sind
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
+    if (showInputFields) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
-            Text("Speichern")
+            TextField(
+                value = kursName,
+                onValueChange = { kursName = it },
+                label = { Text("Kurs Name") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+
+            StringSelectionDropdown(
+                label = "Level",
+                options = levels.map { it.name },
+                selectedOption = selectedLevel?.name ?: "",
+                onOptionSelected = { selectedLevel = levels.find { level -> level.name == it } },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Button(
+                onClick = {
+                    selectedLevel?.let { level ->
+                        val kurs = Kurs(
+                            id = 0,
+                            name = kursName,
+                            levelId = level.id,
+                            levelName = level.name,
+                            mitglieder = emptyList(),
+                            trainings = emptyList(),
+                            aufgaben = emptyList()
+                        )
+                        val newKursId = kursRepository.insertKursWithDetails(kurs).toInt()
+                        onKursSaved(kursName, level, newKursId)
+                        showInputFields = false
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Speichern")
+            }
         }
+    } else {
+        Text("Kurs Name: $kursName\nLevel: ${selectedLevel?.name}")
     }
 }
 
 @Composable
 @Preview(showBackground = true)
 fun AddKursScreenPreview() {
+    val context = LocalContext.current
+    val dummyKursRepository = KursRepository(context)
+    val dummyLevelRepository = LevelRepository(context)
     AddKursScreen(
         navController = rememberNavController(),
-        kursRepository = KursRepository(LocalContext.current),
-        levelRepository = LevelRepository(LocalContext.current)
+        kursRepository = dummyKursRepository,
+        levelRepository = dummyLevelRepository,
+        onKursSaved = { _, _, _ -> }
     )
 }
