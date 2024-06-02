@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Layout</string>
     <string name="schwimmverein_haltern">Schwimmverein Haltern</string>
+    <string name="Kurs_hinzufügen">Kurs hinzufügen</string>
 </resources>

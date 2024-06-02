@@ -31,30 +31,12 @@ class MainActivity : ComponentActivity() {
 fun MyApp() {
     AppTheme {
         val navController = rememberNavController()
-        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-        val scope = rememberCoroutineScope()
 
-        ModalNavigationDrawer(
-            drawerState = drawerState,
-            drawerContent = {
-                DrawerContent(navController = navController)
-            }
-        ) {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = { Text("MySwimSmartDB") },
-                        navigationIcon = {
-                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                Icon(Icons.Filled.Menu, contentDescription = "Menu")
-                            }
-                        }
-                    )
-                }
-            ) { paddingValues ->
-                Box(modifier = Modifier.padding(paddingValues)) {
-                    AppNavigation(navController = navController)
-                }
+        Scaffold(
+
+        ) { paddingValues ->
+            Box(modifier = Modifier.padding(paddingValues)) {
+                AppNavigation(navController = navController)
             }
         }
     }

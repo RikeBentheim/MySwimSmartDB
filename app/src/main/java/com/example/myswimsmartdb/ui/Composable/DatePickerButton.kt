@@ -3,41 +3,33 @@ package com.example.layout.ui.layout.components
 import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import com.example.myswimsmartdb.ui.theme.AppTheme
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun DatePickerButton(
-    labelText: String,
-    modifier: Modifier = Modifier,
-    onDateSelected: (String) -> Unit
+    selectedDate: String,
+    onDateSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var selectedDate by remember { mutableStateOf("") }
+    var date by remember { mutableStateOf(selectedDate) }
     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     val calendar = Calendar.getInstance()
 
-    Column(modifier = modifier.padding(AppTheme.padding)) {
-        Text(
-            text = labelText,
-            modifier = Modifier.padding(horizontal = AppTheme.padding),
-            style = MaterialTheme.typography.bodySmall.copy(color = AppTheme.textColorDunkel)
-        )
-
+    Column(modifier = modifier.padding(8.dp)) {
         OutlinedTextField(
-            value = selectedDate,
-            onValueChange = { selectedDate = it },
-            label = { Text(labelText) },
+            value = date,
+            onValueChange = { date = it },
+            label = { Text("Geburtsdatum") },
             readOnly = true,
             trailingIcon = {
                 IconButton(onClick = {
@@ -45,9 +37,9 @@ fun DatePickerButton(
                         context,
                         { _, year, month, dayOfMonth ->
                             calendar.set(year, month, dayOfMonth)
-                            val date = sdf.format(calendar.time)
-                            selectedDate = date
-                            onDateSelected(date)
+                            val newDate = sdf.format(calendar.time)
+                            date = newDate
+                            onDateSelected(newDate)
                         },
                         calendar.get(Calendar.YEAR),
                         calendar.get(Calendar.MONTH),
@@ -59,7 +51,7 @@ fun DatePickerButton(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = AppTheme.padding)
+                .padding(horizontal = 8.dp)
         )
     }
 }

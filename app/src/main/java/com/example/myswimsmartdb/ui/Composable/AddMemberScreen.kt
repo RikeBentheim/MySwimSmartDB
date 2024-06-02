@@ -1,18 +1,28 @@
 package com.example.myswimsmartdb.ui.Composable
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myswimsmartdb.db.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Level
 import com.example.myswimsmartdb.db.entities.Mitglied
+import com.example.layout.ui.layout.components.DatePickerButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMemberScreen(kursId: Int, selectedLevel: Level, mitgliedRepository: MitgliedRepository, onFinish: () -> Unit) {
+fun AddMemberScreen(
+    kursId: Int,
+    selectedLevel: Level,
+    mitgliedRepository: MitgliedRepository,
+    onFinish: () -> Unit
+) {
     var vorname by remember { mutableStateOf("") }
     var nachname by remember { mutableStateOf("") }
     var geburtsdatum by remember { mutableStateOf("") }
@@ -20,11 +30,13 @@ fun AddMemberScreen(kursId: Int, selectedLevel: Level, mitgliedRepository: Mitgl
     var message by remember { mutableStateOf("") }
 
     val mitglieder = remember { mutableStateOf(mitgliedRepository.getMitgliederByKursId(kursId)) }
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(scrollState),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -54,10 +66,9 @@ fun AddMemberScreen(kursId: Int, selectedLevel: Level, mitgliedRepository: Mitgl
                 .padding(vertical = 8.dp)
         )
 
-        OutlinedTextField(
-            value = geburtsdatum,
-            onValueChange = { geburtsdatum = it },
-            label = { Text("Geburtsdatum") },
+        DatePickerButton(
+            selectedDate = geburtsdatum,
+            onDateSelected = { geburtsdatum = it },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
@@ -113,4 +124,19 @@ fun AddMemberScreen(kursId: Int, selectedLevel: Level, mitgliedRepository: Mitgl
             Text(text = message, modifier = Modifier.padding(vertical = 8.dp))
         }
     }
+}
+
+@Composable
+@Preview(showBackground = true)
+fun AddMemberScreenPreview() {
+    val context = LocalContext.current
+    val dummyLevel = Level(id = 1, name = "Bronze", aufgaben = listOf())
+    val dummyMitgliedRepository = MitgliedRepository(context)
+
+    AddMemberScreen(
+        kursId = 1,
+        selectedLevel = dummyLevel,
+        mitgliedRepository = dummyMitgliedRepository,
+        onFinish = {}
+    )
 }
