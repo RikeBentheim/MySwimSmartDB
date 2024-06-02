@@ -1,5 +1,6 @@
 package com.example.myswimsmartdb.ui.Composable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,54 +27,53 @@ fun AddKursScreen(
     var kursName by remember { mutableStateOf("") }
     val levels = levelRepository.getAllLevels()
     var selectedLevel by remember { mutableStateOf<Level?>(null) }
-    var showInputFields by remember { mutableStateOf(true) }
 
-    if (showInputFields) {
-        Column(
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        TextField(
+            value = kursName,
+            onValueChange = { kursName = it },
+            label = { Text("Kurs Name") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            TextField(
-                value = kursName,
-                onValueChange = { kursName = it },
-                label = { Text("Kurs Name") },
-                modifier = Modifier.fillMaxWidth()
+                .background(Platinum),
+            colors = TextFieldDefaults.colors(
+                Platinum
             )
-            Spacer(modifier = Modifier.height(20.dp))
+        )
+        Spacer(modifier = Modifier.height(20.dp))
 
-            StringSelectionDropdown(
-                label = "Level",
-                options = levels.map { it.name },
-                selectedOption = selectedLevel?.name ?: "",
-                onOptionSelected = { selectedLevel = levels.find { level -> level.name == it } },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            Button(
-                onClick = {
-                    selectedLevel?.let { level ->
-                        val kurs = Kurs(
-                            id = 0,
-                            name = kursName,
-                            levelId = level.id,
-                            levelName = level.name,
-                            mitglieder = emptyList(),
-                            trainings = emptyList(),
-                            aufgaben = emptyList()
-                        )
-                        val newKursId = kursRepository.insertKursWithDetails(kurs).toInt()
-                        onKursSaved(kursName, level, newKursId)
-                        showInputFields = false
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Speichern")
-            }
+        StringSelectionDropdown(
+            label = "Level",
+            options = levels.map { it.name },
+            selectedOption = selectedLevel?.name ?: "",
+            onOptionSelected = { selectedLevel = levels.find { level -> level.name == it } },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(
+            onClick = {
+                selectedLevel?.let { level ->
+                    val kurs = Kurs(
+                        id = 0,
+                        name = kursName,
+                        levelId = level.id,
+                        levelName = level.name,
+                        mitglieder = emptyList(),
+                        trainings = emptyList(),
+                        aufgaben = emptyList()
+                    )
+                    val newKursId = kursRepository.insertKursWithDetails(kurs).toInt()
+                    onKursSaved(kursName, level, newKursId)
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Speichern")
         }
-    } else {
-        Text("Kurs Name: $kursName\nLevel: ${selectedLevel?.name}")
     }
 }
 
