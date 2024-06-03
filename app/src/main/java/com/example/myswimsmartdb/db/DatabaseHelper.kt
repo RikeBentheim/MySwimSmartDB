@@ -8,9 +8,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         private const val DATABASE_NAME = "deine_datenbank_name.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2 // Increment the version
 
-        // Tabellennamen
         public const val TABLE_LEVEL = "TABLE_LEVEL"
         public const val TABLE_KURS = "TABLE_KURS"
         public const val TABLE_MITGLIED = "TABLE_MITGLIED"
@@ -21,7 +20,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         public const val TABLE_MITGLIED_AUFGABE = "TABLE_MITGLIED_AUFGABE"
         public const val TABLE_LEVEL_AUFGABE = "TABLE_LEVEL_AUFGABE"
 
-        // SQL-Anweisungen zum Erstellen der Tabellen
+        // SQL statements to create tables
         public const val CREATE_TABLE_LEVEL = """
             CREATE TABLE $TABLE_LEVEL (
                 LEVEL_ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,13 +82,16 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
         """
 
+        // Updated create table statement for TABLE_MITGLIED_AUFGABE
         public const val CREATE_TABLE_MITGLIED_AUFGABE = """
             CREATE TABLE $TABLE_MITGLIED_AUFGABE (
                 MITGLIED_AUFGABE_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 MITGLIED_AUFGABE_MITGLIED_ID INTEGER,
-                MITGLIED_AUFGABE_AUFGABE_ID INTEGER
+                MITGLIED_AUFGABE_AUFGABE_ID INTEGER,
+                ERREICHT INTEGER DEFAULT 0  -- Add the new column
             )
         """
+
         public const val CREATE_TABLE_LEVEL_AUFGABE = """
             CREATE TABLE $TABLE_LEVEL_AUFGABE (
                 LEVEL_AUFGABE_ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -114,15 +116,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_LEVEL")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_KURS")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_MITGLIED")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_AUFGABE")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_ANWESENHEIT")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_TRAINING")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_KURS_TRAINING")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_MITGLIED_AUFGABE")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_LEVEL_AUFGABE")
-        onCreate(db)
+        if (oldVersion < 2) {
+            db?.execSQL("ALTER TABLE $TABLE_MITGLIED_AUFGABE ADD COLUMN ERREICHT INTEGER DEFAULT 0")
+        }
+        // Handle other upgrades if needed
     }
 }

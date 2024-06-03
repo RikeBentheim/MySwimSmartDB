@@ -2,7 +2,8 @@ package com.example.myswimsmartdb.db
 
 import android.content.ContentValues
 import android.content.Context
-import com.example.myswimsmartdb.db.entities.*
+import com.example.myswimsmartdb.db.entities.Aufgabe
+import com.example.myswimsmartdb.db.entities.Mitglied
 
 class MitgliedRepository(context: Context) {
 
@@ -44,6 +45,7 @@ class MitgliedRepository(context: Context) {
                 val mitgliedAufgabeValues = ContentValues().apply {
                     put("MITGLIED_AUFGABE_MITGLIED_ID", mitgliedId)
                     put("MITGLIED_AUFGABE_AUFGABE_ID", aufgabe.id)
+                    put("ERREICHT", 0) // Default value for the new column
                 }
                 db.insert(DatabaseHelper.TABLE_MITGLIED_AUFGABE, null, mitgliedAufgabeValues)
             }
