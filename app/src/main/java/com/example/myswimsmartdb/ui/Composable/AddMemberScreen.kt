@@ -21,12 +21,13 @@ fun AddMemberScreen(
     kursId: Int,
     selectedLevel: Level,
     mitgliedRepository: MitgliedRepository,
-    onFinish: () -> Unit
+    onFinish: () -> Unit,
+    existingMitglied: Mitglied? = null
 ) {
-    var vorname by remember { mutableStateOf("") }
-    var nachname by remember { mutableStateOf("") }
-    var geburtsdatum by remember { mutableStateOf("") }
-    var telefon by remember { mutableStateOf("") }
+    var vorname by remember { mutableStateOf(existingMitglied?.vorname ?: "") }
+    var nachname by remember { mutableStateOf(existingMitglied?.nachname ?: "") }
+    var geburtsdatum by remember { mutableStateOf(existingMitglied?.geburtsdatumString ?: "") }
+    var telefon by remember { mutableStateOf(existingMitglied?.telefon ?: "") }
     var message by remember { mutableStateOf("") }
 
     val mitglieder = remember { mutableStateOf(mitgliedRepository.getMitgliederByKursId(kursId)) }
@@ -80,30 +81,43 @@ fun AddMemberScreen(
             )
             Button(
                 onClick = {
-                    val mitglied = Mitglied(
-                        id = 0,
-                        vorname = vorname,
-                        nachname = nachname,
-                        geburtsdatumString = geburtsdatum,
-                        telefon = telefon,
-                        kursId = kursId
-                    )
-                    val aufgaben = selectedLevel.aufgaben
-                    val mitgliedId = mitgliedRepository.insertMitgliedWithAufgaben(mitglied, aufgaben)
-                    if (mitgliedId != -1L) {
-                        message = "Mitglied erfolgreich hinzugefügt"
-                        mitglieder.value = mitgliedRepository.getMitgliederByKursId(kursId)
-                        vorname = ""
-                        nachname = ""
-                        geburtsdatum = ""
-                        telefon = ""
+                    if (existingMitglied == null) {
+                        // Neues Mitglied erstellen
+                        val mitglied = Mitglied(
+                            id = 0,
+                            vorname = vorname,
+                            nachname = nachname,
+                            geburtsdatumString = geburtsdatum,
+                            telefon = telefon,
+                            kursId = kursId
+                        )
+                        val aufgaben = selectedLevel.aufgaben
+                        val mitgliedId = mitgliedRepository.insertMitgliedWithAufgaben(mitglied, aufgaben)
+                        if (mitgliedId != -1L) {
+                            message = "Mitglied erfolgreich hinzugefügt"
+                            mitglieder.value = mitgliedRepository.getMitgliederByKursId(kursId)
+                            vorname = ""
+                            nachname = ""
+                            geburtsdatum = ""
+                            telefon = ""
+                        } else {
+                            message = "Fehler beim Hinzufügen des Mitglieds"
+                        }
                     } else {
-                        message = "Fehler beim Hinzufügen des Mitglieds"
+                        // Bestehendes Mitglied aktualisieren
+                        val updatedMitglied = existingMitglied.copy(
+                            vorname = vorname,
+                            nachname = nachname,
+                            geburtsdatumString = geburtsdatum,
+                            telefon = telefon
+                        )
+                        mitgliedRepository.updateMitglied(updatedMitglied)
+                        message = "Mitglied erfolgreich aktualisiert"
                     }
                 },
                 modifier = Modifier.padding(vertical = 16.dp)
             ) {
-                Text(text = "Mitglied hinzufügen")
+                Text(text = if (existingMitglied == null) "Mitglied hinzufügen" else "Mitglied aktualisieren")
             }
             Button(
                 onClick = {

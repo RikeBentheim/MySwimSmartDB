@@ -53,6 +53,18 @@ class MitgliedRepository(context: Context) {
         return mitgliedId
     }
 
+    fun updateMitglied(mitglied: Mitglied): Int {
+        val db = dbHelper.writableDatabase
+        val mitgliedValues = ContentValues().apply {
+            put("MITGLIED_VORNAME", mitglied.vorname)
+            put("MITGLIED_NACHNAME", mitglied.nachname)
+            put("MITGLIED_GEBURTSDATUM", mitglied.geburtsdatum)
+            put("MITGLIED_TELEFON", mitglied.telefon)
+            put("MITGLIED_KURS_ID", mitglied.kursId)
+        }
+        return db.update(DatabaseHelper.TABLE_MITGLIED, mitgliedValues, "MITGLIED_ID = ?", arrayOf(mitglied.id.toString()))
+    }
+
     fun deleteMitglied(mitgliedId: Int) {
         val db = dbHelper.writableDatabase
 
