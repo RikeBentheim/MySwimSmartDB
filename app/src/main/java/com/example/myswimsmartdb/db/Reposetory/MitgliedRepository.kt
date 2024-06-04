@@ -52,4 +52,17 @@ class MitgliedRepository(context: Context) {
         }
         return mitgliedId
     }
+
+    fun deleteMitglied(mitgliedId: Int) {
+        val db = dbHelper.writableDatabase
+
+        // Delete from TABLE_ANWESENHEIT
+        db.delete(DatabaseHelper.TABLE_ANWESENHEIT, "ANWESENHEIT_MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
+
+        // Delete from TABLE_MITGLIED_AUFGABE
+        db.delete(DatabaseHelper.TABLE_MITGLIED_AUFGABE, "MITGLIED_AUFGABE_MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
+
+        // Delete from TABLE_MITGLIED
+        db.delete(DatabaseHelper.TABLE_MITGLIED, "MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
+    }
 }
