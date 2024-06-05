@@ -135,4 +135,59 @@ class KursRepository(context: Context) {
         }
         return kursId
     }
+    fun deleteKursWithDetails(kursId: Int) {
+        val db = dbHelper.writableDatabase
+
+        db.beginTransaction()
+        try {
+            // Delete attendance records for each training of the course
+            val trainingIdsCursor = db.rawQuery(
+                "SELECT TRAINING_ID FROM ${DatabaseHelper.TABLE_TRAINING} t " +
+                        "INNER JOIN ${DatabaseHelper.TABLE_KURS_TRAINING} kt " +
+                        "ON t.TRAINING_ID = kt.KURS_TRAINING_TRAINING_ID " +
+                        "WHERE kt.KURS_TRAINING_KURS_ID = ?", arrayOf(kursId.toString())
+            )
+
+            while (trainingIdsCursor.moveToNext()) {
+                val trainingId = trainingIdsCursor.getInt(trainingIdsCursor.getColumnIndexOrThrow("TRAINING_ID"))
+                db.delete(DatabaseHelper.TABLE_ANWESENHEIT, "ANWESENHEIT_TRAINING_ID = ?", arrayOf(trainingId.toString()))
+            }
+            trainingIdsCursor.close()
+
+            // Delete trainings for the course
+            db.delete(
+                DatabaseHelper.TABLE_TRAINING,
+                "TRAINING_ID IN (SELECT TRAINING_ID FROM ${DatabaseHelper.TABLE_TRAINING} t " +
+                        "INNER JOIN ${DatabaseHelper.TABLE_KURS_TRAINING} kt " +
+                        "ON t.TRAINING_ID = kt.KURS_TRAINING_TRAINING_ID " +
+                        "WHERE kt.KURS_TRAINING_KURS_ID = ?)",
+                arrayOf(kursId.toString())
+            )
+
+            // Delete course-training associations
+            db.delete(DatabaseHelper.TABLE_KURS_TRAINING, "KURS_TRAINING_KURS_ID = ?", arrayOf(kursId.toString()))
+
+            // Delete member-task associations for each member of the course
+            val mitgliedIdsCursor = db.rawQuery(
+                "SELECT MITGLIED_ID FROM ${DatabaseHelper.TABLE_MITGLIED} WHERE MITGLIED_KURS_ID = ?",
+                arrayOf(kursId.toString())
+            )
+
+            while (mitgliedIdsCursor.moveToNext()) {
+                val mitgliedId = mitgliedIdsCursor.getInt(mitgliedIdsCursor.getColumnIndexOrThrow("MITGLIED_ID"))
+                db.delete(DatabaseHelper.TABLE_MITGLIED_AUFGABE, "MITGLIED_AUFGABE_MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
+            }
+            mitgliedIdsCursor.close()
+
+            // Delete members of the course
+            db.delete(DatabaseHelper.TABLE_MITGLIED, "MITGLIED_KURS_ID = ?", arrayOf(kursId.toString()))
+
+            // Finally, delete the course itself
+            db.delete(DatabaseHelper.TABLE_KURS, "KURS_ID = ?", arrayOf(kursId.toString()))
+
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+    }
 }
