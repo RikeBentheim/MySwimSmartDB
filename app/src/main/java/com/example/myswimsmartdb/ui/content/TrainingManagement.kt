@@ -146,6 +146,7 @@ fun TrainingManagement(
             Button(
                 onClick = {
                     // Bearbeitungslogik für Mitglieder
+                    showAddMemberScreen = true
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -181,7 +182,8 @@ fun TrainingManagement(
                 onFinish = {
                     showAddMemberScreen = false
                     mitglieder = mitgliedRepository.getMitgliederByKursId(course.id) // Mitglieder aktualisieren
-                }
+                },
+                existingMitglied = selectedMember // Wenn ein Mitglied bearbeitet wird, wird es an das AddMemberScreen übergeben
             )
         }
     }
