@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -23,7 +24,11 @@ import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
 import com.example.myswimsmartdb.ui.content.CourseDetails
 import com.example.myswimsmartdb.ui.content.MitgliederManagement
 import com.example.myswimsmartdb.ui.content.TrainingManagement
-import com.example.myswimsmartdb.ui.theme.Platinum
+
+// Farben definieren
+val Cerulean = Color(0xFF3a7ca5)
+val Platinum = Color(0xFFe6e6e6)
+val IndigoDye = Color(0xFF16425b)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,9 +91,12 @@ fun KursScreen(navController: NavHostController) {
                         onClick = {
                             editMode = true
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        colors = ButtonDefaults.buttonColors(containerColor = Cerulean),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
                     ) {
-                        Text("Kurs Bearbeiten")
+                        Text("Kurs Bearbeiten", color = Platinum)
                     }
 
                     Spacer(modifier = Modifier.height(20.dp))

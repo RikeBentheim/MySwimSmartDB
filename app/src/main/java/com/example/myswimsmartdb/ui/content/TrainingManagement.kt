@@ -2,6 +2,7 @@ package com.example.myswimsmartdb.ui.content
 
 import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -16,6 +17,9 @@ import com.example.myswimsmartdb.db.entities.Mitglied
 import com.example.myswimsmartdb.db.entities.Training
 import com.example.myswimsmartdb.ui.Composable.AddMemberScreen
 import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
+import com.example.myswimsmartdb.ui.screens.Cerulean
+import com.example.myswimsmartdb.ui.screens.IndigoDye
+import com.example.myswimsmartdb.ui.screens.Platinum
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -41,150 +45,169 @@ fun TrainingManagement(
     var selectedDate by remember { mutableStateOf("") }
     var showAddMemberScreen by remember { mutableStateOf(false) } // Zustandsvariable für das Hinzufügen eines neuen Mitglieds
 
-    // Hauptspaltenlayout
-    Column {
-        // Dropdown zur Auswahl eines Trainingstermins
-        StringSelectionDropdown(
-            label = "Bitte einen Termin auswählen:",
-            options = trainings.map { it.datumString },
-            selectedOption = selectedTraining?.datumString ?: "",
-            onOptionSelected = { trainingDatum ->
-                selectedTraining = trainings.find { it.datumString == trainingDatum }
-                message = ""
+    if (showAddMemberScreen) {
+        AddMemberScreen(
+            kursId = course.id,
+            selectedLevel = Level(course.levelId, course.levelName, listOf()),
+            mitgliedRepository = mitgliedRepository,
+            onFinish = {
+                showAddMemberScreen = false
+                mitglieder = mitgliedRepository.getMitgliederByKursId(course.id) // Mitglieder aktualisieren
             },
-            modifier = Modifier.fillMaxWidth()
+            existingMitglied = selectedMember // Wenn ein Mitglied bearbeitet wird, wird es an das AddMemberScreen übergeben
         )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Wenn ein Training ausgewählt ist, wird eine Schaltfläche zum Löschen angezeigt
-        selectedTraining?.let {
-            Button(
-                onClick = {
-                    selectedTraining?.let { training ->
-                        trainingRepository.deleteTraining(training.id)
-                        trainingRepository.deleteAnwesenheitByTrainingId(training.id)
-                        selectedTraining = null
-                        message = "Der Termin wurde gelöscht."
-                        trainings = trainingRepository.getTrainingsByKursId(course.id) // Trainings aktualisieren
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Termin Löschen")
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-        }
-
-        // Nachricht anzeigen, falls vorhanden
-        if (message.isNotEmpty()) {
-            Text(text = message, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
-        }
-
-        // Schaltfläche zum Hinzufügen eines neuen Trainingstermins
-        Button(
-            onClick = {
-                val datePickerDialog = DatePickerDialog(
-                    context,
-                    { _, year: Int, month: Int, dayOfMonth: Int ->
-                        calendar.set(year, month, dayOfMonth)
-                        selectedDate = dateFormat.format(calendar.time)
-                        val newTraining = Training(0, selectedDate, "")
-                        val newTrainingId = trainingRepository.insertTraining(newTraining, course.id)
-                        mitglieder.forEach { mitglied ->
-                            trainingRepository.insertAnwesenheit(mitglied.id, newTrainingId)
-                        }
-                        message = "Neuer Termin wurde hinzugefügt."
-                        trainings = trainingRepository.getTrainingsByKursId(course.id) // Trainings aktualisieren
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            item {
+                // Dropdown zur Auswahl eines Trainingstermins
+                StringSelectionDropdown(
+                    label = "Bitte einen Termin auswählen:",
+                    options = trainings.map { it.datumString },
+                    selectedOption = selectedTraining?.datumString ?: "",
+                    onOptionSelected = { trainingDatum ->
+                        selectedTraining = trainings.find { it.datumString == trainingDatum }
+                        message = ""
                     },
-                    calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH)
+                    modifier = Modifier.fillMaxWidth()
                 )
-                datePickerDialog.show()
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Neuen Termin hinzufügen")
-        }
 
-        Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-        // Dropdown zur Auswahl eines Mitglieds
-        StringSelectionDropdown(
-            label = "Bitte ein Mitglied auswählen:",
-            options = mitglieder.map { "${it.vorname} ${it.nachname}" },
-            selectedOption = selectedMember?.let { "${it.vorname} ${it.nachname}" } ?: "",
-            onOptionSelected = { memberName ->
-                selectedMember = mitglieder.find { "${it.vorname} ${it.nachname}" == memberName }
-                message = ""
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Wenn ein Mitglied ausgewählt ist, werden Schaltflächen zum Löschen oder Bearbeiten angezeigt
-        selectedMember?.let {
-            Button(
-                onClick = {
-                    selectedMember?.let { member ->
-                        mitgliedRepository.deleteMitglied(member.id)
-                        selectedMember = null
-                        message = "Das Mitglied wurde gelöscht."
-                        mitglieder = mitgliedRepository.getMitgliederByKursId(course.id) // Mitglieder aktualisieren
+                // Wenn ein Training ausgewählt ist, wird eine Schaltfläche zum Löschen angezeigt
+                selectedTraining?.let {
+                    Button(
+                        onClick = {
+                            selectedTraining?.let { training ->
+                                trainingRepository.deleteTraining(training.id)
+                                trainingRepository.deleteAnwesenheitByTrainingId(training.id)
+                                selectedTraining = null
+                                message = "Der Termin wurde gelöscht."
+                                trainings = trainingRepository.getTrainingsByKursId(course.id) // Trainings aktualisieren
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Cerulean),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        Text("Termin Löschen", color = Platinum)
                     }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Mitglied Löschen")
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+
+                // Nachricht anzeigen, falls vorhanden
+                if (message.isNotEmpty()) {
+                    Text(text = message, style = MaterialTheme.typography.bodyLarge, color = IndigoDye)
+                }
+
+                // Schaltfläche zum Hinzufügen eines neuen Trainingstermins
+                Button(
+                    onClick = {
+                        val datePickerDialog = DatePickerDialog(
+                            context,
+                            { _, year: Int, month: Int, dayOfMonth: Int ->
+                                calendar.set(year, month, dayOfMonth)
+                                selectedDate = dateFormat.format(calendar.time)
+                                val newTraining = Training(0, selectedDate, "")
+                                val newTrainingId = trainingRepository.insertTraining(newTraining, course.id)
+                                mitglieder.forEach { mitglied ->
+                                    trainingRepository.insertAnwesenheit(mitglied.id, newTrainingId)
+                                }
+                                message = "Neuer Termin wurde hinzugefügt."
+                                trainings = trainingRepository.getTrainingsByKursId(course.id) // Trainings aktualisieren
+                            },
+                            calendar.get(Calendar.YEAR),
+                            calendar.get(Calendar.MONTH),
+                            calendar.get(Calendar.DAY_OF_MONTH)
+                        )
+                        datePickerDialog.show()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Cerulean),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    Text("Neuen Termin hinzufügen", color = Platinum)
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Dropdown zur Auswahl eines Mitglieds
+                StringSelectionDropdown(
+                    label = "Bitte ein Mitglied auswählen:",
+                    options = mitglieder.map { "${it.vorname} ${it.nachname}" },
+                    selectedOption = selectedMember?.let { "${it.vorname} ${it.nachname}" } ?: "",
+                    onOptionSelected = { memberName ->
+                        selectedMember = mitglieder.find { "${it.vorname} ${it.nachname}" == memberName }
+                        message = ""
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Wenn ein Mitglied ausgewählt ist, werden Schaltflächen zum Löschen oder Bearbeiten angezeigt
+                selectedMember?.let {
+                    Button(
+                        onClick = {
+                            selectedMember?.let { member ->
+                                mitgliedRepository.deleteMitglied(member.id)
+                                selectedMember = null
+                                message = "Das Mitglied wurde gelöscht."
+                                mitglieder = mitgliedRepository.getMitgliederByKursId(course.id) // Mitglieder aktualisieren
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Cerulean),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        Text("Mitglied Löschen", color = Platinum)
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Button(
+                        onClick = {
+                            // Bearbeitungslogik für Mitglieder
+                            showAddMemberScreen = true
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Cerulean),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        Text("Mitglied Bearbeiten", color = Platinum)
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+
+                // Nachricht anzeigen, falls vorhanden
+                if (message.isNotEmpty()) {
+                    Text(text = message, style = MaterialTheme.typography.bodyLarge, color = IndigoDye)
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Schaltfläche zum Hinzufügen eines neuen Mitglieds
+                Button(
+                    onClick = {
+                        showAddMemberScreen = true
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Cerulean),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    Text("Neues Mitglied hinzufügen", color = Platinum)
+                }
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Button(
-                onClick = {
-                    // Bearbeitungslogik für Mitglieder
-                    showAddMemberScreen = true
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Mitglied Bearbeiten")
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-        }
-
-        // Nachricht anzeigen, falls vorhanden
-        if (message.isNotEmpty()) {
-            Text(text = message, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Schaltfläche zum Hinzufügen eines neuen Mitglieds
-        Button(
-            onClick = {
-                showAddMemberScreen = true
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Neues Mitglied hinzufügen")
-        }
-
-        // Wenn die Zustandsvariable true ist, zeige das AddMemberScreen Composable
-        if (showAddMemberScreen) {
-            AddMemberScreen(
-                kursId = course.id,
-                selectedLevel = Level(course.levelId, course.levelName, listOf()),
-                mitgliedRepository = mitgliedRepository,
-                onFinish = {
-                    showAddMemberScreen = false
-                    mitglieder = mitgliedRepository.getMitgliederByKursId(course.id) // Mitglieder aktualisieren
-                },
-                existingMitglied = selectedMember // Wenn ein Mitglied bearbeitet wird, wird es an das AddMemberScreen übergeben
-            )
         }
     }
 }
