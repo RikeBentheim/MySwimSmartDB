@@ -24,11 +24,14 @@ import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
 import com.example.myswimsmartdb.ui.content.CourseDetails
 import com.example.myswimsmartdb.ui.content.MitgliederManagement
 import com.example.myswimsmartdb.ui.content.TrainingManagement
+import com.example.myswimsmartdb.ui.theme.IndigoDye
+import com.example.myswimsmartdb.ui.theme.Platinum
+import com.example.myswimsmartdb.ui.theme.Cerulean
+import com.example.myswimsmartdb.ui.theme.SkyBlue
+import com.example.myswimsmartdb.ui.theme.LapisLazuli
 
 // Farben definieren
-val Cerulean = Color(0xFF3a7ca5)
-val Platinum = Color(0xFFe6e6e6)
-val IndigoDye = Color(0xFF16425b)
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

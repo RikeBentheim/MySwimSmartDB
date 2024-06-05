@@ -14,6 +14,6 @@ fun AppNavigation(navController: NavHostController) {
         composable("neuerKurs") { NeuerKursScreen(navController) }
         composable("stoppuhr") { StoppuhrScreen(navController) }
         composable("bahnenschwimmen") { BahnenschwimmenScreen(navController) }
-        composable("Schwimmkurs") { KursScreen(navController) }
+        composable("kursBearbeiten") { KursScreen(navController) } // Updated route name
     }
 }

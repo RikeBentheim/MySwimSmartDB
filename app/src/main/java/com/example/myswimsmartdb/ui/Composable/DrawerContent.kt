@@ -57,12 +57,11 @@ fun DrawerContent(navController: NavController) {
             color = Platinum
         )
         Text(
-            "Schwimmkurs",
+            "Kurs bearbeiten", // Updated text
             modifier = Modifier
                 .padding(16.dp)
-                .clickable { navController.navigate("Schwimmmkurs") },
+                .clickable { navController.navigate("kursBearbeiten") }, // Updated route
             color = Platinum
         )
-
     }
 }

@@ -17,9 +17,10 @@ import com.example.myswimsmartdb.db.entities.Mitglied
 import com.example.myswimsmartdb.db.entities.Training
 import com.example.myswimsmartdb.ui.Composable.AddMemberScreen
 import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
-import com.example.myswimsmartdb.ui.screens.Cerulean
-import com.example.myswimsmartdb.ui.screens.IndigoDye
-import com.example.myswimsmartdb.ui.screens.Platinum
+import com.example.myswimsmartdb.ui.theme.Cerulean
+import com.example.myswimsmartdb.ui.theme.IndigoDye
+import com.example.myswimsmartdb.ui.theme.Platinum
+
 import java.text.SimpleDateFormat
 import java.util.*
 
