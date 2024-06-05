@@ -24,9 +24,11 @@ import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
 import com.example.myswimsmartdb.ui.content.CourseDetails
 import com.example.myswimsmartdb.ui.content.MitgliederManagement
 import com.example.myswimsmartdb.ui.content.TrainingManagement
-import com.example.myswimsmartdb.ui.theme.Cerulean
 import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.ui.theme.Platinum
+import com.example.myswimsmartdb.ui.theme.Cerulean
+import com.example.myswimsmartdb.ui.theme.SkyBlue
+import com.example.myswimsmartdb.ui.theme.LapisLazuli
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,10 +39,9 @@ fun KursScreen(navController: NavHostController) {
     val mitgliedRepository = MitgliedRepository(context)
 
     // Liste der verfügbaren Kurse laden
-    var courses by remember { mutableStateOf(kursRepository.getAllKurseWithDetails()) }
+    val courses = kursRepository.getAllKurseWithDetails()
     var selectedCourse by remember { mutableStateOf<Kurs?>(null) }
     var editMode by remember { mutableStateOf(false) }
-    var message by remember { mutableStateOf("") } // Zustandsvariable für Nachrichten
 
     BasisScreen(navController = navController) { innerPadding ->
         Column(
@@ -100,25 +101,6 @@ fun KursScreen(navController: NavHostController) {
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Button zum Löschen des ausgewählten Kurses
-                    Button(
-                        onClick = {
-                            kursRepository.deleteKursWithDetails(course.id)
-                            selectedCourse = null
-                            editMode = false
-                            message = "Kurs wurde gelöscht." // Nachricht setzen
-                            courses = kursRepository.getAllKurseWithDetails() // Liste der Kurse aktualisieren
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Cerulean),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                    ) {
-                        Text("Kurs Löschen", color = Platinum)
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
                     // Details des ausgewählten Kurses anzeigen
                     CourseDetails(
                         course = course,
@@ -133,7 +115,10 @@ fun KursScreen(navController: NavHostController) {
                         TrainingManagement(
                             course = course,
                             trainingRepository = trainingRepository,
-                            mitgliedRepository = mitgliedRepository
+                            mitgliedRepository = mitgliedRepository,
+                            onEndEditing = {
+                                editMode = false
+                            }
                         )
                         Spacer(modifier = Modifier.height(20.dp))
                         MitgliederManagement(
@@ -143,16 +128,6 @@ fun KursScreen(navController: NavHostController) {
                         )
                     }
                 }
-            }
-
-            // Nachricht anzeigen, falls vorhanden
-            if (message.isNotEmpty()) {
-                Text(
-                    text = message,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = IndigoDye,
-                    modifier = Modifier.padding(8.dp)
-                )
             }
         }
     }

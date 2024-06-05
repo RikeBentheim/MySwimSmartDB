@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.myswimsmartdb.db.MitgliedRepository
 import com.example.myswimsmartdb.db.TrainingRepository
 import com.example.myswimsmartdb.db.entities.Kurs
@@ -28,7 +29,8 @@ import java.util.*
 fun TrainingManagement(
     course: Kurs,
     trainingRepository: TrainingRepository,
-    mitgliedRepository: MitgliedRepository
+    mitgliedRepository: MitgliedRepository,
+    onEndEditing: () -> Unit
 ) {
     // Kontext für den Zugriff auf Ressourcen
     val context = LocalContext.current
@@ -208,6 +210,21 @@ fun TrainingManagement(
                 ) {
                     Text("Neues Mitglied hinzufügen", color = Platinum)
                 }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Schaltfläche zum Beenden der Kursbearbeitung
+                Button(
+                    onClick = {
+                        onEndEditing()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Cerulean),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    Text("Kurs Bearbeiten Beenden", color = Platinum)
+                }
             }
         }
     }
@@ -225,6 +242,8 @@ fun TrainingManagementPreview() {
     TrainingManagement(
         course = dummyCourse,
         trainingRepository = dummyTrainingRepository,
-        mitgliedRepository = dummyMitgliedRepository
+        mitgliedRepository = dummyMitgliedRepository,
+        onEndEditing = {}
     )
+
 }
