@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import com.example.myswimsmartdb.db.entities.Aufgabe
 import com.example.myswimsmartdb.db.entities.Mitglied
+import com.example.myswimsmartdb.db.entities.MitgliedAufgabe
 
 class MitgliedRepository(context: Context) {
 
@@ -89,5 +90,25 @@ class MitgliedRepository(context: Context) {
             "MITGLIED_AUFGABE_MITGLIED_ID = ? AND MITGLIED_AUFGABE_AUFGABE_ID = ?",
             arrayOf(mitgliedId.toString(), aufgabeId.toString())
         )
+    }    fun getMitgliedAufgabenByAufgabeId(aufgabeId: Int): List<MitgliedAufgabe> {
+        val db = dbHelper.readableDatabase
+        val query = """
+            SELECT * FROM ${DatabaseHelper.TABLE_MITGLIED_AUFGABE}
+            WHERE MITGLIED_AUFGABE_AUFGABE_ID = ?
+        """
+        val cursor = db.rawQuery(query, arrayOf(aufgabeId.toString()))
+
+        val mitgliedAufgaben = mutableListOf<MitgliedAufgabe>()
+        while (cursor.moveToNext()) {
+            val mitgliedAufgabeId = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_AUFGABE_ID"))
+            val mitgliedId = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_AUFGABE_MITGLIED_ID"))
+            val erreicht = cursor.getInt(cursor.getColumnIndexOrThrow("ERREICHT")) > 0
+            mitgliedAufgaben.add(MitgliedAufgabe(mitgliedAufgabeId, mitgliedId, aufgabeId, erreicht))
+        }
+        cursor.close()
+
+        return mitgliedAufgaben
     }
 }
+
+

@@ -25,7 +25,6 @@ import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
 import com.example.myswimsmartdb.ui.Composable.BasisScreen
 import com.example.myswimsmartdb.ui.Composable.components.AttendanceTab
 import com.example.myswimsmartdb.ui.Composable.components.MembersTab
-import com.example.myswimsmartdb.ui.Composable.components.TasksTab
 import com.example.myswimsmartdb.ui.theme.Platinum
 import com.example.myswimsmartdb.ui.theme.SkyBlue
 import com.example.myswimsmartdb.ui.theme.LapisLazuli
@@ -181,7 +180,7 @@ fun KursDetails(
         // Inhalt basierend auf dem ausgewählten Tab anzeigen
         when (selectedTab) {
             0 -> AttendanceTab(course.id, trainingId)
-            1 -> TasksTab()
+            1 -> TasksTab(course.levelId)
             2 -> MembersTab()
         }
     }
