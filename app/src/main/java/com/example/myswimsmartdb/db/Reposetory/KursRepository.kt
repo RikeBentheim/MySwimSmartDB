@@ -2,6 +2,7 @@ package com.example.myswimsmartdb.db
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import com.example.myswimsmartdb.db.entities.*
 
 class KursRepository(context: Context) {
@@ -135,6 +136,7 @@ class KursRepository(context: Context) {
         }
         return kursId
     }
+
     fun deleteKursWithDetails(kursId: Int) {
         val db = dbHelper.writableDatabase
 
@@ -189,5 +191,51 @@ class KursRepository(context: Context) {
         } finally {
             db.endTransaction()
         }
+    }
+
+    fun getMitgliederForKurs(kursId: Int): List<Mitglied> {
+        val db = dbHelper.readableDatabase
+        val mitglieder = mutableListOf<Mitglied>()
+        val cursor = db.rawQuery("SELECT * FROM ${DatabaseHelper.TABLE_MITGLIED} WHERE MITGLIED_KURS_ID = ?", arrayOf(kursId.toString()))
+
+        while (cursor.moveToNext()) {
+            val mitglied = Mitglied(
+                cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_ID")),
+                cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_VORNAME")),
+                cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_NACHNAME")),
+                cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_GEBURTSDATUM")),
+                cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_TELEFON")),
+                cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_KURS_ID"))
+            )
+            mitglieder.add(mitglied)
+        }
+
+        cursor.close()
+        return mitglieder
+    }
+
+    fun getAnwesenheitForTraining(trainingId: Int): Map<Int, Boolean> {
+        val db = dbHelper.readableDatabase
+        val anwesenheiten = mutableMapOf<Int, Boolean>()
+        val cursor = db.rawQuery("SELECT * FROM ${DatabaseHelper.TABLE_ANWESENHEIT} WHERE ANWESENHEIT_TRAINING_ID = ?", arrayOf(trainingId.toString()))
+
+        while (cursor.moveToNext()) {
+            val mitgliedId = cursor.getInt(cursor.getColumnIndexOrThrow("ANWESENHEIT_MITGLIED_ID"))
+            val anwesend = cursor.getInt(cursor.getColumnIndexOrThrow("ANWESENHEIT_ANWESEND")) > 0
+            anwesenheiten[mitgliedId] = anwesend
+        }
+
+        cursor.close()
+        return anwesenheiten
+    }
+
+    fun updateAnwesenheit(trainingId: Int, mitgliedId: Int, anwesend: Boolean) {
+        val db = dbHelper.writableDatabase
+        val values = ContentValues().apply {
+            put("ANWESENHEIT_TRAINING_ID", trainingId)
+            put("ANWESENHEIT_MITGLIED_ID", mitgliedId)
+            put("ANWESENHEIT_ANWESEND", if (anwesend) 1 else 0)
+        }
+        db.insertWithOnConflict(DatabaseHelper.TABLE_ANWESENHEIT, null, values, SQLiteDatabase.CONFLICT_REPLACE)
     }
 }

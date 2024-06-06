@@ -122,7 +122,10 @@ fun KursVerwaltungScreen(navController: NavHostController) {
             } else {
                 // Kursdetails anzeigen, wenn der Kurs gestartet wurde
                 selectedCourse?.let { course ->
-                    KursDetails(course, selectedDate, trainingRepository, mitgliedRepository)
+                    val selectedTraining = course.trainings.find { it.datum == selectedDate }
+                    if (selectedTraining != null) {
+                        KursDetails(course, selectedTraining.id, selectedDate, trainingRepository, mitgliedRepository)
+                    }
                 }
             }
         }
@@ -132,6 +135,7 @@ fun KursVerwaltungScreen(navController: NavHostController) {
 @Composable
 fun KursDetails(
     course: Kurs,
+    trainingId: Int,
     trainingsDatum: String,
     trainingRepository: TrainingRepository,
     mitgliedRepository: MitgliedRepository
@@ -176,7 +180,7 @@ fun KursDetails(
 
         // Inhalt basierend auf dem ausgewählten Tab anzeigen
         when (selectedTab) {
-            0 -> AttendanceTab()
+            0 -> AttendanceTab(course.id, trainingId)
             1 -> TasksTab()
             2 -> MembersTab()
         }
