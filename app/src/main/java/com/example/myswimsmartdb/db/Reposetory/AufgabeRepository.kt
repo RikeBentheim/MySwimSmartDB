@@ -3,7 +3,6 @@ package com.example.myswimsmartdb.db
 import android.content.ContentValues
 import android.content.Context
 import com.example.myswimsmartdb.db.entities.Aufgabe
-import com.example.myswimsmartdb.db.entities.Level
 
 class AufgabeRepository(context: Context) {
 

@@ -77,4 +77,17 @@ class MitgliedRepository(context: Context) {
         // Delete from TABLE_MITGLIED
         db.delete(DatabaseHelper.TABLE_MITGLIED, "MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
     }
+
+    fun updateMitgliedAufgabeErreicht(mitgliedId: Int, aufgabeId: Int, erreicht: Boolean) {
+        val db = dbHelper.writableDatabase
+        val values = ContentValues().apply {
+            put("ERREICHT", if (erreicht) 1 else 0)
+        }
+        db.update(
+            DatabaseHelper.TABLE_MITGLIED_AUFGABE,
+            values,
+            "MITGLIED_AUFGABE_MITGLIED_ID = ? AND MITGLIED_AUFGABE_AUFGABE_ID = ?",
+            arrayOf(mitgliedId.toString(), aufgabeId.toString())
+        )
+    }
 }
