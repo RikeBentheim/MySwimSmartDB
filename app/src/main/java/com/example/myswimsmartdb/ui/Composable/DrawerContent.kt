@@ -9,10 +9,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.myswimsmartdb.ui.theme.LapisLazuli
 import com.example.myswimsmartdb.ui.theme.Platinum
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun DrawerContent(navController: NavController) {
@@ -57,10 +57,17 @@ fun DrawerContent(navController: NavController) {
             color = Platinum
         )
         Text(
-            "Kurs bearbeiten", // Updated text
+            "Kurs bearbeiten",
             modifier = Modifier
                 .padding(16.dp)
-                .clickable { navController.navigate("kursBearbeiten") }, // Updated route
+                .clickable { navController.navigate("kursBearbeiten") },
+            color = Platinum
+        )
+        Text(
+            "Kursverwaltung",
+            modifier = Modifier
+                .padding(16.dp)
+                .clickable { navController.navigate("kursVerwaltung") },
             color = Platinum
         )
     }
