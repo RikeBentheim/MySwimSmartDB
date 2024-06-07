@@ -8,7 +8,7 @@ data class Mitglied(
     val id: Int,
     val vorname: String,
     val nachname: String,
-    val geburtsdatumString: String, // Store the date as a String
+    val geburtsdatumString: String, // Das Datum als String speichern
     val telefon: String,
     val kursId: Int,
     var anwesenheiten: List<Anwesenheit> = emptyList(),

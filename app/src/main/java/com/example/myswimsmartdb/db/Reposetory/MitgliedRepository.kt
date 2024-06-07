@@ -2,9 +2,8 @@ package com.example.myswimsmartdb.db
 
 import android.content.ContentValues
 import android.content.Context
-import com.example.myswimsmartdb.db.entities.Aufgabe
-import com.example.myswimsmartdb.db.entities.Mitglied
-import com.example.myswimsmartdb.db.entities.MitgliedAufgabe
+import com.example.myswimsmartdb.db.entities.*
+import android.database.sqlite.SQLiteDatabase
 
 class MitgliedRepository(context: Context) {
 
@@ -74,8 +73,6 @@ class MitgliedRepository(context: Context) {
         db.delete(DatabaseHelper.TABLE_MITGLIED, "MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
     }
 
-
-
     fun getMitgliedAufgabenByAufgabeId(aufgabeId: Int): List<MitgliedAufgabe> {
         val db = dbHelper.readableDatabase
         val query = "SELECT * FROM ${DatabaseHelper.TABLE_MITGLIED_AUFGABE} WHERE MITGLIED_AUFGABE_AUFGABE_ID = ?"
@@ -115,6 +112,7 @@ class MitgliedRepository(context: Context) {
 
         return aufgaben
     }
+
     fun updateMitgliedAufgabeErreicht(mitgliedId: Int, aufgabeId: Int, erreicht: Boolean) {
         val db = dbHelper.writableDatabase
         val values = ContentValues().apply {
@@ -126,7 +124,35 @@ class MitgliedRepository(context: Context) {
             "MITGLIED_AUFGABE_MITGLIED_ID = ? AND MITGLIED_AUFGABE_AUFGABE_ID = ?",
             arrayOf(mitgliedId.toString(), aufgabeId.toString())
         )
-        println("Rows updated: $rowsUpdated")
+        println("Aktualisierte Zeilen: $rowsUpdated")
     }
 
+    fun getFullMitgliederDetailsByKursId(kursId: Int): List<Mitglied> {
+        val db = dbHelper.readableDatabase
+        val query = """
+        SELECT MITGLIED_ID, MITGLIED_VORNAME, MITGLIED_NACHNAME, MITGLIED_GEBURTSDATUM, MITGLIED_TELEFON, MITGLIED_KURS_ID
+        FROM ${DatabaseHelper.TABLE_MITGLIED}
+        WHERE MITGLIED_KURS_ID = ?
+    """
+        val cursor = db.rawQuery(query, arrayOf(kursId.toString()))
+        val mitglieder = mutableListOf<Mitglied>()
+
+        cursor.use {
+            if (cursor.moveToFirst()) {
+                do {
+                    val mitglied = Mitglied(
+                        id = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_ID")),
+                        vorname = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_VORNAME")),
+                        nachname = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_NACHNAME")),
+                        geburtsdatumString = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_GEBURTSDATUM")),
+                        telefon = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_TELEFON")),
+                        kursId = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_KURS_ID"))
+                    )
+                    mitglieder.add(mitglied)
+                } while (cursor.moveToNext())
+            }
+        }
+        cursor.close()
+        return mitglieder
+    }
 }

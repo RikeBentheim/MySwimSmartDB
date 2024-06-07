@@ -33,19 +33,18 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+
 fun KursVerwaltungScreen(navController: NavHostController) {
     val context = LocalContext.current
     val kursRepository = KursRepository(context)
     val trainingRepository = TrainingRepository(context)
     val mitgliedRepository = MitgliedRepository(context)
 
-    // Liste der verfügbaren Kurse laden
     val courses = kursRepository.getAllKurseWithDetails()
     var selectedCourse by remember { mutableStateOf<Kurs?>(null) }
     var selectedDate by remember { mutableStateOf("") }
     val showDetails = remember { mutableStateOf(false) }
 
-    // Aktuelles Datum im richtigen Format
     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     val currentDate = sdf.format(Date())
 
@@ -55,7 +54,6 @@ fun KursVerwaltungScreen(navController: NavHostController) {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Header Bild
             Image(
                 painter = painterResource(id = R.drawable.adobestock_288862937),
                 contentDescription = "Header",
@@ -67,7 +65,6 @@ fun KursVerwaltungScreen(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Titeltext
             Text(
                 text = stringResource(id = R.string.schwimmverein_haltern),
                 style = MaterialTheme.typography.titleLarge,
@@ -78,7 +75,6 @@ fun KursVerwaltungScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(20.dp))
 
             if (!showDetails.value) {
-                // Dropdown-Menü zur Auswahl eines Kurses
                 StringSelectionDropdown(
                     label = "Bitte einen Kurs auswählen:",
                     options = courses.map { it.name },
@@ -97,7 +93,6 @@ fun KursVerwaltungScreen(navController: NavHostController) {
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Dropdown-Menü zur Auswahl eines Training Datums, wenn ein Kurs ausgewählt wurde
                 selectedCourse?.let { course ->
                     val trainingDates = course.trainings.map { it.datum }
                     if (trainingDates.isNotEmpty()) {
@@ -111,7 +106,6 @@ fun KursVerwaltungScreen(navController: NavHostController) {
                     }
                 }
 
-                // Button zum Starten des Kurses, wenn ein Datum ausgewählt ist
                 if (selectedDate.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(20.dp))
                     Button(onClick = { showDetails.value = true }) {
@@ -119,11 +113,10 @@ fun KursVerwaltungScreen(navController: NavHostController) {
                     }
                 }
             } else {
-                // Kursdetails anzeigen, wenn der Kurs gestartet wurde
                 selectedCourse?.let { course ->
                     val selectedTraining = course.trainings.find { it.datum == selectedDate }
                     if (selectedTraining != null) {
-                        KursDetails(course, selectedTraining.id, selectedDate, trainingRepository, mitgliedRepository)
+                        KursDetails(course, selectedTraining.id, selectedDate, trainingRepository, mitgliedRepository, navController)
                     }
                 }
             }
@@ -137,20 +130,19 @@ fun KursDetails(
     trainingId: Int,
     trainingsDatum: String,
     trainingRepository: TrainingRepository,
-    mitgliedRepository: MitgliedRepository
+    mitgliedRepository: MitgliedRepository,
+    navController: NavHostController
 ) {
     var selectedTab by remember { mutableStateOf(0) }
     val tabTitles = listOf("Anwesenheit", "Aufgaben", "Kursmitglieder")
     var selectedTask by remember { mutableStateOf<Aufgabe?>(null) }
 
     Column(modifier = Modifier.padding(16.dp)) {
-        // Zeige Kursnamen und Trainingsdatum an
         Text(text = "Kurs: ${course.name}", style = MaterialTheme.typography.headlineSmall, color = LapisLazuli)
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Trainingsdatum: $trainingsDatum", style = MaterialTheme.typography.bodyMedium, color = LapisLazuli)
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Tabs zur Navigation zwischen verschiedenen Ansichten
         TabRow(
             selectedTabIndex = selectedTab,
             containerColor = Platinum,
@@ -178,17 +170,17 @@ fun KursDetails(
             }
         }
 
-        // Inhalt basierend auf dem ausgewählten Tab anzeigen
         when (selectedTab) {
             0 -> AttendanceTab(course.id, trainingId)
             1 -> {
                 if (selectedTask == null) {
-                    TasksTab(levelId = course.levelId, onTaskSelected = { task -> selectedTask = task })
+                    TasksTab(levelId = course.levelId, kursId = course.id, navController = navController) // KursId hinzugefügt
                 } else {
                     MitgliedAufgabeTab(
                         taskId = selectedTask!!.id,
                         kursId = course.id,
-                        onBackToTasks = { selectedTask = null } // This will show the list of tasks again
+                        onBackToTasks = { selectedTask = null },
+                        navController = navController
                     )
                 }
             }
