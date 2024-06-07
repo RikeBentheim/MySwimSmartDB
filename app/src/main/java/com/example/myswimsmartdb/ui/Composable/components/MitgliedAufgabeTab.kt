@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.myswimsmartdb.db.AufgabeRepository
 import com.example.myswimsmartdb.db.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Mitglied
 import com.example.myswimsmartdb.db.entities.MitgliedAufgabe
@@ -19,9 +20,11 @@ import com.example.myswimsmartdb.db.entities.MitgliedAufgabe
 fun MitgliedAufgabeTab(taskId: Int, kursId: Int) {
     val context = LocalContext.current
     val mitgliedRepository = MitgliedRepository(context)
+    val aufgabeRepository = AufgabeRepository(context)
     var mitglieder by remember { mutableStateOf(listOf<Mitglied>()) }
     var mitgliedAufgaben by remember { mutableStateOf(listOf<MitgliedAufgabe>()) }
     val changes = remember { mutableStateMapOf<Int, Boolean>() }
+    var aufgabeText by remember { mutableStateOf("") }
 
     LaunchedEffect(taskId) {
         mitglieder = mitgliedRepository.getMitgliederByKursId(kursId)
@@ -29,12 +32,14 @@ fun MitgliedAufgabeTab(taskId: Int, kursId: Int) {
         mitgliedAufgaben.forEach { aufgabe ->
             changes[aufgabe.mitgliedId] = aufgabe.erreicht
         }
+        val aufgabe = aufgabeRepository.getAufgabeById(taskId)
+        aufgabeText = aufgabe?.aufgabe ?: "Aufgabe nicht gefunden"
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
-            text = "Aufgabe: ${taskId}",
-            style = MaterialTheme.typography.headlineSmall,
+            text = "Aufgabe: $aufgabeText",
+            style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 

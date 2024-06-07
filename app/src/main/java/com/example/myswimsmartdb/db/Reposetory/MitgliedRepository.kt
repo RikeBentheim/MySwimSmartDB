@@ -141,4 +141,17 @@ class MitgliedRepository(context: Context) {
 
         return aufgaben
     }
+    fun getAufgabeTextById(aufgabeId: Int): String {
+        val db = dbHelper.readableDatabase
+        val query = "SELECT AUFGABE_TEXT FROM ${DatabaseHelper.TABLE_AUFGABE} WHERE AUFGABE_ID = ?"
+        var aufgabeText = ""
+
+        db.rawQuery(query, arrayOf(aufgabeId.toString())).use { cursor ->
+            if (cursor.moveToFirst()) {
+                aufgabeText = cursor.getString(cursor.getColumnIndexOrThrow("AUFGABE_TEXT"))
+            }
+        }
+
+        return aufgabeText
+    }
 }
