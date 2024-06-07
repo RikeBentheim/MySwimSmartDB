@@ -17,7 +17,7 @@ import com.example.myswimsmartdb.db.entities.Mitglied
 import com.example.myswimsmartdb.db.entities.MitgliedAufgabe
 
 @Composable
-fun MitgliedAufgabeTab(taskId: Int, kursId: Int) {
+fun MitgliedAufgabeTab(taskId: Int, kursId: Int, onBackToTasks: () -> Unit) {
     val context = LocalContext.current
     val mitgliedRepository = MitgliedRepository(context)
     val aufgabeRepository = AufgabeRepository(context)
@@ -36,7 +36,9 @@ fun MitgliedAufgabeTab(taskId: Int, kursId: Int) {
         aufgabeText = aufgabe?.aufgabe ?: "Aufgabe nicht gefunden"
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
         Text(
             text = "Aufgabe: $aufgabeText",
             style = MaterialTheme.typography.titleMedium,
@@ -71,8 +73,12 @@ fun MitgliedAufgabeTab(taskId: Int, kursId: Int) {
                 changes.forEach { (mitgliedId, erreicht) ->
                     mitgliedRepository.updateMitgliedAufgabeErreicht(mitgliedId, taskId, erreicht)
                 }
+                // After saving changes, navigate back to the list of tasks
+                onBackToTasks()
             },
-            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp)
         ) {
             Text(text = "Änderungen speichern")
         }

@@ -27,11 +27,6 @@ class MitgliedRepository(context: Context) {
             }
         }
 
-        // Load tasks for each member
-        mitglieder.forEach { mitglied ->
-            mitglied.aufgaben = getAufgabenByKursId(mitglied.kursId)
-        }
-
         return mitglieder
     }
 
@@ -51,7 +46,7 @@ class MitgliedRepository(context: Context) {
                 val mitgliedAufgabeValues = ContentValues().apply {
                     put("MITGLIED_AUFGABE_MITGLIED_ID", mitgliedId)
                     put("MITGLIED_AUFGABE_AUFGABE_ID", aufgabe.id)
-                    put("ERREICHT", 0) // Default value for the new column
+                    put("ERREICHT", 0)
                 }
                 db.insert(DatabaseHelper.TABLE_MITGLIED_AUFGABE, null, mitgliedAufgabeValues)
             }
@@ -74,35 +69,16 @@ class MitgliedRepository(context: Context) {
     fun deleteMitglied(mitgliedId: Int) {
         val db = dbHelper.writableDatabase
 
-        // Delete from TABLE_ANWESENHEIT
         db.delete(DatabaseHelper.TABLE_ANWESENHEIT, "ANWESENHEIT_MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
-
-        // Delete from TABLE_MITGLIED_AUFGABE
         db.delete(DatabaseHelper.TABLE_MITGLIED_AUFGABE, "MITGLIED_AUFGABE_MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
-
-        // Delete from TABLE_MITGLIED
         db.delete(DatabaseHelper.TABLE_MITGLIED, "MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
     }
 
-    fun updateMitgliedAufgabeErreicht(mitgliedId: Int, aufgabeId: Int, erreicht: Boolean) {
-        val db = dbHelper.writableDatabase
-        val values = ContentValues().apply {
-            put("ERREICHT", if (erreicht) 1 else 0)
-        }
-        db.update(
-            DatabaseHelper.TABLE_MITGLIED_AUFGABE,
-            values,
-            "MITGLIED_AUFGABE_MITGLIED_ID = ? AND MITGLIED_AUFGABE_AUFGABE_ID = ?",
-            arrayOf(mitgliedId.toString(), aufgabeId.toString())
-        )
-    }
+
 
     fun getMitgliedAufgabenByAufgabeId(aufgabeId: Int): List<MitgliedAufgabe> {
         val db = dbHelper.readableDatabase
-        val query = """
-            SELECT * FROM ${DatabaseHelper.TABLE_MITGLIED_AUFGABE}
-            WHERE MITGLIED_AUFGABE_AUFGABE_ID = ?
-        """
+        val query = "SELECT * FROM ${DatabaseHelper.TABLE_MITGLIED_AUFGABE} WHERE MITGLIED_AUFGABE_AUFGABE_ID = ?"
         val mitgliedAufgaben = mutableListOf<MitgliedAufgabe>()
 
         db.rawQuery(query, arrayOf(aufgabeId.toString())).use { cursor ->
@@ -121,10 +97,8 @@ class MitgliedRepository(context: Context) {
         val db = dbHelper.readableDatabase
         val query = """
             SELECT A.* FROM ${DatabaseHelper.TABLE_AUFGABE} A
-            JOIN ${DatabaseHelper.TABLE_LEVEL_AUFGABE} LA
-            ON A.AUFGABE_ID = LA.LEVEL_AUFGABE_AUFGABE_ID
-            JOIN ${DatabaseHelper.TABLE_KURS} K
-            ON LA.LEVEL_AUFGABE_LEVEL_ID = K.KURS_LEVEL_ID
+            JOIN ${DatabaseHelper.TABLE_LEVEL_AUFGABE} LA ON A.AUFGABE_ID = LA.LEVEL_AUFGABE_AUFGABE_ID
+            JOIN ${DatabaseHelper.TABLE_KURS} K ON LA.LEVEL_AUFGABE_LEVEL_ID = K.KURS_LEVEL_ID
             WHERE K.KURS_ID = ?
         """
         val aufgaben = mutableListOf<Aufgabe>()
@@ -141,17 +115,18 @@ class MitgliedRepository(context: Context) {
 
         return aufgaben
     }
-    fun getAufgabeTextById(aufgabeId: Int): String {
-        val db = dbHelper.readableDatabase
-        val query = "SELECT AUFGABE_TEXT FROM ${DatabaseHelper.TABLE_AUFGABE} WHERE AUFGABE_ID = ?"
-        var aufgabeText = ""
-
-        db.rawQuery(query, arrayOf(aufgabeId.toString())).use { cursor ->
-            if (cursor.moveToFirst()) {
-                aufgabeText = cursor.getString(cursor.getColumnIndexOrThrow("AUFGABE_TEXT"))
-            }
+    fun updateMitgliedAufgabeErreicht(mitgliedId: Int, aufgabeId: Int, erreicht: Boolean) {
+        val db = dbHelper.writableDatabase
+        val values = ContentValues().apply {
+            put("ERREICHT", if (erreicht) 1 else 0)
         }
-
-        return aufgabeText
+        val rowsUpdated = db.update(
+            DatabaseHelper.TABLE_MITGLIED_AUFGABE,
+            values,
+            "MITGLIED_AUFGABE_MITGLIED_ID = ? AND MITGLIED_AUFGABE_AUFGABE_ID = ?",
+            arrayOf(mitgliedId.toString(), aufgabeId.toString())
+        )
+        println("Rows updated: $rowsUpdated")
     }
+
 }

@@ -15,7 +15,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.KursRepository
 import com.example.myswimsmartdb.db.MitgliedRepository
@@ -186,12 +185,14 @@ fun KursDetails(
                 if (selectedTask == null) {
                     TasksTab(levelId = course.levelId, onTaskSelected = { task -> selectedTask = task })
                 } else {
-                    MitgliedAufgabeTab(taskId = selectedTask!!.id, kursId = course.id)
+                    MitgliedAufgabeTab(
+                        taskId = selectedTask!!.id,
+                        kursId = course.id,
+                        onBackToTasks = { selectedTask = null } // This will show the list of tasks again
+                    )
                 }
             }
             2 -> MembersTab()
         }
     }
 }
-
-
