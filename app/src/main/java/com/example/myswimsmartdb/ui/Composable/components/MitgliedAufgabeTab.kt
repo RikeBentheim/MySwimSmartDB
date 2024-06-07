@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -20,26 +21,55 @@ fun MitgliedAufgabeTab(taskId: Int, kursId: Int) {
     val mitgliedRepository = MitgliedRepository(context)
     var mitglieder by remember { mutableStateOf(listOf<Mitglied>()) }
     var mitgliedAufgaben by remember { mutableStateOf(listOf<MitgliedAufgabe>()) }
+    val changes = remember { mutableStateMapOf<Int, Boolean>() }
 
-    LaunchedEffect(kursId, taskId) {
+    LaunchedEffect(taskId) {
         mitglieder = mitgliedRepository.getMitgliederByKursId(kursId)
         mitgliedAufgaben = mitgliedRepository.getMitgliedAufgabenByAufgabeId(taskId)
+        mitgliedAufgaben.forEach { aufgabe ->
+            changes[aufgabe.mitgliedId] = aufgabe.erreicht
+        }
     }
 
-    LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        items(mitglieder) { mitglied ->
-            val mitgliedAufgabe = mitgliedAufgaben.find { it.mitgliedId == mitglied.id }
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)) {
-                Text(text = "${mitglied.vorname} ${mitglied.nachname}", modifier = Modifier.weight(1f))
-                Checkbox(
-                    checked = mitgliedAufgabe?.erreicht ?: false,
-                    onCheckedChange = { checked ->
-                        mitgliedRepository.updateMitgliedAufgabeErreicht(mitglied.id, taskId, checked)
-                    }
-                )
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text(
+            text = "Aufgabe: ${taskId}",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            items(mitglieder) { mitglied ->
+                val isChecked = changes[mitglied.id] ?: false
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "${mitglied.vorname} ${mitglied.nachname}", style = MaterialTheme.typography.bodyLarge)
+                    Checkbox(
+                        checked = isChecked,
+                        onCheckedChange = { checked ->
+                            changes[mitglied.id] = checked
+                        }
+                    )
+                }
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                changes.forEach { (mitgliedId, erreicht) ->
+                    mitgliedRepository.updateMitgliedAufgabeErreicht(mitgliedId, taskId, erreicht)
+                }
+            },
+            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
+        ) {
+            Text(text = "Änderungen speichern")
         }
     }
 }

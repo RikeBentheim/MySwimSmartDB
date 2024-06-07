@@ -13,19 +13,24 @@ class MitgliedRepository(context: Context) {
     fun getMitgliederByKursId(kursId: Int): List<Mitglied> {
         val db = dbHelper.readableDatabase
         val query = "SELECT * FROM ${DatabaseHelper.TABLE_MITGLIED} WHERE MITGLIED_KURS_ID = ?"
-        val cursor = db.rawQuery(query, arrayOf(kursId.toString()))
-
         val mitglieder = mutableListOf<Mitglied>()
-        while (cursor.moveToNext()) {
-            val id = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_ID"))
-            val vorname = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_VORNAME"))
-            val nachname = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_NACHNAME"))
-            val geburtsdatum = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_GEBURTSDATUM"))
-            val telefon = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_TELEFON"))
 
-            mitglieder.add(Mitglied(id, vorname, nachname, geburtsdatum, telefon, kursId))
+        db.rawQuery(query, arrayOf(kursId.toString())).use { cursor ->
+            while (cursor.moveToNext()) {
+                val id = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_ID"))
+                val vorname = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_VORNAME"))
+                val nachname = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_NACHNAME"))
+                val geburtsdatum = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_GEBURTSDATUM"))
+                val telefon = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_TELEFON"))
+
+                mitglieder.add(Mitglied(id, vorname, nachname, geburtsdatum, telefon, kursId))
+            }
         }
-        cursor.close()
+
+        // Load tasks for each member
+        mitglieder.forEach { mitglied ->
+            mitglied.aufgaben = getAufgabenByKursId(mitglied.kursId)
+        }
 
         return mitglieder
     }
@@ -90,25 +95,50 @@ class MitgliedRepository(context: Context) {
             "MITGLIED_AUFGABE_MITGLIED_ID = ? AND MITGLIED_AUFGABE_AUFGABE_ID = ?",
             arrayOf(mitgliedId.toString(), aufgabeId.toString())
         )
-    }    fun getMitgliedAufgabenByAufgabeId(aufgabeId: Int): List<MitgliedAufgabe> {
+    }
+
+    fun getMitgliedAufgabenByAufgabeId(aufgabeId: Int): List<MitgliedAufgabe> {
         val db = dbHelper.readableDatabase
         val query = """
             SELECT * FROM ${DatabaseHelper.TABLE_MITGLIED_AUFGABE}
             WHERE MITGLIED_AUFGABE_AUFGABE_ID = ?
         """
-        val cursor = db.rawQuery(query, arrayOf(aufgabeId.toString()))
-
         val mitgliedAufgaben = mutableListOf<MitgliedAufgabe>()
-        while (cursor.moveToNext()) {
-            val mitgliedAufgabeId = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_AUFGABE_ID"))
-            val mitgliedId = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_AUFGABE_MITGLIED_ID"))
-            val erreicht = cursor.getInt(cursor.getColumnIndexOrThrow("ERREICHT")) > 0
-            mitgliedAufgaben.add(MitgliedAufgabe(mitgliedAufgabeId, mitgliedId, aufgabeId, erreicht))
+
+        db.rawQuery(query, arrayOf(aufgabeId.toString())).use { cursor ->
+            while (cursor.moveToNext()) {
+                val mitgliedAufgabeId = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_AUFGABE_ID"))
+                val mitgliedId = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_AUFGABE_MITGLIED_ID"))
+                val erreicht = cursor.getInt(cursor.getColumnIndexOrThrow("ERREICHT")) > 0
+                mitgliedAufgaben.add(MitgliedAufgabe(mitgliedAufgabeId, mitgliedId, aufgabeId, erreicht))
+            }
         }
-        cursor.close()
 
         return mitgliedAufgaben
     }
+
+    fun getAufgabenByKursId(kursId: Int): List<Aufgabe> {
+        val db = dbHelper.readableDatabase
+        val query = """
+            SELECT A.* FROM ${DatabaseHelper.TABLE_AUFGABE} A
+            JOIN ${DatabaseHelper.TABLE_LEVEL_AUFGABE} LA
+            ON A.AUFGABE_ID = LA.LEVEL_AUFGABE_AUFGABE_ID
+            JOIN ${DatabaseHelper.TABLE_KURS} K
+            ON LA.LEVEL_AUFGABE_LEVEL_ID = K.KURS_LEVEL_ID
+            WHERE K.KURS_ID = ?
+        """
+        val aufgaben = mutableListOf<Aufgabe>()
+
+        db.rawQuery(query, arrayOf(kursId.toString())).use { cursor ->
+            while (cursor.moveToNext()) {
+                val id = cursor.getInt(cursor.getColumnIndexOrThrow("AUFGABE_ID"))
+                val erledigt = cursor.getInt(cursor.getColumnIndexOrThrow("AUFGABE_ERLEDIGT")) > 0
+                val text = cursor.getString(cursor.getColumnIndexOrThrow("AUFGABE_TEXT"))
+                val beschreibung = cursor.getString(cursor.getColumnIndexOrThrow("AUFGABE_BESCHREIBUNG"))
+                aufgaben.add(Aufgabe(id, erledigt, text, beschreibung))
+            }
+        }
+
+        return aufgaben
+    }
 }
-
-

@@ -20,6 +20,7 @@ import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.KursRepository
 import com.example.myswimsmartdb.db.MitgliedRepository
 import com.example.myswimsmartdb.db.TrainingRepository
+import com.example.myswimsmartdb.db.entities.Aufgabe
 import com.example.myswimsmartdb.db.entities.Kurs
 import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
 import com.example.myswimsmartdb.ui.Composable.BasisScreen
@@ -141,6 +142,7 @@ fun KursDetails(
 ) {
     var selectedTab by remember { mutableStateOf(0) }
     val tabTitles = listOf("Anwesenheit", "Aufgaben", "Kursmitglieder")
+    var selectedTask by remember { mutableStateOf<Aufgabe?>(null) }
 
     Column(modifier = Modifier.padding(16.dp)) {
         // Zeige Kursnamen und Trainingsdatum an
@@ -180,8 +182,16 @@ fun KursDetails(
         // Inhalt basierend auf dem ausgewählten Tab anzeigen
         when (selectedTab) {
             0 -> AttendanceTab(course.id, trainingId)
-            1 -> TasksTab(course.levelId)
+            1 -> {
+                if (selectedTask == null) {
+                    TasksTab(levelId = course.levelId, onTaskSelected = { task -> selectedTask = task })
+                } else {
+                    MitgliedAufgabeTab(taskId = selectedTask!!.id, kursId = course.id)
+                }
+            }
             2 -> MembersTab()
         }
     }
 }
+
+

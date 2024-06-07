@@ -11,8 +11,8 @@ data class Mitglied(
     val geburtsdatumString: String, // Store the date as a String
     val telefon: String,
     val kursId: Int,
-    val anwesenheiten: List<Anwesenheit> = emptyList(),
-    val aufgaben: List<Aufgabe> = emptyList()
+    var anwesenheiten: List<Anwesenheit> = emptyList(),
+    var aufgaben: List<Aufgabe> = emptyList()
 ) {
 
     var geburtsdatum: String = geburtsdatumString
