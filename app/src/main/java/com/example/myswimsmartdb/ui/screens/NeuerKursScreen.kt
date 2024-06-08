@@ -27,12 +27,14 @@ import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun NeuerKursScreen(navController: NavHostController) {
+    // Initialisieren der benötigten Repositories
     val context = LocalContext.current
     val kursRepository = KursRepository(context)
     val levelRepository = LevelRepository(context)
     val mitgliedRepository = MitgliedRepository(context)
     val trainingRepository = TrainingRepository(context)
 
+    // State-Variablen zur Steuerung der Schritte und Speicherung von Eingabedaten
     var currentStep by remember { mutableStateOf(1) }
     var kursName by remember { mutableStateOf("") }
     var selectedLevel by remember { mutableStateOf<Level?>(null) }
@@ -44,6 +46,7 @@ fun NeuerKursScreen(navController: NavHostController) {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+            // Header-Bild
             Image(
                 painter = painterResource(id = R.drawable.adobestock_288862937),
                 contentDescription = "Header",
@@ -53,6 +56,7 @@ fun NeuerKursScreen(navController: NavHostController) {
                 contentScale = ContentScale.FillBounds
             )
             Spacer(modifier = Modifier.height(20.dp))
+            // Titeltext
             Text(
                 text = stringResource(id = R.string.schwimmverein_haltern),
                 style = MaterialTheme.typography.titleLarge,
@@ -61,12 +65,14 @@ fun NeuerKursScreen(navController: NavHostController) {
             )
             Spacer(modifier = Modifier.height(20.dp))
 
+            // Steuerung der Schritte
             when (currentStep) {
                 1 -> AddKursScreen(
                     navController = navController,
                     kursRepository = kursRepository,
                     levelRepository = levelRepository,
                     onKursSaved = { name, level, newKursId ->
+                        // Speichern der Kursinformationen und Wechsel zum nächsten Schritt
                         kursName = name
                         selectedLevel = level
                         kursId = newKursId
@@ -79,6 +85,7 @@ fun NeuerKursScreen(navController: NavHostController) {
                         selectedLevel = selectedLevel!!,
                         mitgliedRepository = mitgliedRepository,
                         onFinish = {
+                            // Wechsel zum nächsten Schritt nach Hinzufügen der Mitglieder
                             currentStep = 3
                         }
                     )
@@ -89,6 +96,7 @@ fun NeuerKursScreen(navController: NavHostController) {
                         trainingRepository = trainingRepository,
                         mitgliedRepository = mitgliedRepository,
                         onFinish = {
+                            // Wechsel zum nächsten Schritt nach Hinzufügen der Kurstermine
                             currentStep = 4
                         }
                     )

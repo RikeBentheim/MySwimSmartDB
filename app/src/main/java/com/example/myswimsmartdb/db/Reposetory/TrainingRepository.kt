@@ -2,6 +2,7 @@ package com.example.myswimsmartdb.db
 
 import android.content.ContentValues
 import android.content.Context
+import com.example.myswimsmartdb.db.entities.Anwesenheit
 import com.example.myswimsmartdb.db.entities.Training
 
 class TrainingRepository(context: Context) {
@@ -66,5 +67,24 @@ class TrainingRepository(context: Context) {
     fun deleteAnwesenheitByTrainingId(trainingId: Int) {
         val db = dbHelper.writableDatabase
         db.delete(DatabaseHelper.TABLE_ANWESENHEIT, "ANWESENHEIT_TRAINING_ID = ?", arrayOf(trainingId.toString()))
+    }
+
+    fun getAnwesenheitByMitgliedAndTraining(mitgliedId: Int, trainingId: Int): Anwesenheit? {
+        val db = dbHelper.readableDatabase
+        val query = """
+        SELECT * FROM ${DatabaseHelper.TABLE_ANWESENHEIT}
+        WHERE ANWESENHEIT_MITGLIED_ID = ? AND ANWESENHEIT_TRAINING_ID = ?
+    """
+        val cursor = db.rawQuery(query, arrayOf(mitgliedId.toString(), trainingId.toString()))
+
+        return if (cursor.moveToFirst()) {
+            val id = cursor.getInt(cursor.getColumnIndexOrThrow("ANWESENHEIT_ID"))
+            val anwesend = cursor.getInt(cursor.getColumnIndexOrThrow("ANWESENHEIT_ANWESEND")) > 0
+            cursor.close()
+            Anwesenheit(id, mitgliedId, trainingId, "", "", anwesend)  // Pass appropriate parameters
+        } else {
+            cursor.close()
+            null
+        }
     }
 }

@@ -24,12 +24,14 @@ fun AddMemberScreen(
     onFinish: () -> Unit,
     existingMitglied: Mitglied? = null
 ) {
+    // Initialisiere Variablen für die Eingabefelder und die Nachricht
     var vorname by remember { mutableStateOf(existingMitglied?.vorname ?: "") }
     var nachname by remember { mutableStateOf(existingMitglied?.nachname ?: "") }
     var geburtsdatum by remember { mutableStateOf(existingMitglied?.geburtsdatumString ?: "") }
     var telefon by remember { mutableStateOf(existingMitglied?.telefon ?: "") }
     var message by remember { mutableStateOf("") }
 
+    // Lade die Mitglieder des Kurses
     val mitglieder = remember { mutableStateOf(mitgliedRepository.getMitgliederByKursId(kursId)) }
     val scrollState = rememberScrollState()
     var showInputFields by remember { mutableStateOf(true) }

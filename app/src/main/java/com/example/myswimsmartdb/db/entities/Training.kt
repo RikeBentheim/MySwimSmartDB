@@ -1,5 +1,7 @@
 package com.example.myswimsmartdb.db.entities
 
+import android.content.Context
+import com.example.myswimsmartdb.db.DatabaseHelper
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -34,6 +36,28 @@ data class Training(
             } catch (e: Exception) {
                 null
             }
+        }
+    }
+
+    // Function to get Anwesenheit by Mitglied and Training
+    fun getAnwesenheitByMitgliedAndTraining(context: Context, mitgliedId: Int, trainingId: Int): Anwesenheit? {
+        val dbHelper = DatabaseHelper(context)
+        val db = dbHelper.readableDatabase
+        val query = """
+            SELECT * FROM ${DatabaseHelper.TABLE_ANWESENHEIT}
+            WHERE ANWESENHEIT_MITGLIED_ID = ? AND ANWESENHEIT_TRAINING_ID = ?
+        """
+        val cursor = db.rawQuery(query, arrayOf(mitgliedId.toString(), trainingId.toString()))
+
+        return if (cursor.moveToFirst()) {
+            val id = cursor.getInt(cursor.getColumnIndexOrThrow("ANWESENHEIT_ID"))
+            val bemerkung = cursor.getString(cursor.getColumnIndexOrThrow("ANWESENHEIT_BEMERKUNG"))
+            val anwesenheit = cursor.getInt(cursor.getColumnIndexOrThrow("ANWESENHEIT_ANWESEND")) > 0
+            cursor.close()
+            Anwesenheit(id, mitgliedId, trainingId, "", bemerkung, anwesenheit)
+        } else {
+            cursor.close()
+            null
         }
     }
 }

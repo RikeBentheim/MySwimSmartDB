@@ -38,9 +38,8 @@ fun TaskItem(task: Aufgabe, onTaskSelected: (Aufgabe) -> Unit, modifier: Modifie
         }
     }
 }
-
 @Composable
-fun TasksTab(levelId: Int, kursId: Int, navController: NavController) { // KursId hinzugefügt
+fun TasksTab(levelId: Int, kursId: Int, navController: NavController) {
     val context = LocalContext.current
     val aufgabeRepository = AufgabeRepository(context)
     var tasks by remember { mutableStateOf(listOf<Aufgabe>()) }
@@ -54,7 +53,7 @@ fun TasksTab(levelId: Int, kursId: Int, navController: NavController) { // KursI
         .padding(16.dp)) {
         items(tasks) { task ->
             TaskItem(task = task, onTaskSelected = {
-                navController.navigate("mitgliedAufgabeTab/${task.id}/$kursId") // KursId hinzugefügt
+                navController.navigate("mitgliedAufgabeTab/${task.id}/$kursId")
             })
         }
     }
