@@ -24,7 +24,6 @@ import com.example.myswimsmartdb.db.entities.MitgliedAufgabe
 import com.example.myswimsmartdb.ui.Composable.BasisScreen
 import com.example.myswimsmartdb.ui.theme.Platinum
 import android.util.Log
-
 @Composable
 fun MitgliedAufgabeTab(taskId: Int, kursId: Int, onBackToTasks: () -> Unit, navController: NavHostController) {
     val context = LocalContext.current

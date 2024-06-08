@@ -5,7 +5,7 @@ import android.content.Context
 import com.example.myswimsmartdb.db.entities.Aufgabe
 import com.example.myswimsmartdb.db.entities.Level
 
-class LevelRepository(context: Context) {
+class LevelRepository(private val context: Context) {
 
     private val dbHelper = DatabaseHelper(context)
 
@@ -125,10 +125,30 @@ class LevelRepository(context: Context) {
         val levelCursor = db.rawQuery(levelQuery, null)
 
         val levels = mutableListOf<Level>()
+        val aufgabeRepository = AufgabeRepository(context)
+
         while (levelCursor.moveToNext()) {
             val levelId = levelCursor.getInt(levelCursor.getColumnIndexOrThrow("LEVEL_ID"))
             val levelName = levelCursor.getString(levelCursor.getColumnIndexOrThrow("LEVEL_NAME"))
-            levels.add(Level(levelId, levelName, emptyList()))
+
+            // Hole alle Aufgaben-IDs für dieses Level
+            val aufgabenQuery = """
+            SELECT LEVEL_AUFGABE_AUFGABE_ID FROM ${DatabaseHelper.TABLE_LEVEL_AUFGABE}
+            WHERE LEVEL_AUFGABE_LEVEL_ID = ?
+        """
+            val aufgabenCursor = db.rawQuery(aufgabenQuery, arrayOf(levelId.toString()))
+
+            val aufgaben = mutableListOf<Aufgabe>()
+            while (aufgabenCursor.moveToNext()) {
+                val aufgabeId = aufgabenCursor.getInt(aufgabenCursor.getColumnIndexOrThrow("LEVEL_AUFGABE_AUFGABE_ID"))
+                val aufgabe = aufgabeRepository.getAufgabeById(aufgabeId)
+                if (aufgabe != null) {
+                    aufgaben.add(aufgabe)
+                }
+            }
+            aufgabenCursor.close()
+
+            levels.add(Level(levelId, levelName, aufgaben))
         }
         levelCursor.close()
 

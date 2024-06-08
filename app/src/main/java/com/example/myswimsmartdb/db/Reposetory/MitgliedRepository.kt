@@ -2,12 +2,13 @@ package com.example.myswimsmartdb.db
 
 import android.content.ContentValues
 import android.content.Context
+import android.util.Log
 import com.example.myswimsmartdb.db.entities.*
-import android.database.sqlite.SQLiteDatabase
 
-class MitgliedRepository(context: Context) {
+class MitgliedRepository(private val context: Context) {
 
     private val dbHelper = DatabaseHelper(context)
+    private val kursRepository = KursRepository(context)
 
     fun getMitgliederByKursId(kursId: Int): List<Mitglied> {
         val db = dbHelper.readableDatabase
@@ -40,18 +41,26 @@ class MitgliedRepository(context: Context) {
         }
         val mitgliedId = db.insert(DatabaseHelper.TABLE_MITGLIED, null, mitgliedValues)
 
-        if (mitgliedId != -1L) {
-            for (aufgabe in aufgaben) {
-                val mitgliedAufgabeValues = ContentValues().apply {
-                    put("MITGLIED_AUFGABE_MITGLIED_ID", mitgliedId)
-                    put("MITGLIED_AUFGABE_AUFGABE_ID", aufgabe.id)
-                    put("ERREICHT", 0)
-                }
-                db.insert(DatabaseHelper.TABLE_MITGLIED_AUFGABE, null, mitgliedAufgabeValues)
+        if (mitgliedId == -1L) {
+            Log.e("DatabaseError", "Failed to insert Mitglied: $mitgliedValues")
+            return -1
+        }
+
+        for (aufgabe in aufgaben) {
+            val mitgliedAufgabeValues = ContentValues().apply {
+                put("MITGLIED_AUFGABE_MITGLIED_ID", mitgliedId)
+                put("MITGLIED_AUFGABE_AUFGABE_ID", aufgabe.id)
+                put("ERREICHT", 0)
+            }
+            val result = db.insert(DatabaseHelper.TABLE_MITGLIED_AUFGABE, null, mitgliedAufgabeValues)
+            if (result == -1L) {
+                Log.e("DatabaseError", "Failed to insert MitgliedAufgabe: $mitgliedAufgabeValues")
+                // Optional: Sie könnten hier entscheiden, ob Sie die gesamte Operation zurückrollen möchten
             }
         }
         return mitgliedId
     }
+
 
     fun updateMitglied(mitglied: Mitglied): Int {
         val db = dbHelper.writableDatabase
@@ -113,29 +122,19 @@ class MitgliedRepository(context: Context) {
         return aufgaben
     }
 
-    fun updateMitgliedAufgabeErreicht(mitgliedId: Int, aufgabeId: Int, erreicht: Boolean) {
-        val db = dbHelper.writableDatabase
-        val values = ContentValues().apply {
-            put("ERREICHT", if (erreicht) 1 else 0)
-        }
-        val rowsUpdated = db.update(
-            DatabaseHelper.TABLE_MITGLIED_AUFGABE,
-            values,
-            "MITGLIED_AUFGABE_MITGLIED_ID = ? AND MITGLIED_AUFGABE_AUFGABE_ID = ?",
-            arrayOf(mitgliedId.toString(), aufgabeId.toString())
-        )
-        println("Aktualisierte Zeilen: $rowsUpdated")
-    }
-
     fun getFullMitgliederDetailsByKursId(kursId: Int): List<Mitglied> {
         val db = dbHelper.readableDatabase
         val query = """
-        SELECT MITGLIED_ID, MITGLIED_VORNAME, MITGLIED_NACHNAME, MITGLIED_GEBURTSDATUM, MITGLIED_TELEFON, MITGLIED_KURS_ID
-        FROM ${DatabaseHelper.TABLE_MITGLIED}
-        WHERE MITGLIED_KURS_ID = ?
-    """
+    SELECT MITGLIED_ID, MITGLIED_VORNAME, MITGLIED_NACHNAME, MITGLIED_GEBURTSDATUM, MITGLIED_TELEFON, MITGLIED_KURS_ID
+    FROM ${DatabaseHelper.TABLE_MITGLIED}
+    WHERE MITGLIED_KURS_ID = ?
+"""
         val cursor = db.rawQuery(query, arrayOf(kursId.toString()))
         val mitglieder = mutableListOf<Mitglied>()
+
+        val trainingRepository = TrainingRepository(context)
+        val aufgabeRepository = AufgabeRepository(context)
+        val kursRepository = KursRepository(context)
 
         cursor.use {
             if (cursor.moveToFirst()) {
@@ -148,6 +147,21 @@ class MitgliedRepository(context: Context) {
                         telefon = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_TELEFON")),
                         kursId = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_KURS_ID"))
                     )
+
+                    // Get all trainings associated with this course
+                    val trainings = trainingRepository.getTrainingsByKursId(kursId)
+
+                    // Get attendance for each training session
+                    val anwesenheiten = trainings.mapNotNull { training ->
+                        trainingRepository.getAnwesenheitByMitgliedAndTraining(mitglied.id, training.id)
+                    }
+                    mitglied.anwesenheiten = anwesenheiten
+
+                    // Get tasks associated with the level of the course
+                    val kurs = kursRepository.getKursWithDetailsById(kursId)
+                    val aufgaben = aufgabeRepository.getAufgabenByLevelId(kurs?.levelId ?: 0)
+                    mitglied.aufgaben = aufgaben
+
                     mitglieder.add(mitglied)
                 } while (cursor.moveToNext())
             }
@@ -155,4 +169,68 @@ class MitgliedRepository(context: Context) {
         cursor.close()
         return mitglieder
     }
+
+    fun updateMitgliedAufgabeErreicht(mitgliedId: Int, aufgabeId: Int, erreicht: Boolean) {
+        val db = dbHelper.writableDatabase
+        val contentValues = ContentValues().apply {
+            put("ERREICHT", if (erreicht) 1 else 0)
+        }
+
+        val whereClause = "MITGLIED_AUFGABE_MITGLIED_ID = ? AND MITGLIED_AUFGABE_AUFGABE_ID = ?"
+        val whereArgs = arrayOf(mitgliedId.toString(), aufgabeId.toString())
+
+        Log.d("updateMitgliedAufgabeErreicht", "Update mitgliedId: $mitgliedId, aufgabeId: $aufgabeId, erreicht: $erreicht")
+
+        val rowsUpdated = db.update(DatabaseHelper.TABLE_MITGLIED_AUFGABE, contentValues, whereClause, whereArgs)
+        db.close()
+
+        Log.d("updateMitgliedAufgabeErreicht", "Rows updated: $rowsUpdated")
+    }
+    fun getMitgliedAufgabe(mitgliedId: Int, aufgabeId: Int): MitgliedAufgabe? {
+        val db = dbHelper.readableDatabase
+        val query = """
+        SELECT * FROM ${DatabaseHelper.TABLE_MITGLIED_AUFGABE}
+        WHERE MITGLIED_AUFGABE_MITGLIED_ID = ? AND MITGLIED_AUFGABE_AUFGABE_ID = ?
+    """
+        val cursor = db.rawQuery(query, arrayOf(mitgliedId.toString(), aufgabeId.toString()))
+
+        return if (cursor.moveToFirst()) {
+            val mitgliedAufgabeId = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_AUFGABE_ID"))
+            val erreicht = cursor.getInt(cursor.getColumnIndexOrThrow("ERREICHT")) > 0
+            cursor.close()
+            MitgliedAufgabe(mitgliedAufgabeId, mitgliedId, aufgabeId, erreicht)
+        } else {
+            cursor.close()
+            null
+        }
+    }
+    fun getMitgliedAufgabenByMitgliedId(mitgliedId: Int): List<MitgliedAufgabe> {
+        val db = dbHelper.readableDatabase
+        val query = """
+            SELECT * FROM ${DatabaseHelper.TABLE_MITGLIED_AUFGABE}
+            WHERE MITGLIED_AUFGABE_MITGLIED_ID = ?
+        """
+        val cursor = db.rawQuery(query, arrayOf(mitgliedId.toString()))
+
+        val mitgliedAufgaben = mutableListOf<MitgliedAufgabe>()
+
+        cursor.use {
+            if (cursor.moveToFirst()) {
+                do {
+                    val mitgliedAufgabeId = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_AUFGABE_ID"))
+                    val aufgabeId = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_AUFGABE_AUFGABE_ID"))
+                    val erreicht = cursor.getInt(cursor.getColumnIndexOrThrow("ERREICHT")) > 0
+
+                    val mitgliedAufgabe = MitgliedAufgabe(mitgliedAufgabeId, mitgliedId, aufgabeId, erreicht)
+                    mitgliedAufgaben.add(mitgliedAufgabe)
+                } while (cursor.moveToNext())
+            }
+        }
+        cursor.close()
+
+        return mitgliedAufgaben
+    }
+
+
+
 }
