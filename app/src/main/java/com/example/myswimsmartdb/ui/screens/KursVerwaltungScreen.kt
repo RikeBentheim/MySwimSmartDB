@@ -7,7 +7,6 @@ import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -25,6 +24,7 @@ import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
 import com.example.myswimsmartdb.ui.Composable.BasisScreen
 import com.example.myswimsmartdb.ui.Composable.components.AttendanceTab
 import com.example.myswimsmartdb.ui.Composable.components.MembersTab
+import com.example.myswimsmartdb.ui.Composable.components.MitgliedAufgabeTab
 import com.example.myswimsmartdb.ui.theme.Platinum
 import com.example.myswimsmartdb.ui.theme.SkyBlue
 import com.example.myswimsmartdb.ui.theme.LapisLazuli
@@ -33,7 +33,6 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-
 fun KursVerwaltungScreen(navController: NavHostController) {
     val context = LocalContext.current
     val kursRepository = KursRepository(context)
@@ -133,7 +132,7 @@ fun KursDetails(
     mitgliedRepository: MitgliedRepository,
     navController: NavHostController
 ) {
-    var selectedTab by remember { mutableStateOf(0) }
+    var selectedTab by remember { mutableStateOf(1) } // Set default tab to "Aufgaben"
     val tabTitles = listOf("Anwesenheit", "Aufgaben", "Kursmitglieder")
     var selectedTask by remember { mutableStateOf<Aufgabe?>(null) }
 
@@ -174,13 +173,19 @@ fun KursDetails(
             0 -> AttendanceTab(course.id, trainingId)
             1 -> {
                 if (selectedTask == null) {
-                    TasksTab(levelId = course.levelId, kursId = course.id, navController = navController) // KursId hinzugefügt
+                    TasksTab(
+                        levelId = course.levelId,
+                        kursId = course.id,
+                        navController = navController,
+                        onTaskSelected = { task -> selectedTask = task } // Handle task selection
+                    )
                 } else {
                     MitgliedAufgabeTab(
                         taskId = selectedTask!!.id,
                         kursId = course.id,
-                        onBackToTasks = { selectedTask = null },
-                        navController = navController
+                        onBackToTasks = { selectedTask = null }, // Set selectedTask to null to go back to the task list
+                        navController = navController,
+                        mitgliedRepository = mitgliedRepository
                     )
                 }
             }
