@@ -1,20 +1,15 @@
 package com.example.myswimsmartdb.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.KursRepository
 import com.example.myswimsmartdb.db.MitgliedRepository
 import com.example.myswimsmartdb.db.TrainingRepository
@@ -53,19 +48,10 @@ fun KursVerwaltungScreen(navController: NavHostController) {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.adobestock_288862937),
-                contentDescription = "Header",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp),
-                contentScale = ContentScale.FillBounds
-            )
-
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = stringResource(id = R.string.schwimmverein_haltern),
+                text = "Schwimmverein Haltern",
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(12.dp),
                 color = Platinum
@@ -132,7 +118,7 @@ fun KursDetails(
     mitgliedRepository: MitgliedRepository,
     navController: NavHostController
 ) {
-    var selectedTab by remember { mutableStateOf(1) } // Set default tab to "Aufgaben"
+    var selectedTab by remember { mutableStateOf(0) } // Set default tab to "Anwesenheit"
     val tabTitles = listOf("Anwesenheit", "Aufgaben", "Kursmitglieder")
     var selectedTask by remember { mutableStateOf<Aufgabe?>(null) }
 
@@ -177,13 +163,13 @@ fun KursDetails(
                         levelId = course.levelId,
                         kursId = course.id,
                         navController = navController,
-                        onTaskSelected = { task -> selectedTask = task } // Handle task selection
+                        onTaskSelected = { task -> selectedTask = task }
                     )
                 } else {
                     MitgliedAufgabeTab(
                         taskId = selectedTask!!.id,
                         kursId = course.id,
-                        onBackToTasks = { selectedTask = null }, // Set selectedTask to null to go back to the task list
+                        onBackToTasks = { selectedTask = null },
                         navController = navController,
                         mitgliedRepository = mitgliedRepository
                     )
