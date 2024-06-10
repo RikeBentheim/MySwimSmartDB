@@ -8,12 +8,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myswimsmartdb.db.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Level
 import com.example.myswimsmartdb.db.entities.Mitglied
 import com.example.layout.ui.layout.components.DatePickerButton
+import com.example.myswimsmartdb.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,17 +26,19 @@ fun AddMemberScreen(
     onFinish: () -> Unit,
     existingMitglied: Mitglied? = null
 ) {
-    // Initialisiere Variablen für die Eingabefelder und die Nachricht
     var vorname by remember { mutableStateOf(existingMitglied?.vorname ?: "") }
     var nachname by remember { mutableStateOf(existingMitglied?.nachname ?: "") }
     var geburtsdatum by remember { mutableStateOf(existingMitglied?.geburtsdatumString ?: "") }
     var telefon by remember { mutableStateOf(existingMitglied?.telefon ?: "") }
     var message by remember { mutableStateOf("") }
 
-    // Lade die Mitglieder des Kurses
     val mitglieder = remember { mutableStateOf(mitgliedRepository.getMitgliederByKursId(kursId)) }
     val scrollState = rememberScrollState()
     var showInputFields by remember { mutableStateOf(true) }
+
+    val mitgliedHinzugefuegt = stringResource(id = R.string.mitglied_hinzugefuegt)
+    val mitgliedHinzufuegenFehler = stringResource(id = R.string.mitglied_hinzufuegen_fehler)
+    val mitgliedAktualisiert = stringResource(id = R.string.mitglied_aktualisiert)
 
     Column(
         modifier = Modifier
@@ -44,16 +48,16 @@ fun AddMemberScreen(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Kurs: ${selectedLevel.name}")
+        Text(text = stringResource(id = R.string.kurs, selectedLevel.name))
         if (showInputFields) {
-            Text(text = "Teilnehmer")
+            Text(text = stringResource(id = R.string.kursmitglieder))
             mitglieder.value.forEach { mitglied ->
                 Text(text = "${mitglied.vorname} ${mitglied.nachname}")
             }
             OutlinedTextField(
                 value = vorname,
                 onValueChange = { vorname = it },
-                label = { Text("Vorname") },
+                label = { Text(stringResource(id = R.string.vorname)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
@@ -61,7 +65,7 @@ fun AddMemberScreen(
             OutlinedTextField(
                 value = nachname,
                 onValueChange = { nachname = it },
-                label = { Text("Nachname") },
+                label = { Text(stringResource(id = R.string.nachname)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
@@ -76,7 +80,7 @@ fun AddMemberScreen(
             OutlinedTextField(
                 value = telefon,
                 onValueChange = { telefon = it },
-                label = { Text("Telefon") },
+                label = { Text(stringResource(id = R.string.telefon)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
@@ -96,14 +100,14 @@ fun AddMemberScreen(
                         val aufgaben = selectedLevel.aufgaben
                         val mitgliedId = mitgliedRepository.insertMitgliedWithAufgaben(mitglied, aufgaben)
                         if (mitgliedId != -1L) {
-                            message = "Mitglied erfolgreich hinzugefügt"
+                            message = mitgliedHinzugefuegt
                             mitglieder.value = mitgliedRepository.getMitgliederByKursId(kursId)
                             vorname = ""
                             nachname = ""
                             geburtsdatum = ""
                             telefon = ""
                         } else {
-                            message = "Fehler beim Hinzufügen des Mitglieds"
+                            message = mitgliedHinzufuegenFehler
                         }
                     } else {
                         // Bestehendes Mitglied aktualisieren
@@ -114,12 +118,12 @@ fun AddMemberScreen(
                             telefon = telefon
                         )
                         mitgliedRepository.updateMitglied(updatedMitglied)
-                        message = "Mitglied erfolgreich aktualisiert"
+                        message = mitgliedAktualisiert
                     }
                 },
                 modifier = Modifier.padding(vertical = 16.dp)
             ) {
-                Text(text = if (existingMitglied == null) "Mitglied hinzufügen" else "Mitglied aktualisieren")
+                Text(text = if (existingMitglied == null) stringResource(id = R.string.mitglied_hinzufuegen) else stringResource(id = R.string.mitglied_aktualisieren))
             }
             Button(
                 onClick = {
@@ -128,7 +132,7 @@ fun AddMemberScreen(
                 },
                 modifier = Modifier.padding(vertical = 16.dp)
             ) {
-                Text(text = "Eingabe beenden")
+                Text(text = stringResource(id = R.string.eingabe_beenden))
             }
             if (message.isNotEmpty()) {
                 Text(text = message, modifier = Modifier.padding(vertical = 8.dp))

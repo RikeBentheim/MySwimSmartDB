@@ -1,13 +1,14 @@
 package com.example.myswimsmartdb.ui.Composable.components
 
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Mitglied
 import kotlinx.coroutines.launch
@@ -50,7 +51,9 @@ fun MitgliedAufgabeTabAlt(
     if (isLoading) {
         CircularProgressIndicator(modifier = Modifier.fillMaxSize())
     } else {
-        Column(modifier = Modifier.padding(16.dp).fillMaxSize()) {
+        Column(modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize()) {
             LazyColumn(modifier = Modifier.weight(1f)) {
                 items(mitglieder) { mitglied ->
                     val isChecked = changes[mitglied.id] ?: false
@@ -99,11 +102,11 @@ fun MitgliedAufgabeTabAlt(
                         .fillMaxWidth()
                         .padding(vertical = 16.dp)
                 ) {
-                    Text(text = "Änderungen speichern")
+                    Text(text = stringResource(id = R.string.save_changes))
                 }
             } else {
                 Button(onClick = onBackToTasks) {
-                    Text("Zurück zu Aufgaben")
+                    Text(stringResource(id = R.string.back_to_tasks))
                 }
             }
         }

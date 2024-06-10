@@ -49,21 +49,21 @@ fun NeuerKursScreen(navController: NavHostController) {
             // Header-Bild
             Image(
                 painter = painterResource(id = R.drawable.adobestock_288862937),
-                contentDescription = "Header",
+                contentDescription = stringResource(id = R.string.app_name),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp),
                 contentScale = ContentScale.FillBounds
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(30.dp))
             // Titeltext
             Text(
-                text = stringResource(id = R.string.schwimmverein_haltern),
+                text = stringResource(id = R.string.neuer_kurs),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(12.dp),
                 color = Platinum
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
             // Steuerung der Schritte
             when (currentStep) {
@@ -101,7 +101,7 @@ fun NeuerKursScreen(navController: NavHostController) {
                         }
                     )
                 }
-                4 -> Text(text = "Kurs und Termine wurden erfolgreich erstellt.")
+                4 -> Text(text = stringResource(id = R.string.kurs_erfolgreich_erstellt))
             }
         }
     }

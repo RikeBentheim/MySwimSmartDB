@@ -57,7 +57,7 @@ fun KursVerwaltungScreen(navController: NavHostController) {
         ) {
             Image(
                 painter = painterResource(id = R.drawable.adobestock_288862937),
-                contentDescription = "Header",
+                contentDescription = stringResource(id = R.string.app_name),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp),
@@ -67,17 +67,17 @@ fun KursVerwaltungScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = stringResource(id = R.string.schwimmverein_haltern),
+                text = stringResource(id = R.string.training),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(12.dp),
                 color = Platinum
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
             if (!showDetails.value) {
                 StringSelectionDropdown(
-                    label = "Bitte einen Kurs auswählen:",
+                    label = stringResource(id = R.string.bitte_kurs_auswaehlen),
                     options = courses.map { it.name },
                     selectedOption = selectedCourse?.name ?: "",
                     onOptionSelected = { courseName ->
@@ -98,7 +98,7 @@ fun KursVerwaltungScreen(navController: NavHostController) {
                     val trainingDates = course.trainings.map { it.datum }
                     if (trainingDates.isNotEmpty()) {
                         StringSelectionDropdown(
-                            label = "Training Datum auswählen",
+                            label = stringResource(id = R.string.training_datum_auswaehlen),
                             options = trainingDates,
                             selectedOption = selectedDate,
                             onOptionSelected = { selectedDate = it },
@@ -110,7 +110,7 @@ fun KursVerwaltungScreen(navController: NavHostController) {
                 if (selectedDate.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(20.dp))
                     Button(onClick = { showDetails.value = true }) {
-                        Text("Kurs starten")
+                        Text(stringResource(id = R.string.kurs_starten))
                     }
                 }
             } else {
@@ -135,13 +135,17 @@ fun KursDetails(
     navController: NavHostController
 ) {
     var selectedTab by remember { mutableStateOf(0) }
-    val tabTitles = listOf("Anwesenheit", "Aufgaben", "Kursmitglieder")
+    val tabTitles = listOf(
+        stringResource(id = R.string.anwesenheit),
+        stringResource(id = R.string.aufgaben),
+        stringResource(id = R.string.kursmitglieder)
+    )
     var selectedTask by remember { mutableStateOf<Aufgabe?>(null) }
 
     Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = "Kurs: ${course.name}", style = MaterialTheme.typography.headlineSmall, color = LapisLazuli)
+        Text(text = stringResource(id = R.string.kurs, course.name), style = MaterialTheme.typography.headlineSmall, color = LapisLazuli)
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Trainingsdatum: $trainingsDatum", style = MaterialTheme.typography.bodyMedium, color = LapisLazuli)
+        Text(text = stringResource(id = R.string.trainingsdatum, trainingsDatum), style = MaterialTheme.typography.bodyMedium, color = LapisLazuli)
         Spacer(modifier = Modifier.height(16.dp))
 
         TabRow(

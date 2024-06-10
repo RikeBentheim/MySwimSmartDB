@@ -1,11 +1,12 @@
 package com.example.myswimsmartdb.ui.Composable
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -15,8 +16,10 @@ import com.example.myswimsmartdb.db.LevelRepository
 import com.example.myswimsmartdb.db.entities.Kurs
 import com.example.myswimsmartdb.db.entities.Level
 import com.example.myswimsmartdb.ui.theme.Platinum
+import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddKursScreen(
     navController: NavController,
@@ -33,21 +36,19 @@ fun AddKursScreen(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        TextField(
+        OutlinedTextField(
             value = kursName,
             onValueChange = { kursName = it },
-            label = { Text("Kurs Name") },
+            label = { Text(stringResource(id = R.string.kurs_name), color = IndigoDye) },
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Platinum),
-            colors = TextFieldDefaults.colors(
-                Platinum
-            )
+                .padding(vertical = 8.dp),
+
         )
         Spacer(modifier = Modifier.height(20.dp))
 
         StringSelectionDropdown(
-            label = "Level",
+            label = stringResource(id = R.string.level),
             options = levels.map { it.name },
             selectedOption = selectedLevel?.name ?: "",
             onOptionSelected = { selectedLevel = levels.find { level -> level.name == it } },
@@ -72,7 +73,7 @@ fun AddKursScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Speichern")
+            Text(stringResource(id = R.string.speichern))
         }
     }
 }

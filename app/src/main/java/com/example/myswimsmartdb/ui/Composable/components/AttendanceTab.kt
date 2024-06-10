@@ -8,7 +8,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.KursRepository
 import com.example.myswimsmartdb.db.entities.Mitglied
 import kotlinx.coroutines.delay
@@ -70,13 +72,13 @@ fun AttendanceTab(kursId: Int, trainingId: Int) {
                 },
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text("Änderungen übernehmen")
+                Text(stringResource(id = R.string.save_changes))
             }
         }
 
         if (showSuccessMessage) {
             Text(
-                text = "Änderungen wurden gespeichert",
+                text = stringResource(id = R.string.changes_saved),
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )

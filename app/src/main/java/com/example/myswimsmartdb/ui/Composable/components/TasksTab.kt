@@ -10,7 +10,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.AufgabeRepository
 import com.example.myswimsmartdb.db.entities.Aufgabe
 
@@ -28,7 +30,7 @@ fun TaskItem(task: Aufgabe, onTaskSelected: (Aufgabe) -> Unit, modifier: Modifie
             Text(text = task.aufgabe, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
             Icon(
                 imageVector = Icons.Default.ArrowForward,
-                contentDescription = "Show Details",
+                contentDescription = stringResource(id = R.string.show_details),
                 modifier = Modifier.clickable { onTaskSelected(task) }
             )
         }

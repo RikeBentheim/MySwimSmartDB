@@ -6,8 +6,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import android.util.Log
+import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Mitglied
 import kotlinx.coroutines.launch
@@ -81,7 +83,7 @@ fun MitgliedAufgabeTab(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Änderungen speichern")
+                    Text(stringResource(id = R.string.save_changes))
                 }
             }
         }
