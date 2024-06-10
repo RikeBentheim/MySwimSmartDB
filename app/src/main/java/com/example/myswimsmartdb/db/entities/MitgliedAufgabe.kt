@@ -4,5 +4,5 @@ data class MitgliedAufgabe(
     val mitgliedAufgabeId: Int,
     val mitgliedId: Int,
     val aufgabeId: Int,
-    val erreicht: Boolean
+    var erreicht: Boolean
 )

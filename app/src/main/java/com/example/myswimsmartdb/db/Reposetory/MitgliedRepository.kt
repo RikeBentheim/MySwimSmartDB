@@ -8,7 +8,6 @@ import com.example.myswimsmartdb.db.entities.*
 class MitgliedRepository(private val context: Context) {
 
     private val dbHelper = DatabaseHelper(context)
-    private val kursRepository = KursRepository(context)
 
     fun getMitgliederByKursId(kursId: Int): List<Mitglied> {
         val db = dbHelper.readableDatabase
@@ -60,7 +59,6 @@ class MitgliedRepository(private val context: Context) {
         }
         return mitgliedId
     }
-
 
     fun updateMitglied(mitglied: Mitglied): Int {
         val db = dbHelper.writableDatabase
@@ -125,16 +123,12 @@ class MitgliedRepository(private val context: Context) {
     fun getFullMitgliederDetailsByKursId(kursId: Int): List<Mitglied> {
         val db = dbHelper.readableDatabase
         val query = """
-    SELECT MITGLIED_ID, MITGLIED_VORNAME, MITGLIED_NACHNAME, MITGLIED_GEBURTSDATUM, MITGLIED_TELEFON, MITGLIED_KURS_ID
-    FROM ${DatabaseHelper.TABLE_MITGLIED}
-    WHERE MITGLIED_KURS_ID = ?
-"""
+        SELECT MITGLIED_ID, MITGLIED_VORNAME, MITGLIED_NACHNAME, MITGLIED_GEBURTSDATUM, MITGLIED_TELEFON, MITGLIED_KURS_ID
+        FROM ${DatabaseHelper.TABLE_MITGLIED}
+        WHERE MITGLIED_KURS_ID = ?
+    """
         val cursor = db.rawQuery(query, arrayOf(kursId.toString()))
         val mitglieder = mutableListOf<Mitglied>()
-
-        val trainingRepository = TrainingRepository(context)
-        val aufgabeRepository = AufgabeRepository(context)
-        val kursRepository = KursRepository(context)
 
         cursor.use {
             if (cursor.moveToFirst()) {
@@ -148,27 +142,19 @@ class MitgliedRepository(private val context: Context) {
                         kursId = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_KURS_ID"))
                     )
 
-                    // Get all trainings associated with this course
-                    val trainings = trainingRepository.getTrainingsByKursId(kursId)
-
-                    // Get attendance for each training session
-                    val anwesenheiten = trainings.mapNotNull { training ->
-                        trainingRepository.getAnwesenheitByMitgliedAndTraining(mitglied.id, training.id)
+                    // Aufgaben für das Mitglied laden
+                    val aufgaben = getMitgliedAufgabenByMitgliedId(mitglied.id)
+                    mitglied.aufgaben = aufgaben.map { aufgabe ->
+                        Aufgabe(aufgabe.aufgabeId, aufgabe.erreicht, aufgabe.aufgabeId.toString(), "")
                     }
-                    mitglied.anwesenheiten = anwesenheiten
-
-                    // Get tasks associated with the level of the course
-                    val kurs = kursRepository.getKursWithDetailsById(kursId)
-                    val aufgaben = aufgabeRepository.getAufgabenByLevelId(kurs?.levelId ?: 0)
-                    mitglied.aufgaben = aufgaben
 
                     mitglieder.add(mitglied)
                 } while (cursor.moveToNext())
             }
         }
-        cursor.close()
         return mitglieder
     }
+
 
     fun updateMitgliedAufgabeErreicht(mitgliedId: Int, aufgabeId: Int, erreicht: Boolean) {
         val db = dbHelper.writableDatabase
@@ -186,6 +172,7 @@ class MitgliedRepository(private val context: Context) {
 
         Log.d("updateMitgliedAufgabeErreicht", "Rows updated: $rowsUpdated")
     }
+
     fun getMitgliedAufgabe(mitgliedId: Int, aufgabeId: Int): MitgliedAufgabe? {
         val db = dbHelper.readableDatabase
         val query = """
@@ -204,6 +191,7 @@ class MitgliedRepository(private val context: Context) {
             null
         }
     }
+
     fun getMitgliedAufgabenByMitgliedId(mitgliedId: Int): List<MitgliedAufgabe> {
         val db = dbHelper.readableDatabase
         val query = """
@@ -228,9 +216,7 @@ class MitgliedRepository(private val context: Context) {
         }
         cursor.close()
 
+        Log.d("getMitgliedAufgabenByMitgliedId", "Mitglied ID: $mitgliedId, Aufgaben: $mitgliedAufgaben")
         return mitgliedAufgaben
     }
-
-
-
 }

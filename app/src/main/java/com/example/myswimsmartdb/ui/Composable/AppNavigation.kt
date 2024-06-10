@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.myswimsmartdb.ui.Composable.components.MitgliedAufgabeTab
 import com.example.myswimsmartdb.ui.screens.*
 
 @Composable
@@ -16,10 +17,6 @@ fun AppNavigation(navController: NavHostController) {
         composable("bahnenschwimmen") { BahnenschwimmenScreen(navController) }
         composable("kursBearbeiten") { KursScreen(navController) }
         composable("kursVerwaltung") { KursVerwaltungScreen(navController) }
-        composable("mitgliedAufgabeTab/{taskId}/{kursId}") { backStackEntry ->
-            val taskId = backStackEntry.arguments?.getString("taskId")?.toInt() ?: return@composable
-            val kursId = backStackEntry.arguments?.getString("kursId")?.toInt() ?: return@composable
-            MitgliedAufgabeTab(taskId, kursId, onBackToTasks = { navController.popBackStack() }, navController)
-        }
+
     }
 }

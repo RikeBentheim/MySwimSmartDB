@@ -1,4 +1,4 @@
-package com.example.myswimsmartdb.ui.screens
+package com.example.myswimsmartdb.ui.Composable.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,7 +11,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.myswimsmartdb.db.AufgabeRepository
 import com.example.myswimsmartdb.db.entities.Aufgabe
 
@@ -38,8 +37,9 @@ fun TaskItem(task: Aufgabe, onTaskSelected: (Aufgabe) -> Unit, modifier: Modifie
         }
     }
 }
+
 @Composable
-fun TasksTab(levelId: Int, kursId: Int, navController: NavController) {
+fun TasksTab(levelId: Int, kursId: Int, onTaskSelected: (Aufgabe) -> Unit) {
     val context = LocalContext.current
     val aufgabeRepository = AufgabeRepository(context)
     var tasks by remember { mutableStateOf(listOf<Aufgabe>()) }
@@ -52,9 +52,7 @@ fun TasksTab(levelId: Int, kursId: Int, navController: NavController) {
         .fillMaxSize()
         .padding(16.dp)) {
         items(tasks) { task ->
-            TaskItem(task = task, onTaskSelected = {
-                navController.navigate("mitgliedAufgabeTab/${task.id}/$kursId")
-            })
+            TaskItem(task = task, onTaskSelected = { onTaskSelected(it) })
         }
     }
 }

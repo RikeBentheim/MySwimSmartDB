@@ -25,6 +25,8 @@ import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
 import com.example.myswimsmartdb.ui.Composable.BasisScreen
 import com.example.myswimsmartdb.ui.Composable.components.AttendanceTab
 import com.example.myswimsmartdb.ui.Composable.components.MembersTab
+import com.example.myswimsmartdb.ui.Composable.components.MitgliedAufgabeTab
+import com.example.myswimsmartdb.ui.Composable.components.TasksTab
 import com.example.myswimsmartdb.ui.theme.Platinum
 import com.example.myswimsmartdb.ui.theme.SkyBlue
 import com.example.myswimsmartdb.ui.theme.LapisLazuli
@@ -33,7 +35,6 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-
 fun KursVerwaltungScreen(navController: NavHostController) {
     val context = LocalContext.current
     val kursRepository = KursRepository(context)
@@ -174,13 +175,15 @@ fun KursDetails(
             0 -> AttendanceTab(course.id, trainingId)
             1 -> {
                 if (selectedTask == null) {
-                    TasksTab(levelId = course.levelId, kursId = course.id, navController = navController) // KursId hinzugefügt
+                    TasksTab(levelId = course.levelId, kursId = course.id, onTaskSelected = { task ->
+                        selectedTask = task
+                    })
                 } else {
                     MitgliedAufgabeTab(
                         taskId = selectedTask!!.id,
                         kursId = course.id,
-                        onBackToTasks = { selectedTask = null },
-                        navController = navController
+                        mitgliedRepository = mitgliedRepository,
+                        onBackToTasks = { selectedTask = null }
                     )
                 }
             }
