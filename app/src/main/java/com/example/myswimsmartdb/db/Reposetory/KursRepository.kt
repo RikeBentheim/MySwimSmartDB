@@ -142,7 +142,7 @@ class KursRepository(context: Context) {
 
         db.beginTransaction()
         try {
-            // Delete attendance records for each training of the course
+            // Löschen der Anwesenheitsaufzeichnungen für jedes Training des Kurses
             val trainingIdsCursor = db.rawQuery(
                 "SELECT TRAINING_ID FROM ${DatabaseHelper.TABLE_TRAINING} t " +
                         "INNER JOIN ${DatabaseHelper.TABLE_KURS_TRAINING} kt " +
@@ -156,7 +156,7 @@ class KursRepository(context: Context) {
             }
             trainingIdsCursor.close()
 
-            // Delete trainings for the course
+            // Löschen der Trainings für den Kurs
             db.delete(
                 DatabaseHelper.TABLE_TRAINING,
                 "TRAINING_ID IN (SELECT TRAINING_ID FROM ${DatabaseHelper.TABLE_TRAINING} t " +
@@ -166,10 +166,10 @@ class KursRepository(context: Context) {
                 arrayOf(kursId.toString())
             )
 
-            // Delete course-training associations
+            // Löschen der Kurs-Training-Verknüpfungen
             db.delete(DatabaseHelper.TABLE_KURS_TRAINING, "KURS_TRAINING_KURS_ID = ?", arrayOf(kursId.toString()))
 
-            // Delete member-task associations for each member of the course
+            // Löschen der Mitglied-Aufgabe-Verknüpfungen für jedes Mitglied des Kurses
             val mitgliedIdsCursor = db.rawQuery(
                 "SELECT MITGLIED_ID FROM ${DatabaseHelper.TABLE_MITGLIED} WHERE MITGLIED_KURS_ID = ?",
                 arrayOf(kursId.toString())
@@ -181,10 +181,10 @@ class KursRepository(context: Context) {
             }
             mitgliedIdsCursor.close()
 
-            // Delete members of the course
+            // Löschen der Mitglieder des Kurses
             db.delete(DatabaseHelper.TABLE_MITGLIED, "MITGLIED_KURS_ID = ?", arrayOf(kursId.toString()))
 
-            // Finally, delete the course itself
+            // Schließlich, löschen des Kurses selbst
             db.delete(DatabaseHelper.TABLE_KURS, "KURS_ID = ?", arrayOf(kursId.toString()))
 
             db.setTransactionSuccessful()
@@ -192,6 +192,7 @@ class KursRepository(context: Context) {
             db.endTransaction()
         }
     }
+
 
     fun getMitgliederForKurs(kursId: Int): List<Mitglied> {
         val db = dbHelper.readableDatabase

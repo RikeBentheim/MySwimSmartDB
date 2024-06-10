@@ -24,11 +24,8 @@ import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
 import com.example.myswimsmartdb.ui.content.CourseDetails
 import com.example.myswimsmartdb.ui.content.MitgliederManagement
 import com.example.myswimsmartdb.ui.content.TrainingManagement
-import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.ui.theme.Platinum
 import com.example.myswimsmartdb.ui.theme.Cerulean
-import com.example.myswimsmartdb.ui.theme.SkyBlue
-import com.example.myswimsmartdb.ui.theme.LapisLazuli
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,9 +36,18 @@ fun KursScreen(navController: NavHostController) {
     val mitgliedRepository = MitgliedRepository(context)
 
     // Liste der verfügbaren Kurse laden
-    val courses = kursRepository.getAllKurseWithDetails()
+    var courses by remember { mutableStateOf(kursRepository.getAllKurseWithDetails()) }
     var selectedCourse by remember { mutableStateOf<Kurs?>(null) }
     var editMode by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var deleteMessage by remember { mutableStateOf("") }
+
+    // Strings für den Dialog laden
+    val deleteDialogTitle = stringResource(id = R.string.kurs_loeschen_titel)
+    val deleteDialogText = stringResource(id = R.string.kurs_loeschen_text)
+    val deleteButtonText = stringResource(id = R.string.kurs_loeschen)
+    val cancelButtonText = stringResource(id = R.string.abbrechen)
+    val deletedMessage = stringResource(id = R.string.kurs_geloescht)
 
     BasisScreen(navController = navController) { innerPadding ->
         Column(
@@ -52,7 +58,7 @@ fun KursScreen(navController: NavHostController) {
             // Header Bild
             Image(
                 painter = painterResource(id = R.drawable.adobestock_288862937),
-                contentDescription = "Header",
+                contentDescription = stringResource(id = R.string.app_name),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp),
@@ -63,18 +69,18 @@ fun KursScreen(navController: NavHostController) {
 
             // Titeltext
             Text(
-                text = stringResource(id = R.string.schwimmverein_haltern),
+                text = stringResource(id = R.string.kurs_bearbeiten),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(12.dp),
                 color = Platinum
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
             if (!editMode) {
                 // Dropdown-Menü zur Auswahl eines Kurses
                 StringSelectionDropdown(
-                    label = "Bitte einen Kurs auswählen:",
+                    label = stringResource(id = R.string.bitte_kurs_auswaehlen),
                     options = courses.map { it.name },
                     selectedOption = selectedCourse?.name ?: "",
                     onOptionSelected = { courseName ->
@@ -87,16 +93,29 @@ fun KursScreen(navController: NavHostController) {
 
                 // Kursdetails und Bearbeiten-Button anzeigen, wenn ein Kurs ausgewählt wurde
                 selectedCourse?.let { course ->
-                    Button(
-                        onClick = {
-                            editMode = true
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Cerulean),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Text("Kurs Bearbeiten", color = Platinum)
+                        Button(
+                            onClick = {
+                                editMode = true
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Cerulean),
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Text(stringResource(id = R.string.kurs_bearbeiten), color = Platinum)
+                        }
+
+                        Button(
+                            onClick = {
+                                showDeleteDialog = true
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Platinum),
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Text(stringResource(id = R.string.kurs_loeschen), color = Platinum)
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -128,6 +147,44 @@ fun KursScreen(navController: NavHostController) {
                         )
                     }
                 }
+            }
+
+            // Erfolgs- oder Fehlermeldung anzeigen
+            if (deleteMessage.isNotEmpty()) {
+                Text(
+                    text = deleteMessage,
+                    color = Cerulean,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+
+            // Dialog zum Bestätigen des Löschens
+            if (showDeleteDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteDialog = false },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                selectedCourse?.let {
+                                    kursRepository.deleteKursWithDetails(it.id)
+                                    deleteMessage = deletedMessage
+                                    selectedCourse = null
+                                    courses = kursRepository.getAllKurseWithDetails()
+                                }
+                                showDeleteDialog = false
+                            }
+                        ) {
+                            Text(deleteButtonText)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteDialog = false }) {
+                            Text(cancelButtonText)
+                        }
+                    },
+                    title = { Text(deleteDialogTitle) },
+                    text = { Text(deleteDialogText) }
+                )
             }
         }
     }
