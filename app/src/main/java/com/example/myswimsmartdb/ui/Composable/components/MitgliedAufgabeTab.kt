@@ -85,6 +85,13 @@ fun MitgliedAufgabeTab(
                 ) {
                     Text(stringResource(id = R.string.save_changes))
                 }
+            } else {
+                Button(
+                    onClick = onBackToTasks,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(id = R.string.back_to_tasks))
+                }
             }
         }
     }

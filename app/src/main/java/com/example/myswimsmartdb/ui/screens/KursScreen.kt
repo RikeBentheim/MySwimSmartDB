@@ -111,7 +111,7 @@ fun KursScreen(navController: NavHostController) {
                             onClick = {
                                 showDeleteDialog = true
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Platinum),
+                            colors = ButtonDefaults.buttonColors(containerColor = Cerulean),
                             modifier = Modifier.padding(8.dp)
                         ) {
                             Text(stringResource(id = R.string.kurs_loeschen), color = Platinum)
