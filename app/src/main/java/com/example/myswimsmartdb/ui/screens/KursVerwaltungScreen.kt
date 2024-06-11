@@ -191,7 +191,7 @@ fun KursDetails(
                     )
                 }
             }
-            2 -> MembersTab()
+            2 -> MembersTab(course.id, mitgliedRepository)
         }
     }
 }

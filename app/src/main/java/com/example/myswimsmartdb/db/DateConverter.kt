@@ -6,22 +6,21 @@ import java.util.Locale
 
 class DateConverter {
 
+    companion object {
+        private val format = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
 
-    public companion object{
+        @JvmStatic
         fun dateToString(date: Date?): String {
-            val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             return date?.let { format.format(it) } ?: ""
         }
 
-        // Funktion zur Konvertierung von String zu Date
+        @JvmStatic
         fun stringToDate(dateString: String): Date? {
-            val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             return try {
                 format.parse(dateString)
             } catch (e: Exception) {
                 null
             }
         }
-
     }
 }

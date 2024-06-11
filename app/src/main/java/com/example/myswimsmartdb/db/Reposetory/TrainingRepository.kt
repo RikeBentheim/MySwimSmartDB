@@ -69,22 +69,31 @@ class TrainingRepository(context: Context) {
         db.delete(DatabaseHelper.TABLE_ANWESENHEIT, "ANWESENHEIT_TRAINING_ID = ?", arrayOf(trainingId.toString()))
     }
 
-    fun getAnwesenheitByMitgliedAndTraining(mitgliedId: Int, trainingId: Int): Anwesenheit? {
+    fun getAnwesenheitenByMitgliedAndKurs(mitgliedId: Int, kursId: Int): List<Anwesenheit> {
         val db = dbHelper.readableDatabase
         val query = """
-        SELECT * FROM ${DatabaseHelper.TABLE_ANWESENHEIT}
-        WHERE ANWESENHEIT_MITGLIED_ID = ? AND ANWESENHEIT_TRAINING_ID = ?
+        SELECT A.ANWESENHEIT_ID, A.ANWESENHEIT_ANWESEND, T.TRAINING_DATUM, T.TRAINING_ID
+        FROM ${DatabaseHelper.TABLE_ANWESENHEIT} A
+        INNER JOIN ${DatabaseHelper.TABLE_TRAINING} T ON A.ANWESENHEIT_TRAINING_ID = T.TRAINING_ID
+        INNER JOIN ${DatabaseHelper.TABLE_KURS_TRAINING} KT ON T.TRAINING_ID = KT.KURS_TRAINING_TRAINING_ID
+        WHERE A.ANWESENHEIT_MITGLIED_ID = ? AND KT.KURS_TRAINING_KURS_ID = ?
     """
-        val cursor = db.rawQuery(query, arrayOf(mitgliedId.toString(), trainingId.toString()))
+        val cursor = db.rawQuery(query, arrayOf(mitgliedId.toString(), kursId.toString()))
 
-        return if (cursor.moveToFirst()) {
-            val id = cursor.getInt(cursor.getColumnIndexOrThrow("ANWESENHEIT_ID"))
-            val anwesend = cursor.getInt(cursor.getColumnIndexOrThrow("ANWESENHEIT_ANWESEND")) > 0
-            cursor.close()
-            Anwesenheit(id, mitgliedId, trainingId, "", "", anwesend)  // Pass appropriate parameters
-        } else {
-            cursor.close()
-            null
+        val anwesenheiten = mutableListOf<Anwesenheit>()
+
+        cursor.use {
+            if (cursor.moveToFirst()) {
+                do {
+                    val id = cursor.getInt(cursor.getColumnIndexOrThrow("ANWESENHEIT_ID"))
+                    val anwesend = cursor.getInt(cursor.getColumnIndexOrThrow("ANWESENHEIT_ANWESEND")) > 0
+                    val trainingDatum = cursor.getString(cursor.getColumnIndexOrThrow("TRAINING_DATUM"))
+                    val trainingId = cursor.getInt(cursor.getColumnIndexOrThrow("TRAINING_ID"))
+                    anwesenheiten.add(Anwesenheit(id, mitgliedId, trainingId, trainingDatum, "", anwesend))
+                } while (cursor.moveToNext())
+            }
         }
+        return anwesenheiten
     }
+
 }
