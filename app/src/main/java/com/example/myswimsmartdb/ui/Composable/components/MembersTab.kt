@@ -2,69 +2,33 @@ package com.example.myswimsmartdb.ui.Composable.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.myswimsmartdb.R
-import com.example.myswimsmartdb.db.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Mitglied
 import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.ui.theme.SkyBlue
 import com.example.myswimsmartdb.db.DateConverter
+import com.example.myswimsmartdb.db.MitgliedRepository
 import java.util.Date
+import java.util.concurrent.TimeUnit
+import nl.dionsegijn.konfetti.compose.KonfettiView
+import nl.dionsegijn.konfetti.core.Position
+import nl.dionsegijn.konfetti.core.Party
 
-// Hauptkomponente für die Mitgliedsübersicht
-@Composable
-fun MembersTab(kursId: Int, mitgliedRepository: MitgliedRepository) {
-    val members = remember { mutableStateOf(emptyList<Mitglied>()) }
-    var selectedMember by remember { mutableStateOf<Mitglied?>(null) }
+import nl.dionsegijn.konfetti.core.emitter.Emitter
+import nl.dionsegijn.konfetti.core.models.Shape
 
-    LaunchedEffect(kursId) {
-        members.value = mitgliedRepository.getFullMitgliederDetailsByKursId(kursId)
-    }
-
-    if (selectedMember == null) {
-        LazyColumn(modifier = Modifier.padding(16.dp)) {
-            items(members.value) { member ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { selectedMember = member }
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "${member.vorname} ${member.nachname}")
-                    Icon(
-                        imageVector = Icons.Default.ArrowForward,
-                        contentDescription = stringResource(id = R.string.show_details),
-                        modifier = Modifier.clickable { selectedMember = member }
-                    )
-                }
-            }
-        }
-    } else {
-        MemberDetail(
-            member = selectedMember!!,
-            onBack = { selectedMember = null }
-        )
-    }
-}
-
-// Komponente für die Anzeige der Mitgliederdetails
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MemberDetail(member: Mitglied, onBack: () -> Unit) {
+fun MembersTab(kursId: Int, mitgliedRepository: MitgliedRepository){
     var showTasks by remember { mutableStateOf(false) }
     var showAttendance by remember { mutableStateOf(false) }
+    val allTasksCompleted = member.aufgaben.all { it.erledigt }
 
     Column(
         modifier = Modifier
@@ -144,6 +108,23 @@ fun MemberDetail(member: Mitglied, onBack: () -> Unit) {
 
         Button(onClick = onBack) {
             Text(text = "Zurück")
+        }
+
+        if (allTasksCompleted) {
+            KonfettiView(
+                modifier = Modifier.fillMaxSize(),
+                parties = listOf(
+                    Party(
+                        speed = 0f,
+                        maxSpeed = 30f,
+                        damping = 0.9f,
+                        spread = 360,
+                        colors = listOf(0xfce18a, 0xff726d, 0xf4306d, 0xb48def),
+                        position = Position.Relative(0.5, 0.3),
+                        emitter = Emitter(duration = 100, TimeUnit.MILLISECONDS).max(100)
+                    )
+                )
+            )
         }
     }
 }
