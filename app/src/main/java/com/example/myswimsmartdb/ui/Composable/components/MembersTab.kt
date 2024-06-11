@@ -77,7 +77,7 @@ fun MembersTab(kursId: Int, mitgliedRepository: MitgliedRepository) {
                 modifier = Modifier.fillMaxSize(),
                 parties = listOf(
                     Party(
-                        colors = listOf(0xFFFF00, 0x008000, 0xFF00FF),  // Yellow, Green, Magenta in hex format
+                        colors = listOf(0x8ecae6, 0x219ebc, 0x023047, 0xffb703, 0xfb8500),
                         angle = 0,
                         spread = 360,
                         speed = 1f,
@@ -107,18 +107,18 @@ fun MemberDetail(member: Mitglied, onBack: () -> Unit) {
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Text(text = "Mitglied:", style = MaterialTheme.typography.headlineMedium)
+        Text(text = stringResource(id = R.string.member), style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(text = "Vorname: ${member.vorname}")
-        Text(text = "Nachname: ${member.nachname}")
-        Text(text = "Geburtsdatum: ${member.geburtsdatumString}")
-        Text(text = "Telefon: ${member.telefon}")
+        Text(text = "${stringResource(id = R.string.vorname)}: ${member.vorname}")
+        Text(text = "${stringResource(id = R.string.nachname)}: ${member.nachname}")
+        Text(text = "${stringResource(id = R.string.geburtsdatum)}: ${member.geburtsdatumString}")
+        Text(text = "${stringResource(id = R.string.telefon)}: ${member.telefon}")
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Aufgaben",
+            text = stringResource(id = R.string.aufgaben),
             modifier = Modifier.clickable { showTasks = !showTasks },
             style = MaterialTheme.typography.headlineSmall
         )
@@ -144,7 +144,7 @@ fun MemberDetail(member: Mitglied, onBack: () -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Anwesenheit",
+            text = stringResource(id = R.string.anwesenheit),
             modifier = Modifier.clickable { showAttendance = !showAttendance },
             style = MaterialTheme.typography.headlineSmall
         )
@@ -161,7 +161,6 @@ fun MemberDetail(member: Mitglied, onBack: () -> Unit) {
                             .fillMaxWidth()
                             .padding(8.dp)
                     ) {
-                        // Hier wird die Textfarbe basierend auf dem Datum geändert
                         Text(
                             text = anwesenheit.trainingDatum,
                             color = textColor,
@@ -179,7 +178,7 @@ fun MemberDetail(member: Mitglied, onBack: () -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = onBack) {
-            Text(text = "Zurück")
+            Text(text = stringResource(id = R.string.back_to_tasks))
         }
 
         if (allTasksCompleted) {
@@ -187,7 +186,7 @@ fun MemberDetail(member: Mitglied, onBack: () -> Unit) {
                 modifier = Modifier.fillMaxSize(),
                 parties = listOf(
                     Party(
-                        colors = listOf(0xFFFF00, 0x008000, 0xFF00FF),  // Yellow, Green, Magenta in hex format
+                        colors = listOf(0x8ecae6, 0x219ebc, 0x023047, 0xffb703, 0xfb8500),
                         angle = 0,
                         spread = 360,
                         speed = 1f,

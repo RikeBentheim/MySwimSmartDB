@@ -40,4 +40,6 @@
     <string name="dates">Termine</string>
     <string name="dates_saved">Termine erfolgreich gespeichert</string>
     <string name="save_dates">Termine speichern</string>
+    <string name="member">Mitglied</string>
+    <string name="geburtsdatum">Geburtsdatum</string>
 </resources>
