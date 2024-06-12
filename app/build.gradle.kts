@@ -63,8 +63,6 @@ dependencies {
     implementation ("androidx.navigation:navigation-compose:2.7.7")
     implementation ("androidx.compose.material3:material3:1.2.1")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
-
-    // New additions
     implementation("androidx.compose.runtime:runtime-saveable:1.7.0-beta02")
     implementation ("androidx.compose.foundation:foundation:1.7.0-beta02")
     implementation ("androidx.compose.material:material:1.7.0-beta02")
@@ -72,7 +70,8 @@ dependencies {
     implementation ("androidx.compose.ui:ui-tooling:1.7.0-beta02")
     implementation ("androidx.compose.runtime:runtime:1.7.0-beta02")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0-RC")
-
+    implementation ("com.google.accompanist:accompanist-swiperefresh:0.34.0")
+    implementation ("com.google.accompanist:accompanist-navigation-animation:0.34.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

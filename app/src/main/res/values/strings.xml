@@ -42,4 +42,10 @@
     <string name="save_dates">Termine speichern</string>
     <string name="member">Mitglied</string>
     <string name="geburtsdatum">Geburtsdatum</string>
+    <string name="optionen">Optionen</string>
+    <string name="timer_neu_starten">Timer neu starten</string>
+    <string name="mitglied_loeschen">Mitglied löschen</string>
+    <string name="stoppuhr">Stoppuhr</string>
+    <string name="stop">Stop</string>
+    <string name="start">Start</string>
 </resources>

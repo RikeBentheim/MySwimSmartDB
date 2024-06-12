@@ -2,6 +2,7 @@ package com.example.myswimsmartdb.ui.Composable.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -12,10 +13,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.myswimsmartdb.R
+import androidx.compose.ui.unit.sp
 import com.example.myswimsmartdb.db.entities.Stoppuhr
+import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.ui.theme.Cerulean
 import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.ui.theme.SkyBlue
@@ -24,6 +29,7 @@ import kotlinx.coroutines.launch
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoppuhrContent() {
     MitgliederVerwaltung()
@@ -31,16 +37,15 @@ fun StoppuhrContent() {
 
 @Composable
 fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
+    // MutableStateList für die Stoppuhren
     val stoppuhren = remember { mutableStateListOf<Stoppuhr>() }
     var vorname by remember { mutableStateOf("") }
     var nachname by remember { mutableStateOf("") }
     var idCounter by remember { mutableStateOf(1) }
 
     Column(modifier = Modifier.padding(innerPadding)) {
-        // Platz für Header-Bild
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(text = "Stoppuhr", style = MaterialTheme.typography.titleMedium, color = Color.Black)
-        Spacer(modifier = Modifier.height(45.dp))
+        Spacer(modifier = Modifier.height(30.dp))
+
 
         Row(
             modifier = Modifier
@@ -49,10 +54,11 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom
         ) {
+            // TextField für den Vornamen
             TextField(
                 value = vorname,
                 onValueChange = { vorname = it },
-                label = { Text("Vorname") },
+                label = { Text(stringResource(id = R.string.vorname)) },
                 modifier = Modifier
                     .weight(1f)
                     .border(1.dp, IndigoDye)
@@ -62,10 +68,11 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
 
             Spacer(modifier = Modifier.width(4.dp))
 
+            // TextField für den Nachnamen
             TextField(
                 value = nachname,
                 onValueChange = { nachname = it },
-                label = { Text("Nachname") },
+                label = { Text(stringResource(id = R.string.nachname)) },
                 modifier = Modifier
                     .weight(1f)
                     .border(1.dp, IndigoDye)
@@ -75,6 +82,7 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
 
             Spacer(modifier = Modifier.width(4.dp))
 
+            // Button zum Hinzufügen einer neuen Stoppuhr
             IconButton(onClick = {
                 if (vorname.isNotBlank() && nachname.isNotBlank()) {
                     stoppuhren.add(Stoppuhr(idCounter++, idCounter, vorname, nachname))
@@ -82,15 +90,16 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
                     nachname = ""
                 }
             }) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+                Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(id = R.string.mitglied_hinzufuegen))
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Liste der Stoppuhren
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            itemsIndexed(stoppuhren) { _, stoppuhr ->
-                StoppuhrMitTimer(stoppuhr)
+            itemsIndexed(stoppuhren) { index, stoppuhr ->
+                StoppuhrMitTimer(stoppuhr, onDelete = { stoppuhren.removeAt(index) })
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
@@ -98,11 +107,13 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
 }
 
 @Composable
-fun StoppuhrMitTimer(stoppuhr: Stoppuhr) {
+fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
     var isRunning by remember { mutableStateOf(stoppuhr.running) }
     var time by remember { mutableStateOf(stoppuhr.zeit.toDuration(DurationUnit.MILLISECONDS)) }
+    var showDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
+    // Timer-Logik
     LaunchedEffect(isRunning) {
         if (isRunning) {
             coroutineScope.launch {
@@ -115,10 +126,44 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr) {
         }
     }
 
+    // Dialog zum Zurücksetzen des Timers oder Löschen des Mitglieds
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(stringResource(id = R.string.optionen)) },
+            text = {
+                Column {
+                    Button(
+                        onClick = {
+                            stoppuhr.reset()
+                            time = stoppuhr.zeit.toDuration(DurationUnit.MILLISECONDS)
+                            showDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
+                    ) {
+                        Text(stringResource(id = R.string.timer_neu_starten))
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            onDelete()
+                            showDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
+                    ) {
+                        Text(stringResource(id = R.string.mitglied_loeschen))
+                    }
+                }
+            },
+            confirmButton = {}
+        )
+    }
+
+    // Layout der Stoppuhrzeile
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, IndigoDye), // Vertikaler Abstand für die Row
+            .border(1.dp, IndigoDye),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -126,18 +171,20 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr) {
             modifier = Modifier
                 .size(50.dp)
                 .background(SkyBlue)
-                .padding(start = 8.dp), // Korrigiert von left zu start
+                .clickable { showDialog = true }
+                .height(50.dp),  // gleiche Höhe wie die Zeile
             contentAlignment = Alignment.Center
         ) {
-            Text("⟳", color = Color.White)
+            Text("⟳", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
         }
 
-        Spacer(modifier = Modifier.width(16.dp)) // Abstand zwischen Box und Textfeld
+        Spacer(modifier = Modifier.width(16.dp))
 
         Text("${stoppuhr.vorname} ${stoppuhr.nachname}", modifier = Modifier.weight(1f))
 
-        Spacer(modifier = Modifier.width(16.dp)) // Abstand zwischen Textfeld und Button
+        Spacer(modifier = Modifier.width(16.dp))
 
+        // Button zum Starten/Stoppen des Timers
         Button(
             onClick = {
                 if (isRunning) {
@@ -150,19 +197,18 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr) {
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isRunning) Cerulean else SkyBlue
             ),
-            shape = MaterialTheme.shapes.extraSmall, // Eckiger Button
-            modifier = Modifier
-                .height(50.dp)  // gleiche Höhe wie die Box
-                .padding(start = 8.dp) // etwas weiter nach links gerückt
+            shape = MaterialTheme.shapes.extraSmall,
+            modifier = Modifier.height(50.dp)  // gleiche Höhe wie die Zeile
         ) {
-            Text(if (isRunning) "Stop" else "Start")
+            Text(if (isRunning) stringResource(id = R.string.stop) else stringResource(id = R.string.start))
         }
 
+        // Anzeige der gestoppten Zeit
         Text(
             text = time.toString(DurationUnit.SECONDS),
             modifier = Modifier
-                .padding(start = 8.dp, end = 8.dp) // Korrigiert von left und right zu start und end
-                .requiredWidth(80.dp) // Mindestbreite des Textfelds
+                .padding(start = 8.dp, end = 8.dp)
+                .requiredWidth(80.dp)
         )
     }
 }
