@@ -5,6 +5,8 @@ import android.content.Context
 import android.util.Log
 import com.example.myswimsmartdb.db.entities.*
 import com.example.myswimsmartdb.db.TrainingRepository
+import com.example.myswimsmartdb.repository.BahnenzaehlenRepository
+import com.example.myswimsmartdb.repository.StoppuhrRepository
 
 class MitgliedRepository(private val context: Context) {
 
@@ -159,10 +161,11 @@ class MitgliedRepository(private val context: Context) {
         }
         return aufgaben
     }
-
     fun getFullMitgliederDetailsByKursId(kursId: Int): List<Mitglied> {
         val db = dbHelper.readableDatabase
         val trainingRepository = TrainingRepository(context)
+        val stoppuhrRepository = StoppuhrRepository(context)
+        val bahnenzaehlenRepository = BahnenzaehlenRepository(context)
         val query = """
         SELECT MITGLIED_ID, MITGLIED_VORNAME, MITGLIED_NACHNAME, MITGLIED_GEBURTSDATUM, MITGLIED_TELEFON, MITGLIED_KURS_ID
         FROM ${DatabaseHelper.TABLE_MITGLIED}
@@ -190,6 +193,14 @@ class MitgliedRepository(private val context: Context) {
                     // Anwesenheiten für das Mitglied laden
                     val anwesenheiten = trainingRepository.getAnwesenheitenByMitgliedAndKurs(mitglied.id, kursId)
                     mitglied.anwesenheiten = anwesenheiten
+
+                    // Bahnenzaehlen für das Mitglied laden
+                    val bahnenzaehlen = bahnenzaehlenRepository.getBahnenzaehlenByMitgliedId(mitglied.id)
+                    mitglied.Bahnenzaehlen = bahnenzaehlen
+
+                    // Stoppuhr für das Mitglied laden
+                    val stoppuhr = stoppuhrRepository.getStoppuhrenByMitgliedId(mitglied.id)
+                    mitglied.Stoppuhr = stoppuhr
 
                     mitglieder.add(mitglied)
                 } while (cursor.moveToNext())

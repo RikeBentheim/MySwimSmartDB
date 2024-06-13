@@ -52,16 +52,16 @@ class BahnenzaehlenRepository(context: Context) {
         with(cursor) {
             while (moveToNext()) {
                 val bahnenzaehlen = Bahnenzaehlen(
-                    getInt(getColumnIndexOrThrow("BAHNENZAEHLEN_ID")),
-                    getInt(getColumnIndexOrThrow("MITGLIED_ID")),
-                    getString(getColumnIndexOrThrow("VORNAME")),
-                    getString(getColumnIndexOrThrow("NACHNAME")),
-                    getInt(getColumnIndexOrThrow("BAHNEN")),
-                    getInt(getColumnIndexOrThrow("BAHNLAENGE")),
-                    getString(getColumnIndexOrThrow("ZEITMODE")),
-                    getLong(getColumnIndexOrThrow("ZEIT")),
-                    getInt(getColumnIndexOrThrow("RUNNING")) == 1,
-                    getString(getColumnIndexOrThrow("DATUMSTRING"))
+                    id = getInt(getColumnIndexOrThrow("BAHNENZAEHLEN_ID")),
+                    mitgliedId = getInt(getColumnIndexOrThrow("MITGLIED_ID")),
+                    vorname = getString(getColumnIndexOrThrow("VORNAME")),
+                    nachname = getString(getColumnIndexOrThrow("NACHNAME")),
+                    datumString = getString(getColumnIndexOrThrow("DATUMSTRING")),
+                    bahnen = getInt(getColumnIndexOrThrow("BAHNEN")),
+                    bahnlaenge = getInt(getColumnIndexOrThrow("BAHNLAENGE")),
+                    zeitMode = getString(getColumnIndexOrThrow("ZEITMODE")),
+                    zeit = getLong(getColumnIndexOrThrow("ZEIT")),
+                    running = getInt(getColumnIndexOrThrow("RUNNING")) == 1
                 )
                 bahnenzaehlenList.add(bahnenzaehlen)
             }

@@ -88,7 +88,7 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
             // Button zum Hinzufügen einer neuen Stoppuhr
             IconButton(onClick = {
                 if (vorname.isNotBlank() && nachname.isNotBlank()) {
-                    stoppuhren.add(Stoppuhr(idCounter++, idCounter, vorname, nachname))
+                    stoppuhren.add(Stoppuhr(idCounter++, idCounter, vorname, " ",nachname))
                     vorname = ""
                     nachname = ""
                 }

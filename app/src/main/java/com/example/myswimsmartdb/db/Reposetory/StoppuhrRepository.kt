@@ -49,13 +49,13 @@ class StoppuhrRepository(context: Context) {
         with(cursor) {
             while (moveToNext()) {
                 val stoppuhr = Stoppuhr(
-                    getInt(getColumnIndexOrThrow("STOPPUHR_ID")),
-                    getInt(getColumnIndexOrThrow("MITGLIED_ID")),
-                    getString(getColumnIndexOrThrow("VORNAME")),
-                    getString(getColumnIndexOrThrow("NACHNAME")),
-                    getLong(getColumnIndexOrThrow("ZEIT")),
-                    getInt(getColumnIndexOrThrow("RUNNING")) == 1,
-                    getString(getColumnIndexOrThrow("DATUMSTRING"))
+                    id = getInt(getColumnIndexOrThrow("STOPPUHR_ID")),
+                    mitgliedId = getInt(getColumnIndexOrThrow("MITGLIED_ID")),
+                    vorname = getString(getColumnIndexOrThrow("VORNAME")),
+                    nachname = getString(getColumnIndexOrThrow("NACHNAME")),
+                    zeit = getLong(getColumnIndexOrThrow("ZEIT")),
+                    running = getInt(getColumnIndexOrThrow("RUNNING")) == 1,
+                    datumString = getString(getColumnIndexOrThrow("DATUMSTRING"))
                 )
                 stoppuhren.add(stoppuhr)
             }

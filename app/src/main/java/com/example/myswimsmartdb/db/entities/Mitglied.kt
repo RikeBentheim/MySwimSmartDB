@@ -12,7 +12,9 @@ data class Mitglied(
     val telefon: String,
     val kursId: Int,
     var anwesenheiten: List<Anwesenheit> = emptyList(),
-    var aufgaben: List<Aufgabe> = emptyList()
+    var aufgaben: List<Aufgabe> = emptyList(),
+    var Bahnenzaehlen: List<Bahnenzaehlen> = emptyList(),
+    var Stoppuhr: List<Stoppuhr> = emptyList()
 ) {
 
     var geburtsdatum: String = geburtsdatumString
