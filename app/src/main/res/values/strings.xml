@@ -48,4 +48,17 @@
     <string name="stoppuhr">Stoppuhr</string>
     <string name="stop">Stop</string>
     <string name="start">Start</string>
+    <string name="count_laps">Bahnen zählen</string>
+    <string name="minutes_15">15 Minuten</string>
+    <string name="minutes_20">20 Minuten</string>
+    <string name="minutes_30">30 Minuten</string>
+    <string name="open">Offen</string>
+    <string name="first_name">Vorname</string>
+    <string name="last_name">Nachname</string>
+    <string name="add">Hinzufügen</string>
+    <string name="select_time">Zeit wählen</string>
+    <string name="options">Optionen</string>
+    <string name="reset_timer">Timer neu starten</string>
+    <string name="delete_member">Mitglied löschen</string>
+    <string name="laps">Bahnen</string>
 </resources>

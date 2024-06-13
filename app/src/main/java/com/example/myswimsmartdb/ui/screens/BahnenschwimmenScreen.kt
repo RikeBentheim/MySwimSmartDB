@@ -42,7 +42,7 @@ fun BahnenschwimmenScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(30.dp))
             // Titeltext
             Text(
-                text = stringResource(id = R.string.stoppuhr),
+                text = stringResource(id = R.string.count_laps),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(12.dp),
                 color = Platinum

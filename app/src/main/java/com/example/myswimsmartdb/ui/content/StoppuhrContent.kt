@@ -226,8 +226,12 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
             }
 
             // Anzeige der gestoppten Zeit
+            val hours = (time.inWholeSeconds / 3600).toString().padStart(2, '0')
+            val minutes = ((time.inWholeSeconds % 3600) / 60).toString().padStart(2, '0')
+            val seconds = (time.inWholeSeconds % 60).toString().padStart(2, '0')
+
             Text(
-                text = time.toString(DurationUnit.SECONDS),
+                text = "$hours:$minutes:$seconds",
                 modifier = Modifier
                     .padding(start = 8.dp, end = 8.dp)
                     .requiredWidth(80.dp)

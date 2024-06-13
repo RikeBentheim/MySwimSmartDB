@@ -7,8 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -49,7 +47,12 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
     var nachname by remember { mutableStateOf("") }
     var idCounter by remember { mutableStateOf(1) }
     var selectedTimeOption by remember { mutableStateOf("Offen") }
-    val timeOptions = listOf("15 Minuten", "20 Minuten", "30 Minuten", "Offen")
+    val timeOptions = listOf(
+        stringResource(id = R.string.minutes_15),
+        stringResource(id = R.string.minutes_20),
+        stringResource(id = R.string.minutes_30),
+        stringResource(id = R.string.open)
+    )
 
     LazyColumn(
         modifier = Modifier
@@ -57,14 +60,7 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
             .fillMaxSize()
     ) {
         item {
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                text = "Bahnen zählen",
-                style = MaterialTheme.typography.titleLarge,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.height(45.dp))
-
+            Spacer(modifier = Modifier.height(30.dp))
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -79,27 +75,25 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    TextField(
+                    // Eingabefeld für den Vornamen
+                    OutlinedTextField(
                         value = vorname,
                         onValueChange = { vorname = it },
-                        label = { Text("Vorname") },
+                        label = { Text(stringResource(id = R.string.first_name)) },
                         modifier = Modifier
                             .weight(1f)
-                            .border(1.dp, IndigoDye)
-                            .background(Color.Transparent)
                             .padding(start = 4.dp)
                     )
 
                     Spacer(modifier = Modifier.width(4.dp))
 
-                    TextField(
+                    // Eingabefeld für den Nachnamen
+                    OutlinedTextField(
                         value = nachname,
                         onValueChange = { nachname = it },
-                        label = { Text("Nachname") },
+                        label = { Text(stringResource(id = R.string.last_name)) },
                         modifier = Modifier
                             .weight(1f)
-                            .border(1.dp, IndigoDye)
-                            .background(Color.Transparent)
                             .padding(start = 4.dp)
                     )
 
@@ -112,14 +106,14 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
                             nachname = ""
                         }
                     }) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+                        Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(id = R.string.add))
                     }
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 StringSelectionDropdown(
-                    label = "Zeit wählen",
+                    label = stringResource(id = R.string.select_time),
                     options = timeOptions,
                     selectedOption = selectedTimeOption,
                     onOptionSelected = { selectedTimeOption = it },
@@ -143,12 +137,14 @@ fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
 
+    val openString = stringResource(id = R.string.open)
+
     LaunchedEffect(isRunning) {
         if (isRunning) {
             coroutineScope.launch {
                 while (isRunning) {
                     delay(1000L)
-                    if (bahnen.zeitMode == "Offen") {
+                    if (bahnen.zeitMode == openString) {
                         time += 1.toDuration(DurationUnit.SECONDS)
                     } else {
                         time -= 1.toDuration(DurationUnit.SECONDS)
@@ -164,7 +160,7 @@ fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Optionen") },
+            title = { Text(stringResource(id = R.string.options)) },
             text = {
                 Column {
                     Button(
@@ -175,7 +171,7 @@ fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
                     ) {
-                        Text("Timer neu starten")
+                        Text(stringResource(id = R.string.reset_timer))
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
@@ -185,7 +181,7 @@ fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
                     ) {
-                        Text("Mitglied löschen")
+                        Text(stringResource(id = R.string.delete_member))
                     }
                 }
             },
@@ -244,7 +240,7 @@ fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
                 shape = MaterialTheme.shapes.extraSmall,
                 modifier = Modifier.height(50.dp)
             ) {
-                Text(if (isRunning) "Stop" else "Start")
+                Text(if (isRunning) stringResource(id = R.string.stop) else stringResource(id = R.string.start))
             }
 
             Column(
@@ -263,25 +259,25 @@ fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
                         .padding(start = 8.dp, end = 8.dp)
                 )
                 Text(
-                    text = "Bahnen: $bahnenCount",
+                    text = "${stringResource(id = R.string.laps)}: $bahnenCount",
                     modifier = Modifier
                         .padding(start = 8.dp, end = 8.dp)
                 )
             }
 
-            if (time.inWholeMilliseconds > 0 || bahnen.zeitMode == "Offen") {
+            if (time.inWholeMilliseconds > 0 || bahnen.zeitMode == openString) {
                 Box(
                     modifier = Modifier
                         .size(50.dp)
                         .background(SkyBlue)
                         .clickable {
-                            if (time.inWholeMilliseconds > 0 || bahnen.zeitMode == "Offen") {
+                            if (time.inWholeMilliseconds > 0 || bahnen.zeitMode == openString) {
                                 bahnenCount++
                             }
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add", tint = Color.White)
+                    Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(id = R.string.add), tint = Color.White)
                 }
             }
         }
