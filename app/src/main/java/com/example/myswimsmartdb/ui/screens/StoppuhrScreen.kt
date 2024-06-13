@@ -30,7 +30,7 @@ fun StoppuhrScreen(navController: NavHostController) {
         ) {
             // Header-Bild
             Image(
-                painter = painterResource(id = R.drawable.adobestock_288862937),
+                painter = painterResource(id = R.drawable.schwimmhalle),
                 contentDescription = stringResource(id = R.string.app_name),
                 modifier = Modifier
                     .fillMaxWidth()
