@@ -36,21 +36,24 @@ import kotlin.time.toDuration
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoppuhrContent() {
+    // Hauptinhalt der Stoppuhr-Bildschirm
     MitgliederVerwaltung()
 }
 
 @Composable
 fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
-    // MutableStateList für die Stoppuhren
+    // Liste für Stoppuhren
     val stoppuhren = remember { mutableStateListOf<Stoppuhr>() }
+    // Zustände für Vorname und Nachname
     var vorname by remember { mutableStateOf("") }
     var nachname by remember { mutableStateOf("") }
+    // ID-Zähler für die Stoppuhren
     var idCounter by remember { mutableStateOf(1) }
 
     Column(modifier = Modifier.padding(innerPadding)) {
         Spacer(modifier = Modifier.height(30.dp))
 
-
+        // Zeile für Eingabefelder und Hinzufügen-Button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -58,29 +61,25 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom
         ) {
-            // TextField für den Vornamen
-            TextField(
+            // Eingabefeld für den Vornamen
+            OutlinedTextField(
                 value = vorname,
                 onValueChange = { vorname = it },
                 label = { Text(stringResource(id = R.string.vorname)) },
                 modifier = Modifier
                     .weight(1f)
-                    .border(1.dp, IndigoDye)
-                    .background(Color.Transparent)
                     .padding(start = 4.dp)
             )
 
             Spacer(modifier = Modifier.width(4.dp))
 
-            // TextField für den Nachnamen
-            TextField(
+            // Eingabefeld für den Nachnamen
+            OutlinedTextField(
                 value = nachname,
                 onValueChange = { nachname = it },
                 label = { Text(stringResource(id = R.string.nachname)) },
                 modifier = Modifier
                     .weight(1f)
-                    .border(1.dp, IndigoDye)
-                    .background(Color.Transparent)
                     .padding(start = 4.dp)
             )
 
@@ -103,6 +102,7 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
         // Liste der Stoppuhren
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             itemsIndexed(stoppuhren) { index, stoppuhr ->
+                // Einzelne Zeile für jede Stoppuhr
                 StoppuhrMitTimer(stoppuhr, onDelete = { stoppuhren.removeAt(index) })
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -112,6 +112,7 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
 
 @Composable
 fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
+    // Zustände für den Timer und den Dialog
     var isRunning by remember { mutableStateOf(stoppuhr.running) }
     var time by remember { mutableStateOf(stoppuhr.zeit.toDuration(DurationUnit.MILLISECONDS)) }
     var showDialog by remember { mutableStateOf(false) }
@@ -187,7 +188,7 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
                     .size(50.dp)
                     .background(SkyBlue)
                     .clickable { showDialog = true }
-                    .height(50.dp),  // gleiche Höhe wie die Zeile
+                    .height(50.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -219,7 +220,7 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
                     containerColor = if (isRunning) Cerulean else SkyBlue
                 ),
                 shape = MaterialTheme.shapes.extraSmall,
-                modifier = Modifier.height(50.dp)  // gleiche Höhe wie die Zeile
+                modifier = Modifier.height(50.dp)
             ) {
                 Text(if (isRunning) stringResource(id = R.string.stop) else stringResource(id = R.string.start))
             }
