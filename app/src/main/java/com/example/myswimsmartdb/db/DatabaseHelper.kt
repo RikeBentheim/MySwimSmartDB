@@ -8,7 +8,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         private const val DATABASE_NAME = "deine_datenbank_name.db"
-        private const val DATABASE_VERSION = 2 // Increment the version
+        private const val DATABASE_VERSION = 3 // Increment the version to 3 for new tables
 
         public const val TABLE_LEVEL = "TABLE_LEVEL"
         public const val TABLE_KURS = "TABLE_KURS"
@@ -19,6 +19,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         public const val TABLE_KURS_TRAINING = "TABLE_KURS_TRAINING"
         public const val TABLE_MITGLIED_AUFGABE = "TABLE_MITGLIED_AUFGABE"
         public const val TABLE_LEVEL_AUFGABE = "TABLE_LEVEL_AUFGABE"
+        public const val TABLE_STOPPUHR = "TABLE_STOPPUHR"
+        public const val TABLE_BAHNENZAEHLEN = "TABLE_BAHNENZAEHLEN"
 
         // SQL statements to create tables
         public const val CREATE_TABLE_LEVEL = """
@@ -101,6 +103,31 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 FOREIGN KEY(LEVEL_AUFGABE_LEVEL_ID) REFERENCES $TABLE_LEVEL(LEVEL_ID)
             )
         """
+
+        public const val CREATE_TABLE_STOPPUHR = """
+            CREATE TABLE $TABLE_STOPPUHR (
+                STOPPUHR_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                MITGLIED_ID INTEGER,
+                VORNAME TEXT,
+                NACHNAME TEXT,
+                ZEIT LONG,
+                RUNNING INTEGER
+            )
+        """
+
+        public const val CREATE_TABLE_BAHNENZAEHLEN = """
+            CREATE TABLE $TABLE_BAHNENZAEHLEN (
+                BAHNENZAEHLEN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                MITGLIED_ID INTEGER,
+                VORNAME TEXT,
+                NACHNAME TEXT,
+                BAHNEN INTEGER,
+                BAHNLAENGE INTEGER,
+                ZEITMODE TEXT,
+                ZEIT LONG,
+                RUNNING INTEGER
+            )
+        """
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -113,11 +140,17 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db?.execSQL(CREATE_TABLE_KURS_TRAINING)
         db?.execSQL(CREATE_TABLE_MITGLIED_AUFGABE)
         db?.execSQL(CREATE_TABLE_LEVEL_AUFGABE)
+        db?.execSQL(CREATE_TABLE_STOPPUHR)
+        db?.execSQL(CREATE_TABLE_BAHNENZAEHLEN)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         if (oldVersion < 2) {
             db?.execSQL("ALTER TABLE $TABLE_MITGLIED_AUFGABE ADD COLUMN ERREICHT INTEGER DEFAULT 0")
+        }
+        if (oldVersion < 3) {
+            db?.execSQL(CREATE_TABLE_STOPPUHR)
+            db?.execSQL(CREATE_TABLE_BAHNENZAEHLEN)
         }
         // Handle other upgrades if needed
     }

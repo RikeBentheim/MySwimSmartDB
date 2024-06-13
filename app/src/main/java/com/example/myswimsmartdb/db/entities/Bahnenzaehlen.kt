@@ -2,6 +2,7 @@ package com.example.myswimsmartdb.db.entities
 
 class Bahnenzaehlen(
     val id: Int,
+    val mitgliedId: Int,
     val vorname: String,
     val nachname: String,
     var bahnen: Int = 0,

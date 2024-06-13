@@ -104,7 +104,7 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
 
                     IconButton(onClick = {
                         if (vorname.isNotBlank() && nachname.isNotBlank()) {
-                            bahnenzaehlen.add(Bahnenzaehlen(idCounter++, vorname, nachname, 0, selectedLaneLength, selectedTimeOption))
+                            bahnenzaehlen.add(Bahnenzaehlen(idCounter++, idCounter, vorname, nachname, 0, selectedLaneLength, selectedTimeOption))
                             vorname = ""
                             nachname = ""
                         }
