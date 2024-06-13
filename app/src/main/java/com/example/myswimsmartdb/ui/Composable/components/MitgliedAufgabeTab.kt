@@ -10,7 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import android.util.Log
 import com.example.myswimsmartdb.R
-import com.example.myswimsmartdb.db.MitgliedRepository
+import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Mitglied
 import kotlinx.coroutines.launch
 

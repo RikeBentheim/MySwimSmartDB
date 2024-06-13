@@ -11,7 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.myswimsmartdb.R
-import com.example.myswimsmartdb.db.KursRepository
+import com.example.myswimsmartdb.db.Reposetory.KursRepository
 import com.example.myswimsmartdb.db.entities.Mitglied
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

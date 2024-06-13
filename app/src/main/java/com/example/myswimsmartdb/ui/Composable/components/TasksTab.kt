@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.myswimsmartdb.R
-import com.example.myswimsmartdb.db.AufgabeRepository
+import com.example.myswimsmartdb.db.Reposetory.AufgabeRepository
 import com.example.myswimsmartdb.db.entities.Aufgabe
 
 @Composable

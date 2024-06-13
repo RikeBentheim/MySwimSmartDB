@@ -1,7 +1,8 @@
-package com.example.myswimsmartdb.db
+package com.example.myswimsmartdb.db.Reposetory
 
 import android.content.ContentValues
 import android.content.Context
+import com.example.myswimsmartdb.db.DatabaseHelper
 import com.example.myswimsmartdb.db.entities.Aufgabe
 import com.example.myswimsmartdb.db.entities.Level
 

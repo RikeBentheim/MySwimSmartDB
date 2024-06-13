@@ -5,8 +5,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.myswimsmartdb.db.MitgliedRepository
-import com.example.myswimsmartdb.db.TrainingRepository
+import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
+import com.example.myswimsmartdb.db.Reposetory.TrainingRepository
 import com.example.myswimsmartdb.db.entities.Kurs
 
 @Composable

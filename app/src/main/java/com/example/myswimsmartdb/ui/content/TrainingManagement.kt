@@ -10,8 +10,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.myswimsmartdb.db.MitgliedRepository
-import com.example.myswimsmartdb.db.TrainingRepository
+import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
+import com.example.myswimsmartdb.db.Reposetory.TrainingRepository
 import com.example.myswimsmartdb.db.entities.Kurs
 import com.example.myswimsmartdb.db.entities.Level // Importiere Level
 import com.example.myswimsmartdb.db.entities.Mitglied

@@ -1,9 +1,14 @@
-package com.example.myswimsmartdb.db
+package com.example.myswimsmartdb.db.Reposetory
 
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import com.example.myswimsmartdb.db.DatabaseHelper
 import com.example.myswimsmartdb.db.entities.*
+import com.example.myswimsmartdb.db.Reposetory.StoppuhrRepository
+import com.example.myswimsmartdb.db.Reposetory.BahnenzaehlenRepository
+import com.example.myswimsmartdb.db.Reposetory.TrainingRepository
+
 
 class KursRepository(context: Context) {
 
@@ -137,61 +142,103 @@ class KursRepository(context: Context) {
         return kursId
     }
 
-    fun deleteKursWithDetails(kursId: Int) {
-        val db = dbHelper.writableDatabase
+        fun deleteKursWithDetails(kursId: Int) {
+            val db = dbHelper.writableDatabase
 
-        db.beginTransaction()
-        try {
-            // Löschen der Anwesenheitsaufzeichnungen für jedes Training des Kurses
-            val trainingIdsCursor = db.rawQuery(
-                "SELECT TRAINING_ID FROM ${DatabaseHelper.TABLE_TRAINING} t " +
-                        "INNER JOIN ${DatabaseHelper.TABLE_KURS_TRAINING} kt " +
-                        "ON t.TRAINING_ID = kt.KURS_TRAINING_TRAINING_ID " +
-                        "WHERE kt.KURS_TRAINING_KURS_ID = ?", arrayOf(kursId.toString())
-            )
+            db.beginTransaction()
+            try {
+                // Löschen der Anwesenheitsaufzeichnungen für jedes Training des Kurses
+                val trainingIdsCursor = db.rawQuery(
+                    "SELECT TRAINING_ID FROM ${DatabaseHelper.TABLE_TRAINING} t " +
+                            "INNER JOIN ${DatabaseHelper.TABLE_KURS_TRAINING} kt " +
+                            "ON t.TRAINING_ID = kt.KURS_TRAINING_TRAINING_ID " +
+                            "WHERE kt.KURS_TRAINING_KURS_ID = ?", arrayOf(kursId.toString())
+                )
 
-            while (trainingIdsCursor.moveToNext()) {
-                val trainingId = trainingIdsCursor.getInt(trainingIdsCursor.getColumnIndexOrThrow("TRAINING_ID"))
-                db.delete(DatabaseHelper.TABLE_ANWESENHEIT, "ANWESENHEIT_TRAINING_ID = ?", arrayOf(trainingId.toString()))
+                while (trainingIdsCursor.moveToNext()) {
+                    val trainingId = trainingIdsCursor.getInt(trainingIdsCursor.getColumnIndexOrThrow("TRAINING_ID"))
+                    db.delete(DatabaseHelper.TABLE_ANWESENHEIT, "ANWESENHEIT_TRAINING_ID = ?", arrayOf(trainingId.toString()))
+                }
+                trainingIdsCursor.close()
+
+                // Löschen der Trainings für den Kurs
+                db.delete(
+                    DatabaseHelper.TABLE_TRAINING,
+                    "TRAINING_ID IN (SELECT TRAINING_ID FROM ${DatabaseHelper.TABLE_TRAINING} t " +
+                            "INNER JOIN ${DatabaseHelper.TABLE_KURS_TRAINING} kt " +
+                            "ON t.TRAINING_ID = kt.KURS_TRAINING_TRAINING_ID " +
+                            "WHERE kt.KURS_TRAINING_KURS_ID = ?)",
+                    arrayOf(kursId.toString())
+                )
+
+                // Löschen der Kurs-Training-Verknüpfungen
+                db.delete(DatabaseHelper.TABLE_KURS_TRAINING, "KURS_TRAINING_KURS_ID = ?", arrayOf(kursId.toString()))
+
+                // Löschen der Mitglied-Aufgabe-Verknüpfungen für jedes Mitglied des Kurses
+                val mitgliedIdsCursor = db.rawQuery(
+                    "SELECT MITGLIED_ID FROM ${DatabaseHelper.TABLE_MITGLIED} WHERE MITGLIED_KURS_ID = ?",
+                    arrayOf(kursId.toString())
+                )
+
+                while (mitgliedIdsCursor.moveToNext()) {
+                    val mitgliedId = mitgliedIdsCursor.getInt(mitgliedIdsCursor.getColumnIndexOrThrow("MITGLIED_ID"))
+                    // Delete Mitglied Aufgabe Verknüpfungen
+                    db.delete(DatabaseHelper.TABLE_MITGLIED_AUFGABE, "MITGLIED_AUFGABE_MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
+
+                    // Delete all related data for each member
+                    deleteAllDataByMitgliedId(mitgliedId, context)
+                }
+                mitgliedIdsCursor.close()
+
+                // Löschen der Mitglieder des Kurses
+                db.delete(DatabaseHelper.TABLE_MITGLIED, "MITGLIED_KURS_ID = ?", arrayOf(kursId.toString()))
+
+                // Schließlich, löschen des Kurses selbst
+                db.delete(DatabaseHelper.TABLE_KURS, "KURS_ID = ?", arrayOf(kursId.toString()))
+
+                db.setTransactionSuccessful()
+            } finally {
+                db.endTransaction()
             }
-            trainingIdsCursor.close()
-
-            // Löschen der Trainings für den Kurs
-            db.delete(
-                DatabaseHelper.TABLE_TRAINING,
-                "TRAINING_ID IN (SELECT TRAINING_ID FROM ${DatabaseHelper.TABLE_TRAINING} t " +
-                        "INNER JOIN ${DatabaseHelper.TABLE_KURS_TRAINING} kt " +
-                        "ON t.TRAINING_ID = kt.KURS_TRAINING_TRAINING_ID " +
-                        "WHERE kt.KURS_TRAINING_KURS_ID = ?)",
-                arrayOf(kursId.toString())
-            )
-
-            // Löschen der Kurs-Training-Verknüpfungen
-            db.delete(DatabaseHelper.TABLE_KURS_TRAINING, "KURS_TRAINING_KURS_ID = ?", arrayOf(kursId.toString()))
-
-            // Löschen der Mitglied-Aufgabe-Verknüpfungen für jedes Mitglied des Kurses
-            val mitgliedIdsCursor = db.rawQuery(
-                "SELECT MITGLIED_ID FROM ${DatabaseHelper.TABLE_MITGLIED} WHERE MITGLIED_KURS_ID = ?",
-                arrayOf(kursId.toString())
-            )
-
-            while (mitgliedIdsCursor.moveToNext()) {
-                val mitgliedId = mitgliedIdsCursor.getInt(mitgliedIdsCursor.getColumnIndexOrThrow("MITGLIED_ID"))
-                db.delete(DatabaseHelper.TABLE_MITGLIED_AUFGABE, "MITGLIED_AUFGABE_MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
-            }
-            mitgliedIdsCursor.close()
-
-            // Löschen der Mitglieder des Kurses
-            db.delete(DatabaseHelper.TABLE_MITGLIED, "MITGLIED_KURS_ID = ?", arrayOf(kursId.toString()))
-
-            // Schließlich, löschen des Kurses selbst
-            db.delete(DatabaseHelper.TABLE_KURS, "KURS_ID = ?", arrayOf(kursId.toString()))
-
-            db.setTransactionSuccessful()
-        } finally {
-            db.endTransaction()
         }
-    }
+
+        private fun deleteAllDataByMitgliedId(mitgliedId: Int, context: Context) {
+            val db = dbHelper.writableDatabase
+            val trainingRepository = TrainingRepository(context)
+            val stoppuhrRepository = StoppuhrRepository(context)
+            val bahnenzaehlenRepository = BahnenzaehlenRepository(context)
+
+            // Start a transaction
+            db.beginTransaction()
+            try {
+                // Delete tasks related to the member
+                deleteMitgliedAufgabenByMitgliedId(mitgliedId)
+
+                // Delete attendance records related to the member
+                trainingRepository.deleteAnwesenheitenByMitgliedId(mitgliedId)
+
+                // Delete Bahnenzaehlen records related to the member
+                bahnenzaehlenRepository.deleteBahnenzaehlenByMitgliedId(mitgliedId)
+
+                // Delete Stoppuhr records related to the member
+                stoppuhrRepository.deleteStoppuhrByMitgliedId(mitgliedId)
+
+                // Delete the member itself
+                db.delete(DatabaseHelper.TABLE_MITGLIED, "MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
+
+                // Set transaction as successful
+                db.setTransactionSuccessful()
+            } finally {
+                // End the transaction
+                db.endTransaction()
+            }
+        }
+
+        private fun deleteMitgliedAufgabenByMitgliedId(mitgliedId: Int): Int {
+            val db: SQLiteDatabase = dbHelper.writableDatabase
+            return db.delete(DatabaseHelper.TABLE_MITGLIED_AUFGABE, "MITGLIED_AUFGABE_MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
+        }
+
 
 
     fun getMitgliederForKurs(kursId: Int): List<Mitglied> {

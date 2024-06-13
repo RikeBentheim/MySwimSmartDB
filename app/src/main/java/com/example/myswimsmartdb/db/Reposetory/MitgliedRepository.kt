@@ -1,12 +1,13 @@
-package com.example.myswimsmartdb.db
+package com.example.myswimsmartdb.db.Reposetory
 
 import android.content.ContentValues
 import android.content.Context
 import android.util.Log
+import com.example.myswimsmartdb.db.DatabaseHelper
 import com.example.myswimsmartdb.db.entities.*
-import com.example.myswimsmartdb.db.TrainingRepository
-import com.example.myswimsmartdb.repository.BahnenzaehlenRepository
-import com.example.myswimsmartdb.repository.StoppuhrRepository
+import com.example.myswimsmartdb.db.Reposetory.TrainingRepository
+import com.example.myswimsmartdb.db.Reposetory.BahnenzaehlenRepository
+import com.example.myswimsmartdb.db.Reposetory.StoppuhrRepository
 
 class MitgliedRepository(private val context: Context) {
 
@@ -279,5 +280,7 @@ class MitgliedRepository(private val context: Context) {
         }
         return aufgaben
     }
+
+
 }
 

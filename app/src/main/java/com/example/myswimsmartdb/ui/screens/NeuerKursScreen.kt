@@ -12,10 +12,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.myswimsmartdb.R
-import com.example.myswimsmartdb.db.KursRepository
-import com.example.myswimsmartdb.db.LevelRepository
-import com.example.myswimsmartdb.db.MitgliedRepository
-import com.example.myswimsmartdb.db.TrainingRepository
+import com.example.myswimsmartdb.db.Reposetory.KursRepository
+import com.example.myswimsmartdb.db.Reposetory.LevelRepository
+import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
+import com.example.myswimsmartdb.db.Reposetory.TrainingRepository
 import com.example.myswimsmartdb.ui.Composable.AddKursScreen
 import com.example.myswimsmartdb.ui.Composable.AddMemberScreen
 import com.example.myswimsmartdb.ui.Composable.AddKurstermineScreen

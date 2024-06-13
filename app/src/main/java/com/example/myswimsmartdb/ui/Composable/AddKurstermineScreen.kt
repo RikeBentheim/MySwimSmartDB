@@ -11,8 +11,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.myswimsmartdb.db.MitgliedRepository
-import com.example.myswimsmartdb.db.TrainingRepository
+import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
+import com.example.myswimsmartdb.db.Reposetory.TrainingRepository
 import com.example.layout.ui.layout.components.DatePickerButton
 import com.example.myswimsmartdb.db.entities.Training
 import com.example.myswimsmartdb.R
