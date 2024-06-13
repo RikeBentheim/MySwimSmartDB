@@ -57,8 +57,11 @@
     <string name="last_name">Nachname</string>
     <string name="add">Hinzufügen</string>
     <string name="select_time">Zeit wählen</string>
+    <string name="select_lane_length">Bahnlänge wählen</string>
     <string name="options">Optionen</string>
     <string name="reset_timer">Timer neu starten</string>
     <string name="delete_member">Mitglied löschen</string>
     <string name="laps">Bahnen</string>
+    <string name="meters_swum">Meter</string>
+    <string name="change_laps">Bahnen ändern</string>
 </resources>

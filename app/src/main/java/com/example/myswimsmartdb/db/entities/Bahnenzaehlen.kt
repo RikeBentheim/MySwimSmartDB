@@ -4,6 +4,8 @@ class Bahnenzaehlen(
     val id: Int,
     val vorname: String,
     val nachname: String,
+    var bahnen: Int = 0,
+    var bahnlaenge: Int,
     val zeitMode: String,
     var zeit: Long = when (zeitMode) {
         "15 Minuten" -> 15 * 60 * 1000L
@@ -29,5 +31,14 @@ class Bahnenzaehlen(
             "30 Minuten" -> 30 * 60 * 1000L
             else -> 0L
         }
+        bahnen = 0 // Reset the laps to 0
+    }
+
+    fun addBahnen() {
+        bahnen++
+    }
+
+    fun getTotalMeters(): Int {
+        return bahnen * bahnlaenge
     }
 }

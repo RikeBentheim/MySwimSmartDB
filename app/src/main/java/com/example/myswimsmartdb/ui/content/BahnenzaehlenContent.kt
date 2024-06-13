@@ -2,7 +2,6 @@ package com.example.myswimsmartdb.ui.content
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -47,12 +46,14 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
     var nachname by remember { mutableStateOf("") }
     var idCounter by remember { mutableStateOf(1) }
     var selectedTimeOption by remember { mutableStateOf("Offen") }
+    var selectedLaneLength by remember { mutableStateOf(25) }
     val timeOptions = listOf(
         stringResource(id = R.string.minutes_15),
         stringResource(id = R.string.minutes_20),
         stringResource(id = R.string.minutes_30),
         stringResource(id = R.string.open)
     )
+    val laneLengthOptions = listOf(10, 25, 50)
 
     LazyColumn(
         modifier = Modifier
@@ -60,7 +61,9 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
             .fillMaxSize()
     ) {
         item {
+
             Spacer(modifier = Modifier.height(30.dp))
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -101,7 +104,7 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
 
                     IconButton(onClick = {
                         if (vorname.isNotBlank() && nachname.isNotBlank()) {
-                            bahnenzaehlen.add(Bahnenzaehlen(idCounter++, vorname, nachname, selectedTimeOption))
+                            bahnenzaehlen.add(Bahnenzaehlen(idCounter++, vorname, nachname, 0, selectedLaneLength, selectedTimeOption))
                             vorname = ""
                             nachname = ""
                         }
@@ -112,13 +115,31 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                StringSelectionDropdown(
-                    label = stringResource(id = R.string.select_time),
-                    options = timeOptions,
-                    selectedOption = selectedTimeOption,
-                    onOptionSelected = { selectedTimeOption = it },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    StringSelectionDropdown(
+                        label = stringResource(id = R.string.select_time),
+                        options = timeOptions,
+                        selectedOption = selectedTimeOption,
+                        onOptionSelected = { selectedTimeOption = it },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 4.dp)
+                    )
+
+                    StringSelectionDropdown(
+                        label = stringResource(id = R.string.select_lane_length),
+                        options = laneLengthOptions.map { it.toString() },
+                        selectedOption = selectedLaneLength.toString(),
+                        onOptionSelected = { selectedLaneLength = it.toInt() },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 4.dp)
+                    )
+                }
             }
         }
 
@@ -133,11 +154,12 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
 fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
     var isRunning by remember { mutableStateOf(bahnen.running) }
     var time by remember { mutableStateOf(bahnen.zeit.toDuration(DurationUnit.MILLISECONDS)) }
-    var bahnenCount by remember { mutableStateOf(0) }
-    val coroutineScope = rememberCoroutineScope()
+    var lapCount by remember { mutableStateOf(bahnen.bahnen) }
     var showDialog by remember { mutableStateOf(false) }
-
-    val openString = stringResource(id = R.string.open)
+    var showLapDialog by remember { mutableStateOf(false) }
+    var editedLapCount by remember { mutableStateOf(bahnen.bahnen.toString()) }
+    val coroutineScope = rememberCoroutineScope()
+    val openString = stringResource(id = R.string.open) // Verwende stringResource außerhalb von LaunchedEffect
 
     LaunchedEffect(isRunning) {
         if (isRunning) {
@@ -167,6 +189,7 @@ fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
                         onClick = {
                             bahnen.reset()
                             time = bahnen.zeit.toDuration(DurationUnit.MILLISECONDS)
+                            lapCount = bahnen.bahnen
                             showDialog = false
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
@@ -182,6 +205,49 @@ fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
                         colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
                     ) {
                         Text(stringResource(id = R.string.delete_member))
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            showLapDialog = true
+                            editedLapCount = bahnen.bahnen.toString()
+                            showDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
+                    ) {
+                        Text(stringResource(id = R.string.change_laps))
+                    }
+                }
+            },
+            confirmButton = {}
+        )
+    }
+
+    if (showLapDialog) {
+        AlertDialog(
+            onDismissRequest = { showLapDialog = false },
+            title = { Text(stringResource(id = R.string.change_laps)) },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = editedLapCount,
+                        onValueChange = { editedLapCount = it },
+                        label = { Text(stringResource(id = R.string.laps)) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            val newLapCount = editedLapCount.toIntOrNull()
+                            if (newLapCount != null) {
+                                lapCount = newLapCount
+                                bahnen.bahnen = newLapCount
+                                showLapDialog = false
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
+                    ) {
+                        Text(stringResource(id = R.string.save_changes))
                     }
                 }
             },
@@ -221,7 +287,10 @@ fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Text("${bahnen.vorname} ${bahnen.nachname}", modifier = Modifier.weight(1f))
+            Column(modifier = Modifier.weight(1f)) {
+                Text("${bahnen.vorname} ${bahnen.nachname}")
+                Text("${stringResource(id = R.string.meters_swum)}: ${bahnen.getTotalMeters()}")
+            }
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -259,7 +328,7 @@ fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
                         .padding(start = 8.dp, end = 8.dp)
                 )
                 Text(
-                    text = "${stringResource(id = R.string.laps)}: $bahnenCount",
+                    text = "${stringResource(id = R.string.laps)}: $lapCount",
                     modifier = Modifier
                         .padding(start = 8.dp, end = 8.dp)
                 )
@@ -272,7 +341,8 @@ fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
                         .background(SkyBlue)
                         .clickable {
                             if (time.inWholeMilliseconds > 0 || bahnen.zeitMode == openString) {
-                                bahnenCount++
+                                lapCount++
+                                bahnen.addBahnen()
                             }
                         },
                     contentAlignment = Alignment.Center
