@@ -1,5 +1,6 @@
 package com.example.myswimsmartdb.ui.Composable.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,7 +13,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -160,56 +164,74 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
     }
 
     // Layout der Stoppuhrzeile
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, IndigoDye),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+            .background(Color.LightGray)
     ) {
-        Box(
-            modifier = Modifier
-                .size(50.dp)
-                .background(SkyBlue)
-                .clickable { showDialog = true }
-                .height(50.dp),  // gleiche Höhe wie die Zeile
-            contentAlignment = Alignment.Center
-        ) {
-            Text("⟳", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Text("${stoppuhr.vorname} ${stoppuhr.nachname}", modifier = Modifier.weight(1f))
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        // Button zum Starten/Stoppen des Timers
-        Button(
-            onClick = {
-                if (isRunning) {
-                    stoppuhr.stop()
-                } else {
-                    stoppuhr.start()
-                }
-                isRunning = !isRunning
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isRunning) Cerulean else SkyBlue
-            ),
-            shape = MaterialTheme.shapes.extraSmall,
-            modifier = Modifier.height(50.dp)  // gleiche Höhe wie die Zeile
-        ) {
-            Text(if (isRunning) stringResource(id = R.string.stop) else stringResource(id = R.string.start))
-        }
-
-        // Anzeige der gestoppten Zeit
-        Text(
-            text = time.toString(DurationUnit.SECONDS),
-            modifier = Modifier
-                .padding(start = 8.dp, end = 8.dp)
-                .requiredWidth(80.dp)
+        Image(
+            painter = painterResource(id = R.drawable.wasser),
+            contentDescription = null,
+            modifier = Modifier.matchParentSize().alpha(0.2f),
+            contentScale = ContentScale.Crop
         )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, IndigoDye),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(50.dp)
+                    .background(SkyBlue)
+                    .clickable { showDialog = true }
+                    .height(50.dp),  // gleiche Höhe wie die Zeile
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "⟳",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Text("${stoppuhr.vorname} ${stoppuhr.nachname}", modifier = Modifier.weight(1f))
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Button zum Starten/Stoppen des Timers
+            Button(
+                onClick = {
+                    if (isRunning) {
+                        stoppuhr.stop()
+                    } else {
+                        stoppuhr.start()
+                    }
+                    isRunning = !isRunning
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isRunning) Cerulean else SkyBlue
+                ),
+                shape = MaterialTheme.shapes.extraSmall,
+                modifier = Modifier.height(50.dp)  // gleiche Höhe wie die Zeile
+            ) {
+                Text(if (isRunning) stringResource(id = R.string.stop) else stringResource(id = R.string.start))
+            }
+
+            // Anzeige der gestoppten Zeit
+            Text(
+                text = time.toString(DurationUnit.SECONDS),
+                modifier = Modifier
+                    .padding(start = 8.dp, end = 8.dp)
+                    .requiredWidth(80.dp)
+            )
+        }
     }
 }
 
