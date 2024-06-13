@@ -5,6 +5,7 @@ class Bahnenzaehlen(
     val mitgliedId: Int,
     val vorname: String,
     val nachname: String,
+    val datumString: String,
     var bahnen: Int = 0,
     var bahnlaenge: Int,
     val zeitMode: String,

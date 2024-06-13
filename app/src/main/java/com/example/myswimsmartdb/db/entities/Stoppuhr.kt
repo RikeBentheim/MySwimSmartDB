@@ -5,9 +5,11 @@ class Stoppuhr(
     val mitgliedId: Int,
     val vorname: String,
     val nachname: String,
+    val datumString: String,
     var zeit: Long = 0L,
     var running: Boolean = false
 ) {
+
     fun start() {
         running = true
     }
@@ -24,4 +26,5 @@ class Stoppuhr(
     fun addTime(time: Long) {
         zeit += time
     }
+
 }

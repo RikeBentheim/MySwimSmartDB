@@ -8,7 +8,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         private const val DATABASE_NAME = "deine_datenbank_name.db"
-        private const val DATABASE_VERSION = 3 // Increment the version to 3 for new tables
+        private const val DATABASE_VERSION = 4 // Increment the version to 4 for new columns
 
         public const val TABLE_LEVEL = "TABLE_LEVEL"
         public const val TABLE_KURS = "TABLE_KURS"
@@ -111,7 +111,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 VORNAME TEXT,
                 NACHNAME TEXT,
                 ZEIT LONG,
-                RUNNING INTEGER
+                RUNNING INTEGER,
+                DATUMSTRING TEXT
             )
         """
 
@@ -125,7 +126,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 BAHNLAENGE INTEGER,
                 ZEITMODE TEXT,
                 ZEIT LONG,
-                RUNNING INTEGER
+                RUNNING INTEGER,
+                DATUMSTRING TEXT
             )
         """
     }
@@ -152,6 +154,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             db?.execSQL(CREATE_TABLE_STOPPUHR)
             db?.execSQL(CREATE_TABLE_BAHNENZAEHLEN)
         }
-        // Handle other upgrades if needed
+        if (oldVersion < 4) {
+            db?.execSQL("ALTER TABLE $TABLE_STOPPUHR ADD COLUMN DATUMSTRING TEXT")
+            db?.execSQL("ALTER TABLE $TABLE_BAHNENZAEHLEN ADD COLUMN DATUMSTRING TEXT")
+        }
+
     }
 }
