@@ -23,5 +23,6 @@ fun AppNavigation(navController: NavHostController) {
         composable("bahnenschwimmen") { BahnenschwimmenScreen(navController) }
         composable("kursBearbeiten") { KursScreen(navController) }
         composable("kursVerwaltung") { KursVerwaltungScreen(navController) }
+
     }
 }

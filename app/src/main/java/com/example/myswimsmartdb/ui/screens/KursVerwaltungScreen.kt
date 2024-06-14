@@ -181,14 +181,13 @@ fun KursDetails(
                 if (selectedTask == null) {
                     TasksTab(levelId = course.levelId, kursId = course.id, onTaskSelected = { task ->
                         selectedTask = task
-                    }, navController = navController) // navController hier übergeben
+                    })
                 } else {
                     MitgliedAufgabeTab(
                         taskId = selectedTask!!.id,
                         kursId = course.id,
                         mitgliedRepository = mitgliedRepository,
-                        onBackToTasks = { selectedTask = null },
-                        navController = navController // Hier wird der navController übergeben
+                        onBackToTasks = { selectedTask = null }
                     )
                 }
             }

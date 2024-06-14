@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import android.util.Log
-import androidx.navigation.NavHostController
 import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Mitglied
@@ -21,8 +20,7 @@ fun MitgliedAufgabeTab(
     taskId: Int,
     kursId: Int,
     mitgliedRepository: MitgliedRepository,
-    onBackToTasks: () -> Unit,
-    navController: NavHostController // Add this parameter
+    onBackToTasks: () -> Unit
 ) {
     var mitglieder by remember { mutableStateOf<List<Mitglied>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
