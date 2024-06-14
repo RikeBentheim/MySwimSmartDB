@@ -155,9 +155,17 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             db?.execSQL(CREATE_TABLE_BAHNENZAEHLEN)
         }
         if (oldVersion < 4) {
-            db?.execSQL("ALTER TABLE $TABLE_STOPPUHR ADD COLUMN DATUMSTRING TEXT")
-            db?.execSQL("ALTER TABLE $TABLE_BAHNENZAEHLEN ADD COLUMN DATUMSTRING TEXT")
+            try {
+                db?.execSQL("ALTER TABLE $TABLE_STOPPUHR ADD COLUMN DATUMSTRING TEXT")
+            } catch (e: Exception) {
+                // Ignoriere den Fehler, falls die Spalte bereits existiert
+            }
+            try {
+                db?.execSQL("ALTER TABLE $TABLE_BAHNENZAEHLEN ADD COLUMN DATUMSTRING TEXT")
+            } catch (e: Exception) {
+                // Ignoriere den Fehler, falls die Spalte bereits existiert
+            }
         }
-
     }
+
 }
