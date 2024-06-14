@@ -1,27 +1,26 @@
 package com.example.myswimsmartdb.ui.screens
+
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.myswimsmartdb.R
-import com.example.myswimsmartdb.ui.Composable.components.StoppuhrContent
+import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
+import com.example.myswimsmartdb.db.entities.Mitglied
+import com.example.myswimsmartdb.ui.Composable.components.MitgliederStoppuhrVerwaltung
+import com.example.myswimsmartdb.ui.Composable.components.MitgliederVerwaltung
 import com.example.myswimsmartdb.ui.theme.Platinum
 
 @Composable
-fun StoppuhrScreen(navController: NavHostController) {
+fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?) {
     BasisScreen(navController = navController) { innerPadding ->
         Column(
             modifier = Modifier
@@ -45,7 +44,19 @@ fun StoppuhrScreen(navController: NavHostController) {
                 modifier = Modifier.padding(12.dp),
                 color = Platinum
             )
-            StoppuhrContent()
+            if (mitgliedIds == null) {
+                MitgliederVerwaltung()
+            } else {
+                val context = LocalContext.current
+                val mitgliedRepository = MitgliedRepository(context)
+                var mitglieder by remember { mutableStateOf(listOf<Mitglied>()) }
+
+                LaunchedEffect(mitgliedIds) {
+                    mitglieder = mitgliedRepository.getMitgliederByIds(mitgliedIds)
+                }
+
+                MitgliederStoppuhrVerwaltung(mitglieder)
+            }
         }
     }
 }

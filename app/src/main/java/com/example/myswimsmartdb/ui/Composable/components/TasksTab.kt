@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.Reposetory.AufgabeRepository
 import com.example.myswimsmartdb.db.entities.Aufgabe
@@ -41,7 +42,7 @@ fun TaskItem(task: Aufgabe, onTaskSelected: (Aufgabe) -> Unit, modifier: Modifie
 }
 
 @Composable
-fun TasksTab(levelId: Int, kursId: Int, onTaskSelected: (Aufgabe) -> Unit) {
+fun TasksTab(levelId: Int, kursId: Int, onTaskSelected: (Aufgabe) -> Unit, navController: NavHostController) {
     val context = LocalContext.current
     val aufgabeRepository = AufgabeRepository(context)
     var tasks by remember { mutableStateOf(listOf<Aufgabe>()) }
@@ -54,7 +55,11 @@ fun TasksTab(levelId: Int, kursId: Int, onTaskSelected: (Aufgabe) -> Unit) {
         .fillMaxSize()
         .padding(16.dp)) {
         items(tasks) { task ->
-            TaskItem(task = task, onTaskSelected = { onTaskSelected(it) })
+            TaskItem(task = task, onTaskSelected = {
+                onTaskSelected(it)
+                navController.navigate("mitgliedAufgabeTab/${task.id}")
+            })
         }
     }
 }
+

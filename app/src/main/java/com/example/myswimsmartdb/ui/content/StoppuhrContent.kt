@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myswimsmartdb.db.entities.Stoppuhr
 import com.example.myswimsmartdb.R
+import com.example.myswimsmartdb.db.entities.Mitglied
 import com.example.myswimsmartdb.ui.theme.Cerulean
 import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.ui.theme.SkyBlue
@@ -35,9 +36,14 @@ import kotlin.time.toDuration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StoppuhrContent() {
-    // Hauptinhalt der Stoppuhr-Bildschirm
-    MitgliederVerwaltung()
+fun StoppuhrContent(mitglieder: List<Mitglied>? = null) {
+    // Wenn keine Mitglieder übergeben werden, zeige die normale Mitgliederverwaltung
+    if (mitglieder == null) {
+        MitgliederVerwaltung()
+    } else {
+        // Wenn Mitglieder übergeben werden, zeige die spezielle Verwaltung für die übergebenen Mitglieder
+        MitgliederStoppuhrVerwaltung(mitglieder)
+    }
 }
 
 @Composable
@@ -88,7 +94,7 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
             // Button zum Hinzufügen einer neuen Stoppuhr
             IconButton(onClick = {
                 if (vorname.isNotBlank() && nachname.isNotBlank()) {
-                    stoppuhren.add(Stoppuhr(idCounter++, idCounter, vorname, " ",nachname))
+                    stoppuhren.add(Stoppuhr(idCounter++, idCounter, vorname, " ", nachname))
                     vorname = ""
                     nachname = ""
                 }
@@ -106,6 +112,28 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
                 StoppuhrMitTimer(stoppuhr, onDelete = { stoppuhren.removeAt(index) })
                 Spacer(modifier = Modifier.height(8.dp))
             }
+        }
+    }
+}
+
+@Composable
+fun MitgliederStoppuhrVerwaltung(mitglieder: List<Mitglied>) {
+    // Liste für Stoppuhren initialisieren
+    val stoppuhren = remember { mutableStateListOf<Stoppuhr>() }
+
+    // Effekt, um die Liste der Stoppuhren mit den übergebenen Mitgliedern zu füllen
+    LaunchedEffect(mitglieder) {
+        stoppuhren.clear()
+        mitglieder.forEach { mitglied ->
+            stoppuhren.add(Stoppuhr(mitglied.id, mitglied.id, mitglied.vorname, "", mitglied.nachname))
+        }
+    }
+
+    // Anzeige der Liste der Stoppuhren
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        itemsIndexed(stoppuhren) { index, stoppuhr ->
+            StoppuhrMitTimer(stoppuhr, onDelete = { stoppuhren.removeAt(index) })
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
@@ -183,6 +211,7 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Box für das Zurücksetzen/Löschen der Stoppuhr
             Box(
                 modifier = Modifier
                     .size(50.dp)
@@ -202,6 +231,7 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
 
             Spacer(modifier = Modifier.width(16.dp))
 
+            // Anzeige des Namens des Mitglieds
             Text("${stoppuhr.vorname} ${stoppuhr.nachname}", modifier = Modifier.weight(1f))
 
             Spacer(modifier = Modifier.width(16.dp))

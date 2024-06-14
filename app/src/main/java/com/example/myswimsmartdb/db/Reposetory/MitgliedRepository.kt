@@ -280,6 +280,28 @@ class MitgliedRepository(private val context: Context) {
         }
         return aufgaben
     }
+    fun getMitgliederByIds(ids: List<Int>): List<Mitglied> {
+        val db = dbHelper.readableDatabase
+        val idsString = ids.joinToString(separator = ",")
+        val query = "SELECT * FROM ${DatabaseHelper.TABLE_MITGLIED} WHERE MITGLIED_ID IN ($idsString)"
+        val mitglieder = mutableListOf<Mitglied>()
+
+        db.rawQuery(query, null).use { cursor ->
+            while (cursor.moveToNext()) {
+                val id = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_ID"))
+                val vorname = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_VORNAME"))
+                val nachname = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_NACHNAME"))
+                val geburtsdatum = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_GEBURTSDATUM"))
+                val telefon = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_TELEFON"))
+                val kursId = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_KURS_ID"))
+
+                mitglieder.add(Mitglied(id, vorname, nachname, geburtsdatum, telefon, kursId))
+            }
+        }
+
+        return mitglieder
+    }
+
 
 
 }
