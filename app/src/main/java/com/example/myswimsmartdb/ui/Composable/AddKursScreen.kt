@@ -11,13 +11,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.myswimsmartdb.db.Reposetory.KursRepository
 import com.example.myswimsmartdb.db.Reposetory.LevelRepository
 import com.example.myswimsmartdb.db.entities.Kurs
 import com.example.myswimsmartdb.db.entities.Level
 import com.example.myswimsmartdb.ui.theme.Platinum
 import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.R
+import com.example.myswimsmartdb.db.Reposetory.KursRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

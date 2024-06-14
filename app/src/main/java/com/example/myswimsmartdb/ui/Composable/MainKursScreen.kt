@@ -13,10 +13,11 @@ import com.example.myswimsmartdb.db.Reposetory.TrainingRepository
 import com.example.myswimsmartdb.db.entities.Kurs
 import com.example.myswimsmartdb.db.entities.Level
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KursScreen(
-    kursRepository: KursRepository,
+    KursRepository: KursRepository,
     levelRepository: LevelRepository,
     mitgliedRepository: MitgliedRepository,
     trainingRepository: TrainingRepository
@@ -96,7 +97,7 @@ fun KursScreen(
                         trainings = emptyList(),
                         aufgaben = emptyList()
                     )
-                    newKursId = kursRepository.insertKursWithDetails(kurs)
+                    newKursId = KursRepository.insertKursWithDetails(kurs)
                     message = if (newKursId != -1L) {
                         showAddMember = true
                         "Kurs erfolgreich hinzugefügt"
