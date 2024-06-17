@@ -19,6 +19,8 @@ class StoppuhrRepository(context: Context) {
             put("zeit", stoppuhr.zeit)
             put("running", if (stoppuhr.running) 1 else 0)
             put("datumString", stoppuhr.datumString)
+            put("bemerkung", stoppuhr.bemerkung)
+            put("schwimmarten", stoppuhr.schwimmarten.joinToString(","))
         }
         return db.insert(DatabaseHelper.TABLE_STOPPUHR, null, values)
     }
@@ -55,7 +57,9 @@ class StoppuhrRepository(context: Context) {
                     nachname = getString(getColumnIndexOrThrow("NACHNAME")),
                     zeit = getLong(getColumnIndexOrThrow("ZEIT")),
                     running = getInt(getColumnIndexOrThrow("RUNNING")) == 1,
-                    datumString = getString(getColumnIndexOrThrow("DATUMSTRING"))
+                    datumString = getString(getColumnIndexOrThrow("DATUMSTRING")),
+                    bemerkung = getString(getColumnIndexOrThrow("BEMERKUNG")),
+                    schwimmarten = getString(getColumnIndexOrThrow("SCHWIMMARTEN")).split(",")
                 )
                 stoppuhren.add(stoppuhr)
             }

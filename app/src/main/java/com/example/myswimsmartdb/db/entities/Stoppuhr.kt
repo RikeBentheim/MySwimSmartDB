@@ -7,7 +7,9 @@ class Stoppuhr(
     val nachname: String,
     val datumString: String,
     var zeit: Long = 0L,
-    var running: Boolean = false
+    var running: Boolean = false,
+    var bemerkung: String = "",
+    var schwimmarten: List<String> = listOf("Brust", "Rücken", "Kraul", "Freistil", "Lagen", "Delfin")
 ) {
 
     fun start() {

@@ -8,7 +8,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         private const val DATABASE_NAME = "deine_datenbank_name.db"
-        private const val DATABASE_VERSION = 4 // Increment the version to 4 for new columns
+        private const val DATABASE_VERSION = 5 // Increment the version to 5 for new columns
 
         public const val TABLE_LEVEL = "TABLE_LEVEL"
         public const val TABLE_KURS = "TABLE_KURS"
@@ -112,7 +112,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 NACHNAME TEXT,
                 ZEIT LONG,
                 RUNNING INTEGER,
-                DATUMSTRING TEXT
+                DATUMSTRING TEXT,
+                BEMERKUNG TEXT,
+                SCHWIMMARTEN TEXT
             )
         """
 
@@ -127,7 +129,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 ZEITMODE TEXT,
                 ZEIT LONG,
                 RUNNING INTEGER,
-                DATUMSTRING TEXT
+                DATUMSTRING TEXT,
+                BEMERKUNG TEXT,
+                SCHWIMMARTEN TEXT
             )
         """
     }
@@ -164,6 +168,20 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 db?.execSQL("ALTER TABLE $TABLE_BAHNENZAEHLEN ADD COLUMN DATUMSTRING TEXT")
             } catch (e: Exception) {
                 // Ignoriere den Fehler, falls die Spalte bereits existiert
+            }
+        }
+        if (oldVersion < 5) {
+            try {
+                db?.execSQL("ALTER TABLE $TABLE_STOPPUHR ADD COLUMN BEMERKUNG TEXT")
+                db?.execSQL("ALTER TABLE $TABLE_STOPPUHR ADD COLUMN SCHWIMMARTEN TEXT")
+            } catch (e: Exception) {
+                // Ignoriere den Fehler, falls die Spalten bereits existieren
+            }
+            try {
+                db?.execSQL("ALTER TABLE $TABLE_BAHNENZAEHLEN ADD COLUMN BEMERKUNG TEXT")
+                db?.execSQL("ALTER TABLE $TABLE_BAHNENZAEHLEN ADD COLUMN SCHWIMMARTEN TEXT")
+            } catch (e: Exception) {
+                // Ignoriere den Fehler, falls die Spalten bereits existieren
             }
         }
     }

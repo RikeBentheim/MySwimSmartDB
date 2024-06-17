@@ -22,6 +22,8 @@ class BahnenzaehlenRepository(context: Context) {
             put("zeit", bahnenzaehlen.zeit)
             put("running", if (bahnenzaehlen.running) 1 else 0)
             put("datumString", bahnenzaehlen.datumString)
+            put("bemerkung", bahnenzaehlen.bemerkung)
+            put("schwimmarten", bahnenzaehlen.schwimmarten.joinToString(","))
         }
         return db.insert(DatabaseHelper.TABLE_BAHNENZAEHLEN, null, values)
     }
@@ -61,7 +63,9 @@ class BahnenzaehlenRepository(context: Context) {
                     bahnlaenge = getInt(getColumnIndexOrThrow("BAHNLAENGE")),
                     zeitMode = getString(getColumnIndexOrThrow("ZEITMODE")),
                     zeit = getLong(getColumnIndexOrThrow("ZEIT")),
-                    running = getInt(getColumnIndexOrThrow("RUNNING")) == 1
+                    running = getInt(getColumnIndexOrThrow("RUNNING")) == 1,
+                    bemerkung = getString(getColumnIndexOrThrow("BEMERKUNG")),
+                    schwimmarten = getString(getColumnIndexOrThrow("SCHWIMMARTEN")).split(",")
                 )
                 bahnenzaehlenList.add(bahnenzaehlen)
             }

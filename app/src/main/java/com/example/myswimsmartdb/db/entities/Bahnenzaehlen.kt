@@ -15,7 +15,9 @@ class Bahnenzaehlen(
         "30 Minuten" -> 30 * 60 * 1000L
         else -> 0L
     },
-    var running: Boolean = false
+    var running: Boolean = false,
+    var bemerkung: String = "",
+    var schwimmarten: List<String> = listOf("Brust", "Rücken", "Kraul", "Freistil", "Lagen", "Delfin")
 ) {
     fun start() {
         running = true
