@@ -181,7 +181,7 @@ fun KursDetails(
                 if (selectedTask == null) {
                     TasksTab(levelId = course.levelId, kursId = course.id, onTaskSelected = { task ->
                         selectedTask = task
-                    })
+                    }, navController = navController)
                 } else {
                     MitgliedAufgabeTab(
                         taskId = selectedTask!!.id,

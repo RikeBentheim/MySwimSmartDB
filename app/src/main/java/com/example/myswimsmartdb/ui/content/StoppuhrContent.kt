@@ -36,13 +36,13 @@ import kotlin.time.toDuration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StoppuhrContent(mitglieder: List<Mitglied>? = null) {
-    // Wenn keine Mitglieder übergeben werden, zeige die normale Mitgliederverwaltung
-    if (mitglieder == null) {
-        MitgliederVerwaltung()
-    } else {
-        // Wenn Mitglieder übergeben werden, zeige die spezielle Verwaltung für die übergebenen Mitglieder
-        MitgliederStoppuhrVerwaltung(mitglieder)
+fun StoppuhrContent(mitglieder: List<Mitglied>) {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        if (mitglieder.isEmpty()) {
+            MitgliederVerwaltung()
+        } else {
+            MitgliederStoppuhrVerwaltung(mitglieder)
+        }
     }
 }
 
@@ -270,8 +270,4 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun VorschauStoppuhrContent() {
-    StoppuhrContent()
-}
+

@@ -15,6 +15,7 @@ import androidx.navigation.NavHostController
 import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Mitglied
+import com.example.myswimsmartdb.ui.Composable.BasisScreen
 import com.example.myswimsmartdb.ui.Composable.components.MitgliederStoppuhrVerwaltung
 import com.example.myswimsmartdb.ui.Composable.components.MitgliederVerwaltung
 import com.example.myswimsmartdb.ui.theme.Platinum
@@ -44,7 +45,7 @@ fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?) {
                 modifier = Modifier.padding(12.dp),
                 color = Platinum
             )
-            if (mitgliedIds == null) {
+            if (mitgliedIds.isNullOrEmpty()) {
                 MitgliederVerwaltung()
             } else {
                 val context = LocalContext.current
