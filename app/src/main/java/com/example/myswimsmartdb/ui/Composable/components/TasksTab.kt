@@ -139,4 +139,3 @@ fun TasksTab(levelId: Int, kursId: Int, onTaskSelected: (Aufgabe) -> Unit, navCo
         }
     }
 }
-

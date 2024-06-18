@@ -194,9 +194,23 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
                     ) {
                         Text(stringResource(id = R.string.mitglied_loeschen))
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            showSaveDialog = true
+                            showDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
+                    ) {
+                        Text("Zeiten speichern")
+                    }
                 }
             },
-            confirmButton = {}
+            confirmButton = {
+                Button(onClick = { showDialog = false }) {
+                    Text("Schließen")
+                }
+            }
         )
     }
 
@@ -208,7 +222,7 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
 
         AlertDialog(
             onDismissRequest = { showSaveDialog = false },
-            title = { Text("Stoppuhr beenden und speichern") },
+            title = { Text("Zeiten speichern") },
             text = {
                 Column {
                     Text("Schwimmart")
@@ -258,7 +272,6 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
                     val stoppuhrRepository = StoppuhrRepository(context)
                     stoppuhrRepository.insertStoppuhr(stoppuhr)
                     showSaveDialog = false
-                    // Navigate back
                 }) {
                     Text("Speichern")
                 }
@@ -283,69 +296,70 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
             modifier = Modifier.matchParentSize().alpha(0.2f),
             contentScale = ContentScale.Crop
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(1.dp, IndigoDye),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Box für das Zurücksetzen/Löschen der Stoppuhr
-            Box(
+        Column {
+            Row(
                 modifier = Modifier
-                    .size(50.dp)
-                    .background(SkyBlue)
-                    .clickable { showDialog = true }
-                    .height(50.dp),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .border(1.dp, IndigoDye),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // Box für das Zurücksetzen/Löschen der Stoppuhr und Speichern der Daten
+                Box(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .background(SkyBlue)
+                        .clickable { showDialog = true }
+                        .height(50.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "⟳",
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                // Anzeige des Namens des Mitglieds
+                Text("${stoppuhr.vorname} ${stoppuhr.nachname}", modifier = Modifier.weight(1f))
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                // Button zum Starten/Stoppen des Timers
+                Button(
+                    onClick = {
+                        if (isRunning) {
+                            stoppuhr.stop()
+                        } else {
+                            stoppuhr.start()
+                        }
+                        isRunning = !isRunning
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isRunning) Cerulean else SkyBlue
+                    ),
+                    shape = MaterialTheme.shapes.extraSmall,
+                    modifier = Modifier.height(50.dp)
+                ) {
+                    Text(if (isRunning) stringResource(id = R.string.stop) else stringResource(id = R.string.start))
+                }
+
+                // Anzeige der gestoppten Zeit
+                val hours = (time.inWholeSeconds / 3600).toString().padStart(2, '0')
+                val minutes = ((time.inWholeSeconds % 3600) / 60).toString().padStart(2, '0')
+                val seconds = (time.inWholeSeconds % 60).toString().padStart(2, '0')
+
                 Text(
-                    "⟳",
-                    color = Color.White,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
+                    text = "$hours:$minutes:$seconds",
+                    modifier = Modifier
+                        .padding(start = 8.dp, end = 8.dp)
+                        .requiredWidth(80.dp)
                 )
             }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Anzeige des Namens des Mitglieds
-            Text("${stoppuhr.vorname} ${stoppuhr.nachname}", modifier = Modifier.weight(1f))
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Button zum Starten/Stoppen des Timers
-            Button(
-                onClick = {
-                    if (isRunning) {
-                        stoppuhr.stop()
-                        showSaveDialog = true // Show save dialog when stopped
-                    } else {
-                        stoppuhr.start()
-                    }
-                    isRunning = !isRunning
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isRunning) Cerulean else SkyBlue
-                ),
-                shape = MaterialTheme.shapes.extraSmall,
-                modifier = Modifier.height(50.dp)
-            ) {
-                Text(if (isRunning) stringResource(id = R.string.stop) else stringResource(id = R.string.start))
-            }
-
-            // Anzeige der gestoppten Zeit
-            val hours = (time.inWholeSeconds / 3600).toString().padStart(2, '0')
-            val minutes = ((time.inWholeSeconds % 3600) / 60).toString().padStart(2, '0')
-            val seconds = (time.inWholeSeconds % 60).toString().padStart(2, '0')
-
-            Text(
-                text = "$hours:$minutes:$seconds",
-                modifier = Modifier
-                    .padding(start = 8.dp, end = 8.dp)
-                    .requiredWidth(80.dp)
-            )
         }
     }
 }

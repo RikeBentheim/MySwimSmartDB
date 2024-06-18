@@ -33,4 +33,3 @@ fun AppNavigation(navController: NavHostController) {
         composable("kursVerwaltung") { KursVerwaltungScreen(navController) }
     }
 }
-
