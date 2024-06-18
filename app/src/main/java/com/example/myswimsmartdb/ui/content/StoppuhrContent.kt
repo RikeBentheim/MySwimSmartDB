@@ -37,6 +37,7 @@ import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.ui.theme.SkyBlue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Date
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -132,7 +133,14 @@ fun MitgliederStoppuhrVerwaltung(mitglieder: List<Mitglied>, navController: NavH
     LaunchedEffect(mitglieder) {
         stoppuhren.clear()
         mitglieder.forEach { mitglied ->
-            stoppuhren.add(Stoppuhr(mitglied.id, mitglied.id, mitglied.vorname, "", mitglied.nachname))
+            stoppuhren.add(Stoppuhr(
+                id = mitglied.id,
+                mitgliedId = mitglied.id,
+                vorname = mitglied.vorname,
+                nachname = mitglied.nachname,
+                datumString = "",  // Assuming this should be empty or a date string
+                datum = Date()  // Setting the current date
+            ))
         }
     }
 
@@ -225,6 +233,10 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
             title = { Text("Zeiten speichern") },
             text = {
                 Column {
+                    Text("Vorname: ${stoppuhr.vorname}")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Nachname: ${stoppuhr.nachname}")
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text("Schwimmart")
                     Box {
                         OutlinedTextField(
