@@ -56,7 +56,7 @@ fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?) {
                     mitglieder = mitgliedRepository.getMitgliederByIds(mitgliedIds)
                 }
 
-                MitgliederStoppuhrVerwaltung(mitglieder)
+                MitgliederStoppuhrVerwaltung(mitglieder,navController)
             }
         }
     }

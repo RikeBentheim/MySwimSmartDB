@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -23,9 +25,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.myswimsmartdb.db.entities.Stoppuhr
 import com.example.myswimsmartdb.R
+import com.example.myswimsmartdb.db.Reposetory.StoppuhrRepository
 import com.example.myswimsmartdb.db.entities.Mitglied
+import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
+import com.example.myswimsmartdb.ui.content.MitgliederVerwaltung
 import com.example.myswimsmartdb.ui.theme.Cerulean
 import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.ui.theme.SkyBlue
@@ -36,12 +42,13 @@ import kotlin.time.toDuration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StoppuhrContent(mitglieder: List<Mitglied>) {
+
+fun StoppuhrContent(mitglieder: List<Mitglied>, navController: NavHostController) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         if (mitglieder.isEmpty()) {
             MitgliederVerwaltung()
         } else {
-            MitgliederStoppuhrVerwaltung(mitglieder)
+            MitgliederStoppuhrVerwaltung(mitglieder, navController) // Corrected line
         }
     }
 }
@@ -117,7 +124,7 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
 }
 
 @Composable
-fun MitgliederStoppuhrVerwaltung(mitglieder: List<Mitglied>) {
+fun MitgliederStoppuhrVerwaltung(mitglieder: List<Mitglied>, navController: NavHostController) {
     // Liste für Stoppuhren initialisieren
     val stoppuhren = remember { mutableStateListOf<Stoppuhr>() }
 
@@ -140,11 +147,12 @@ fun MitgliederStoppuhrVerwaltung(mitglieder: List<Mitglied>) {
 
 @Composable
 fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
-    // Zustände für den Timer und den Dialog
     var isRunning by remember { mutableStateOf(stoppuhr.running) }
     var time by remember { mutableStateOf(stoppuhr.zeit.toDuration(DurationUnit.MILLISECONDS)) }
     var showDialog by remember { mutableStateOf(false) }
+    var showSaveDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     // Timer-Logik
     LaunchedEffect(isRunning) {
@@ -189,6 +197,77 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
                 }
             },
             confirmButton = {}
+        )
+    }
+
+    // Dialog zum Speichern der gestoppten Zeit, Schwimmart und Bemerkung
+    if (showSaveDialog) {
+        var selectedSchwimmart by remember { mutableStateOf(stoppuhr.schwimmarten.first()) }
+        var bemerkung by remember { mutableStateOf(stoppuhr.bemerkung) }
+        var expanded by remember { mutableStateOf(false) }
+
+        AlertDialog(
+            onDismissRequest = { showSaveDialog = false },
+            title = { Text("Stoppuhr beenden und speichern") },
+            text = {
+                Column {
+                    Text("Schwimmart")
+                    Box {
+                        OutlinedTextField(
+                            value = selectedSchwimmart,
+                            onValueChange = { /* ReadOnly */ },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { expanded = !expanded },
+                            readOnly = true,
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDropDown,
+                                    contentDescription = "Dropdown",
+                                    modifier = Modifier.clickable { expanded = !expanded }
+                                )
+                            }
+                        )
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            stoppuhr.schwimmarten.forEach { schwimmart ->
+                                DropdownMenuItem(
+                                    text = { Text(schwimmart) },
+                                    onClick = {
+                                        selectedSchwimmart = schwimmart
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = bemerkung,
+                        onValueChange = { bemerkung = it },
+                        label = { Text("Bemerkung") }
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    stoppuhr.bemerkung = bemerkung
+                    stoppuhr.schwimmarten = listOf(selectedSchwimmart)
+                    val stoppuhrRepository = StoppuhrRepository(context)
+                    stoppuhrRepository.insertStoppuhr(stoppuhr)
+                    showSaveDialog = false
+                    // Navigate back
+                }) {
+                    Text("Speichern")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showSaveDialog = false }) {
+                    Text("Abbrechen")
+                }
+            }
         )
     }
 
@@ -241,6 +320,7 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
                 onClick = {
                     if (isRunning) {
                         stoppuhr.stop()
+                        showSaveDialog = true // Show save dialog when stopped
                     } else {
                         stoppuhr.start()
                     }
@@ -269,5 +349,3 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
         }
     }
 }
-
-
