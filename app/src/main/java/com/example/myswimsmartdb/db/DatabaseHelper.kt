@@ -8,7 +8,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         private const val DATABASE_NAME = "deine_datenbank_name.db"
-        private const val DATABASE_VERSION = 5 // Increment the version to 5 for new columns
+        private const val DATABASE_VERSION = 6 // Increment the version to 6 for new columns
 
         public const val TABLE_LEVEL = "TABLE_LEVEL"
         public const val TABLE_KURS = "TABLE_KURS"
@@ -114,7 +114,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 RUNNING INTEGER,
                 DATUMSTRING TEXT,
                 BEMERKUNG TEXT,
-                SCHWIMMARTEN TEXT
+                SCHWIMMARTEN TEXT,
+                DATUM DATE  -- Add the new column for date saved
             )
         """
 
@@ -131,7 +132,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 RUNNING INTEGER,
                 DATUMSTRING TEXT,
                 BEMERKUNG TEXT,
-                SCHWIMMARTEN TEXT
+                SCHWIMMARTEN TEXT,
+                DATUM DATE  -- Add the new column for date saved
             )
         """
     }
@@ -184,6 +186,17 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 // Ignoriere den Fehler, falls die Spalten bereits existieren
             }
         }
+        if (oldVersion < 6) {
+            try {
+                db?.execSQL("ALTER TABLE $TABLE_STOPPUHR ADD COLUMN DATUM DATE")
+            } catch (e: Exception) {
+                // Ignoriere den Fehler, falls die Spalte bereits existiert
+            }
+            try {
+                db?.execSQL("ALTER TABLE $TABLE_BAHNENZAEHLEN ADD COLUMN DATUM DATE")
+            } catch (e: Exception) {
+                // Ignoriere den Fehler, falls die Spalte bereits existiert
+            }
+        }
     }
-
 }

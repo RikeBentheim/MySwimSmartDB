@@ -5,12 +5,17 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import com.example.myswimsmartdb.db.DatabaseHelper
 import com.example.myswimsmartdb.db.entities.Bahnenzaehlen
+import java.text.SimpleDateFormat
+import java.util.*
 
 class BahnenzaehlenRepository(context: Context) {
     private val dbHelper = DatabaseHelper(context)
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     fun insertBahnenzaehlen(bahnenzaehlen: Bahnenzaehlen): Long {
         val db: SQLiteDatabase = dbHelper.writableDatabase
+        val currentDate = dateFormat.format(Date()) // Get the current date
+
         val values = ContentValues().apply {
             put("id", bahnenzaehlen.id)
             put("mitgliedId", bahnenzaehlen.mitgliedId)
@@ -24,6 +29,7 @@ class BahnenzaehlenRepository(context: Context) {
             put("datumString", bahnenzaehlen.datumString)
             put("bemerkung", bahnenzaehlen.bemerkung)
             put("schwimmarten", bahnenzaehlen.schwimmarten.joinToString(","))
+            put("datum", currentDate) // Store the current date
         }
         return db.insert(DatabaseHelper.TABLE_BAHNENZAEHLEN, null, values)
     }
@@ -65,7 +71,8 @@ class BahnenzaehlenRepository(context: Context) {
                     zeit = getLong(getColumnIndexOrThrow("ZEIT")),
                     running = getInt(getColumnIndexOrThrow("RUNNING")) == 1,
                     bemerkung = getString(getColumnIndexOrThrow("BEMERKUNG")),
-                    schwimmarten = getString(getColumnIndexOrThrow("SCHWIMMARTEN")).split(",")
+                    schwimmarten = getString(getColumnIndexOrThrow("SCHWIMMARTEN")).split(","),
+                    datum = dateFormat.parse(getString(getColumnIndexOrThrow("DATUM")))
                 )
                 bahnenzaehlenList.add(bahnenzaehlen)
             }

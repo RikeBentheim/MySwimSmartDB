@@ -1,5 +1,7 @@
 package com.example.myswimsmartdb.db.entities
 
+import java.util.Date
+
 class Stoppuhr(
     val id: Int,
     val mitgliedId: Int,
@@ -9,7 +11,8 @@ class Stoppuhr(
     var zeit: Long = 0L,
     var running: Boolean = false,
     var bemerkung: String = "",
-    var schwimmarten: List<String> = listOf("Brust", "Rücken", "Kraul", "Freistil", "Lagen", "Delfin")
+    var schwimmarten: List<String> = listOf("Brust", "Rücken", "Kraul", "Freistil", "Lagen", "Delfin"),
+    var datum: Date = Date()  // Add datum field to store the date when the record is saved
 ) {
 
     fun start() {

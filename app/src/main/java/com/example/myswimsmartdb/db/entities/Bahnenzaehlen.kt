@@ -1,5 +1,7 @@
 package com.example.myswimsmartdb.db.entities
 
+import java.util.Date
+
 class Bahnenzaehlen(
     val id: Int,
     val mitgliedId: Int,
@@ -17,7 +19,8 @@ class Bahnenzaehlen(
     },
     var running: Boolean = false,
     var bemerkung: String = "",
-    var schwimmarten: List<String> = listOf("Brust", "Rücken", "Kraul", "Freistil", "Lagen", "Delfin")
+    var schwimmarten: List<String> = listOf("Brust", "Rücken", "Kraul", "Freistil", "Lagen", "Delfin"),
+    var datum: Date = Date()  // Add datum field to store the date when the record is saved
 ) {
     fun start() {
         running = true
