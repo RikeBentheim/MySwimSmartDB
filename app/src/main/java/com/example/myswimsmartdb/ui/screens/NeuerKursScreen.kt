@@ -19,7 +19,6 @@ import com.example.myswimsmartdb.db.Reposetory.TrainingRepository
 import com.example.myswimsmartdb.ui.Composable.AddKursScreen
 import com.example.myswimsmartdb.ui.Composable.AddMemberScreen
 import com.example.myswimsmartdb.ui.Composable.AddKurstermineScreen
-import com.example.myswimsmartdb.ui.Composable.BasisScreen
 import com.example.myswimsmartdb.db.entities.Level
 import com.example.myswimsmartdb.ui.theme.Platinum
 import androidx.compose.ui.platform.LocalContext

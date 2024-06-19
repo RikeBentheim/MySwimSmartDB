@@ -23,7 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BasisScreen(
+fun BasisScreenen(
     navController: NavController,
     content: @Composable (PaddingValues) -> Unit
 ) {
@@ -51,19 +51,5 @@ fun BasisScreen(
         }
     }
 }
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
-@Composable
-fun BasisScreenPreview() {
-    val navController = rememberNavController()
 
-    BasisScreen(navController = navController) { innerPadding ->
-        // Beispielinhalt für die Vorschau
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)) {
-            Text("Vorschauinhalt")
-        }
-    }
-}
 
