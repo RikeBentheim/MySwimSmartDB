@@ -31,5 +31,4 @@ class Stoppuhr(
     fun addTime(time: Long) {
         zeit += time
     }
-
 }

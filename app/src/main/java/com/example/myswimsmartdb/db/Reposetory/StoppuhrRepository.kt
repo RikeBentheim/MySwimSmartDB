@@ -43,36 +43,26 @@ class StoppuhrRepository(context: Context) {
     }
 
     fun getStoppuhrenByMitgliedId(mitgliedId: Int): List<Stoppuhr> {
-        val db: SQLiteDatabase = dbHelper.readableDatabase
-        val cursor = db.query(
-            DatabaseHelper.TABLE_STOPPUHR,
-            null,
-            "mitgliedId = ?",
-            arrayOf(mitgliedId.toString()),
-            null,
-            null,
-            null
-        )
-
+        val db = dbHelper.readableDatabase
+        val query = "SELECT * FROM ${DatabaseHelper.TABLE_STOPPUHR} WHERE MITGLIED_ID = ?"
         val stoppuhren = mutableListOf<Stoppuhr>()
-        with(cursor) {
-            while (moveToNext()) {
-                val stoppuhr = Stoppuhr(
-                    id = getInt(getColumnIndexOrThrow("id")),
-                    mitgliedId = getInt(getColumnIndexOrThrow("mitgliedId")),
-                    vorname = getString(getColumnIndexOrThrow("vorname")),
-                    nachname = getString(getColumnIndexOrThrow("nachname")),
-                    zeit = getLong(getColumnIndexOrThrow("zeit")),
-                    running = getInt(getColumnIndexOrThrow("running")) == 1,
-                    datumString = getString(getColumnIndexOrThrow("datumString")),
-                    bemerkung = getString(getColumnIndexOrThrow("bemerkung")),
-                    schwimmarten = getString(getColumnIndexOrThrow("schwimmarten")).split(","),
-                    datum = dateFormat.parse(getString(getColumnIndexOrThrow("datum")))
-                )
-                stoppuhren.add(stoppuhr)
+
+        db.rawQuery(query, arrayOf(mitgliedId.toString())).use { cursor ->
+            while (cursor.moveToNext()) {
+                val id = cursor.getInt(cursor.getColumnIndexOrThrow("STOPPUHR_ID"))
+                val vorname = cursor.getString(cursor.getColumnIndexOrThrow("VORNAME"))
+                val nachname = cursor.getString(cursor.getColumnIndexOrThrow("NACHNAME"))
+                val zeit = cursor.getLong(cursor.getColumnIndexOrThrow("ZEIT"))
+                val running = cursor.getInt(cursor.getColumnIndexOrThrow("RUNNING")) > 0
+                val datumString = cursor.getString(cursor.getColumnIndexOrThrow("DATUMSTRING"))
+                val bemerkung = cursor.getString(cursor.getColumnIndexOrThrow("BEMERKUNG"))
+                val schwimmarten = cursor.getString(cursor.getColumnIndexOrThrow("SCHWIMMARTEN")).split(",")
+                val datum = dateFormat.parse(cursor.getString(cursor.getColumnIndexOrThrow("DATUM")))
+
+                stoppuhren.add(Stoppuhr(id, mitgliedId, vorname, nachname, datumString, zeit, running, bemerkung, schwimmarten, datum!!))
             }
         }
-        cursor.close()
+
         return stoppuhren
     }
 

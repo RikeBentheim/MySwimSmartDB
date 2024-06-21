@@ -33,7 +33,6 @@ fun MyApp() {
         val navController = rememberNavController()
 
         Scaffold(
-
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
                 AppNavigation(navController = navController)

@@ -23,8 +23,7 @@ class MitgliedRepository(private val context: Context) {
                 val id = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_ID"))
                 val vorname = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_VORNAME"))
                 val nachname = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_NACHNAME"))
-                val geburtsdatum =
-                    cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_GEBURTSDATUM"))
+                val geburtsdatum = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_GEBURTSDATUM"))
                 val telefon = cursor.getString(cursor.getColumnIndexOrThrow("MITGLIED_TELEFON"))
 
                 mitglieder.add(Mitglied(id, vorname, nachname, geburtsdatum, telefon, kursId))
@@ -210,7 +209,6 @@ class MitgliedRepository(private val context: Context) {
         return mitglieder
     }
 
-
     fun updateMitgliedAufgabeErreicht(mitgliedId: Int, aufgabeId: Int, erreicht: Boolean) {
         val db = dbHelper.writableDatabase
         val contentValues = ContentValues().apply {
@@ -241,8 +239,7 @@ class MitgliedRepository(private val context: Context) {
         val cursor = db.rawQuery(query, arrayOf(mitgliedId.toString(), aufgabeId.toString()))
 
         return if (cursor.moveToFirst()) {
-            val mitgliedAufgabeId =
-                cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_AUFGABE_ID"))
+            val mitgliedAufgabeId = cursor.getInt(cursor.getColumnIndexOrThrow("MITGLIED_AUFGABE_ID"))
             val erreicht = cursor.getInt(cursor.getColumnIndexOrThrow("ERREICHT")) > 0
             cursor.close()
             MitgliedAufgabe(mitgliedAufgabeId, mitgliedId, aufgabeId, erreicht)
