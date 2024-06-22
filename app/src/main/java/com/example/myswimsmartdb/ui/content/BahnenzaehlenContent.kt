@@ -26,7 +26,6 @@ import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.entities.Bahnenzaehlen
 import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
 import com.example.myswimsmartdb.ui.theme.Cerulean
-import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.ui.theme.SkyBlue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -61,7 +60,6 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
             .fillMaxSize()
     ) {
         item {
-
             Spacer(modifier = Modifier.height(30.dp))
 
             Column(
@@ -104,7 +102,7 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
 
                     IconButton(onClick = {
                         if (vorname.isNotBlank() && nachname.isNotBlank()) {
-                            bahnenzaehlen.add(Bahnenzaehlen(idCounter++, idCounter, vorname, nachname, "2023-06-10", 0, selectedLaneLength, selectedTimeOption, 0L, false))
+                            bahnenzaehlen.add(Bahnenzaehlen(idCounter++, 0, vorname, nachname, "", 0, selectedLaneLength, selectedTimeOption))
                             vorname = ""
                             nachname = ""
                         }
@@ -334,21 +332,18 @@ fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
                 )
             }
 
-            if (time.inWholeMilliseconds > 0 || bahnen.zeitMode == openString) {
-                Box(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .background(SkyBlue)
-                        .clickable {
-                            if (time.inWholeMilliseconds > 0 || bahnen.zeitMode == openString) {
-                                lapCount++
-                                bahnen.addBahnen()
-                            }
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(id = R.string.add), tint = Color.White)
-                }
+            // Always show the add button
+            Box(
+                modifier = Modifier
+                    .size(50.dp)
+                    .background(SkyBlue)
+                    .clickable {
+                        lapCount++
+                        bahnen.addBahnen()
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(id = R.string.add), tint = Color.White)
             }
         }
     }
