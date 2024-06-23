@@ -29,12 +29,13 @@ import com.example.myswimsmartdb.ui.Composable.components.TasksTab
 import com.example.myswimsmartdb.ui.theme.Platinum
 import com.example.myswimsmartdb.ui.theme.SkyBlue
 import com.example.myswimsmartdb.ui.theme.LapisLazuli
+import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun KursVerwaltungScreen(navController: NavHostController) {
+fun KursVerwaltungScreen(navController: NavHostController, sharedViewModel: SharedViewModel) {
     val context = LocalContext.current
     val kursRepository = KursRepository(context)
     val trainingRepository = TrainingRepository(context)
@@ -108,7 +109,14 @@ fun KursVerwaltungScreen(navController: NavHostController) {
 
                 if (selectedDate.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(20.dp))
-                    Button(onClick = { showDetails.value = true }) {
+                    Button(onClick = {
+                        sharedViewModel.selectCourse(selectedCourse!!)
+                        val selectedTraining = selectedCourse?.trainings?.find { it.datum == selectedDate }
+                        if (selectedTraining != null) {
+                            sharedViewModel.selectTraining(selectedTraining)
+                        }
+                        showDetails.value = true
+                    }) {
                         Text(stringResource(id = R.string.kurs_starten))
                     }
                 }
@@ -116,7 +124,7 @@ fun KursVerwaltungScreen(navController: NavHostController) {
                 selectedCourse?.let { course ->
                     val selectedTraining = course.trainings.find { it.datum == selectedDate }
                     if (selectedTraining != null) {
-                        KursDetails(course, selectedTraining.id, selectedDate, trainingRepository, mitgliedRepository, navController)
+                        KursDetails(course, selectedTraining.id, selectedDate, trainingRepository, mitgliedRepository, navController, sharedViewModel)
                     }
                 }
             }
@@ -131,7 +139,8 @@ fun KursDetails(
     trainingsDatum: String,
     trainingRepository: TrainingRepository,
     mitgliedRepository: MitgliedRepository,
-    navController: NavHostController
+    navController: NavHostController,
+    sharedViewModel: SharedViewModel
 ) {
     var selectedTab by remember { mutableStateOf(0) }
     val tabTitles = listOf(

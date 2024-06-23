@@ -22,7 +22,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -35,6 +34,7 @@ import com.example.myswimsmartdb.ui.content.MitgliederVerwaltung
 import com.example.myswimsmartdb.ui.theme.Cerulean
 import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.ui.theme.SkyBlue
+import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -43,19 +43,20 @@ import kotlin.time.toDuration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-
-fun StoppuhrContent(mitglieder: List<Mitglied>, navController: NavHostController) {
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+fun StoppuhrContent(mitglieder: List<Mitglied>, navController: NavHostController, sharedViewModel: SharedViewModel) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
         if (mitglieder.isEmpty()) {
-            MitgliederVerwaltung()
+            MitgliederVerwaltung(sharedViewModel)
         } else {
-            MitgliederStoppuhrVerwaltung(mitglieder, navController) // Corrected line
+            MitgliederStoppuhrVerwaltung(mitglieder, navController, sharedViewModel)
         }
     }
 }
 
 @Composable
-fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
+fun MitgliederVerwaltung(sharedViewModel: SharedViewModel, innerPadding: PaddingValues = PaddingValues()) {
     // Liste für Stoppuhren
     val stoppuhren = remember { mutableStateListOf<Stoppuhr>() }
     // Zustände für Vorname und Nachname
@@ -117,7 +118,7 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             itemsIndexed(stoppuhren) { index, stoppuhr ->
                 // Einzelne Zeile für jede Stoppuhr
-                StoppuhrMitTimer(stoppuhr, onDelete = { stoppuhren.removeAt(index) })
+                StoppuhrMitTimer(stoppuhr, onDelete = { stoppuhren.removeAt(index) }, sharedViewModel)
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
@@ -125,11 +126,9 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
 }
 
 @Composable
-fun MitgliederStoppuhrVerwaltung(mitglieder: List<Mitglied>, navController: NavHostController) {
-    // Liste für Stoppuhren initialisieren
+fun MitgliederStoppuhrVerwaltung(mitglieder: List<Mitglied>, navController: NavHostController, sharedViewModel: SharedViewModel) {
     val stoppuhren = remember { mutableStateListOf<Stoppuhr>() }
 
-    // Effekt, um die Liste der Stoppuhren mit den übergebenen Mitgliedern zu füllen
     LaunchedEffect(mitglieder) {
         stoppuhren.clear()
         mitglieder.forEach { mitglied ->
@@ -138,23 +137,41 @@ fun MitgliederStoppuhrVerwaltung(mitglieder: List<Mitglied>, navController: NavH
                 mitgliedId = mitglied.id,
                 vorname = mitglied.vorname,
                 nachname = mitglied.nachname,
-                datumString = "",  // Assuming this should be empty or a date string
-                datum = Date()  // Setting the current date
+                datumString = "",
+                datum = Date()
             ))
         }
     }
 
-    // Anzeige der Liste der Stoppuhren
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        itemsIndexed(stoppuhren) { index, stoppuhr ->
-            StoppuhrMitTimer(stoppuhr, onDelete = { stoppuhren.removeAt(index) })
-            Spacer(modifier = Modifier.height(8.dp))
+    Column(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            itemsIndexed(stoppuhren) { index, stoppuhr ->
+                StoppuhrMitTimer(stoppuhr, onDelete = { stoppuhren.removeAt(index) }, sharedViewModel)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+
+        Button(
+            onClick = {
+                navController.navigate("kursVerwaltung") {
+                    popUpTo(navController.graph.startDestinationId) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            },
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(16.dp)
+        ) {
+            Text("Zurück zur Kursverwaltung")
         }
     }
 }
 
 @Composable
-fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit) {
+fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: SharedViewModel) {
     var isRunning by remember { mutableStateOf(stoppuhr.running) }
     var time by remember { mutableStateOf(stoppuhr.zeit.toDuration(DurationUnit.MILLISECONDS)) }
     var showDialog by remember { mutableStateOf(false) }

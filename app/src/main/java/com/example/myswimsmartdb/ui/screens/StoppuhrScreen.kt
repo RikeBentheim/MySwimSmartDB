@@ -18,9 +18,10 @@ import com.example.myswimsmartdb.db.entities.Mitglied
 import com.example.myswimsmartdb.ui.Composable.components.MitgliederStoppuhrVerwaltung
 import com.example.myswimsmartdb.ui.Composable.components.MitgliederVerwaltung
 import com.example.myswimsmartdb.ui.theme.Platinum
+import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
 
 @Composable
-fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?) {
+fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?, sharedViewModel: SharedViewModel) {
     BasisScreen(navController = navController) { innerPadding ->
         Column(
             modifier = Modifier
@@ -45,7 +46,7 @@ fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?) {
                 color = Platinum
             )
             if (mitgliedIds.isNullOrEmpty()) {
-                MitgliederVerwaltung()
+                MitgliederVerwaltung(sharedViewModel = sharedViewModel)
             } else {
                 val context = LocalContext.current
                 val mitgliedRepository = MitgliedRepository(context)
@@ -55,7 +56,7 @@ fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?) {
                     mitglieder = mitgliedRepository.getMitgliederByIds(mitgliedIds)
                 }
 
-                MitgliederStoppuhrVerwaltung(mitglieder,navController)
+                MitgliederStoppuhrVerwaltung(mitglieder, navController, sharedViewModel)
             }
         }
     }
