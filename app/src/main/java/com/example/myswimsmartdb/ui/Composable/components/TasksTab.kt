@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,16 +35,13 @@ fun TaskItem(
             .clickable { isDescriptionVisible = !isDescriptionVisible }
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
-            // Zeigt den Namen der Aufgabe an
             Text(text = task.aufgabe, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-            // Icon zum Auswählen der Aufgabe
             Icon(
-                imageVector = Icons.Default.PlayArrow,
+                imageVector = Icons.Default.ArrowForward,
                 contentDescription = stringResource(id = R.string.show_details),
                 modifier = Modifier.clickable { onTaskSelected(task) }
             )
         }
-        // Sichtbarkeit der Aufgabenbeschreibung umschalten
         if (isDescriptionVisible) {
             Text(text = task.beschreibung, style = MaterialTheme.typography.bodyMedium)
         }
@@ -60,14 +57,11 @@ fun TasksTab(levelId: Int, kursId: Int, onTaskSelected: (Aufgabe) -> Unit, navCo
     var showDialog by remember { mutableStateOf(false) }
     var selectedMitglieder by remember { mutableStateOf<List<Mitglied>>(emptyList()) }
     var mitglieder by remember { mutableStateOf(emptyList<Mitglied>()) }
-    var selectedTask by remember { mutableStateOf<Aufgabe?>(null) } // Zustand, um die ausgewählte Aufgabe zu speichern
 
-    // Aufgaben laden, wenn sich die levelId ändert
     LaunchedEffect(levelId) {
         tasks = aufgabeRepository.getAufgabenByLevelId(levelId)
     }
 
-    // Mitglieder laden, wenn sich die kursId ändert
     LaunchedEffect(kursId) {
         mitglieder = mitgliedRepository.getMitgliederByKursId(kursId)
     }
@@ -76,22 +70,17 @@ fun TasksTab(levelId: Int, kursId: Int, onTaskSelected: (Aufgabe) -> Unit, navCo
         .fillMaxSize()
         .padding(16.dp)) {
 
-        // LazyColumn zum Anzeigen der Aufgabenliste
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(tasks) { task ->
                 TaskItem(
                     task = task,
-                    onTaskSelected = {
-                        selectedTask = it // Setzt die ausgewählte Aufgabe, wenn das Icon angeklickt wird
-                        showDialog = true // Zeigt den Dialog zum Auswählen der Mitglieder an
-                    },
+                    onTaskSelected = onTaskSelected,
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Button zum Starten der Stoppuhr
         Button(
             onClick = { showDialog = true },
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -99,48 +88,36 @@ fun TasksTab(levelId: Int, kursId: Int, onTaskSelected: (Aufgabe) -> Unit, navCo
             Text("Stoppuhr starten")
         }
 
-        // Dialog zum Auswählen der Mitglieder
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
                 title = { Text("Mitglieder auswählen") },
                 text = {
-                    Column {
-                        // Zeigt den Namen der ausgewählten Aufgabe über der Liste an
-                        selectedTask?.let {
-                            Text("Ausgewählte Tätigkeit: ${it.aufgabe}", style = MaterialTheme.typography.bodyLarge)
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-
-                        // LazyColumn zum Anzeigen der Mitgliederliste
-                        LazyColumn {
-                            items(mitglieder) { mitglied ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            selectedMitglieder = if (selectedMitglieder.contains(mitglied)) {
-                                                selectedMitglieder - mitglied
-                                            } else {
-                                                selectedMitglieder + mitglied
-                                            }
-                                        },
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // Checkbox für jedes Mitglied
-                                    Checkbox(
-                                        checked = selectedMitglieder.contains(mitglied),
-                                        onCheckedChange = { checked ->
-                                            selectedMitglieder = if (checked) {
-                                                selectedMitglieder + mitglied
-                                            } else {
-                                                selectedMitglieder - mitglied
-                                            }
+                    LazyColumn {
+                        items(mitglieder) { mitglied ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        selectedMitglieder = if (selectedMitglieder.contains(mitglied)) {
+                                            selectedMitglieder - mitglied
+                                        } else {
+                                            selectedMitglieder + mitglied
                                         }
-                                    )
-                                    // Zeigt den Namen des Mitglieds an
-                                    Text("${mitglied.vorname} ${mitglied.nachname}")
-                                }
+                                    },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = selectedMitglieder.contains(mitglied),
+                                    onCheckedChange = { checked ->
+                                        selectedMitglieder = if (checked) {
+                                            selectedMitglieder + mitglied
+                                        } else {
+                                            selectedMitglieder - mitglied
+                                        }
+                                    }
+                                )
+                                Text("${mitglied.vorname} ${mitglied.nachname}")
                             }
                         }
                     }
