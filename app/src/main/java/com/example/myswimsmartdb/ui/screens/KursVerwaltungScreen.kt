@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.myswimsmartdb.R
+import com.example.myswimsmartdb.ui.Composable.components.KursSaver
 import com.example.myswimsmartdb.db.Reposetory.KursRepository
 import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
 import com.example.myswimsmartdb.db.Reposetory.TrainingRepository
@@ -42,9 +43,9 @@ fun KursVerwaltungScreen(navController: NavHostController, sharedViewModel: Shar
     val mitgliedRepository = MitgliedRepository(context)
 
     val courses = kursRepository.getAllKurseWithDetails()
-    var selectedCourse by remember { mutableStateOf<Kurs?>(null) }
-    var selectedDate by remember { mutableStateOf("") }
-    val showDetails = remember { mutableStateOf(false) }
+    var selectedCourse by rememberSaveable(stateSaver = KursSaver) { mutableStateOf<Kurs?>(null) }
+    var selectedDate by rememberSaveable { mutableStateOf("") }
+    val showDetails = rememberSaveable { mutableStateOf(false) }
 
     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     val currentDate = sdf.format(Date())
@@ -110,12 +111,14 @@ fun KursVerwaltungScreen(navController: NavHostController, sharedViewModel: Shar
                 if (selectedDate.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(20.dp))
                     Button(onClick = {
-                        sharedViewModel.selectCourse(selectedCourse!!)
-                        val selectedTraining = selectedCourse?.trainings?.find { it.datum == selectedDate }
-                        if (selectedTraining != null) {
-                            sharedViewModel.selectTraining(selectedTraining)
+                        if (selectedCourse != null) {
+                            sharedViewModel.selectCourse(selectedCourse!!)
+                            val selectedTraining = selectedCourse?.trainings?.find { it.datum == selectedDate }
+                            if (selectedTraining != null) {
+                                sharedViewModel.selectTraining(selectedTraining)
+                            }
+                            showDetails.value = true
                         }
-                        showDetails.value = true
                     }) {
                         Text(stringResource(id = R.string.kurs_starten))
                     }
