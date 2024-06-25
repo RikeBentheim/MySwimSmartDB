@@ -144,7 +144,9 @@ fun MitgliederStoppuhrVerwaltung(mitglieder: List<Mitglied>, navController: NavH
 
         Button(
             onClick = {
-                navController.navigate("kursVerwaltung") {
+                val selectedCourse = sharedViewModel.selectedCourse
+                val selectedDate = sharedViewModel.selectedTraining?.datum ?: ""
+                navController.navigate("kursVerwaltungBack/${selectedCourse?.id ?: 0}/$selectedDate") {
                     popUpTo(navController.graph.startDestinationId) {
                         saveState = true
                     }

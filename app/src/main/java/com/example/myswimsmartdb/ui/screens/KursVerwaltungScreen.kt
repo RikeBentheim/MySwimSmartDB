@@ -36,16 +36,21 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun KursVerwaltungScreen(navController: NavHostController, sharedViewModel: SharedViewModel) {
+fun KursVerwaltungScreen(
+    navController: NavHostController,
+    sharedViewModel: SharedViewModel,
+    selectedCourse: Kurs? = null,
+    selectedDate: String = ""
+) {
     val context = LocalContext.current
     val kursRepository = KursRepository(context)
     val trainingRepository = TrainingRepository(context)
     val mitgliedRepository = MitgliedRepository(context)
 
     val courses = kursRepository.getAllKurseWithDetails()
-    var selectedCourse by rememberSaveable(stateSaver = KursSaver) { mutableStateOf<Kurs?>(null) }
-    var selectedDate by rememberSaveable { mutableStateOf("") }
-    val showDetails = rememberSaveable { mutableStateOf(false) }
+    var selectedCourseState by rememberSaveable(stateSaver = KursSaver) { mutableStateOf<Kurs?>(selectedCourse) }
+    var selectedDateState by rememberSaveable { mutableStateOf(selectedDate) }
+    val showDetails = rememberSaveable { mutableStateOf(selectedCourse != null && selectedDate.isNotEmpty()) }
 
     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     val currentDate = sdf.format(Date())
@@ -80,14 +85,14 @@ fun KursVerwaltungScreen(navController: NavHostController, sharedViewModel: Shar
                 StringSelectionDropdown(
                     label = stringResource(id = R.string.bitte_kurs_auswaehlen),
                     options = courses.map { it.name },
-                    selectedOption = selectedCourse?.name ?: "",
+                    selectedOption = selectedCourseState?.name ?: "",
                     onOptionSelected = { courseName ->
-                        selectedCourse = courses.find { it.name == courseName }
-                        val trainingDates = selectedCourse?.trainings?.map { it.datum }
+                        selectedCourseState = courses.find { it.name == courseName }
+                        val trainingDates = selectedCourseState?.trainings?.map { it.datum }
                         if (currentDate in trainingDates.orEmpty()) {
-                            selectedDate = currentDate
+                            selectedDateState = currentDate
                         } else {
-                            selectedDate = ""
+                            selectedDateState = ""
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -95,25 +100,25 @@ fun KursVerwaltungScreen(navController: NavHostController, sharedViewModel: Shar
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                selectedCourse?.let { course ->
+                selectedCourseState?.let { course ->
                     val trainingDates = course.trainings.map { it.datum }
                     if (trainingDates.isNotEmpty()) {
                         StringSelectionDropdown(
                             label = stringResource(id = R.string.training_datum_auswaehlen),
                             options = trainingDates,
-                            selectedOption = selectedDate,
-                            onOptionSelected = { selectedDate = it },
+                            selectedOption = selectedDateState,
+                            onOptionSelected = { selectedDateState = it },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
 
-                if (selectedDate.isNotEmpty()) {
+                if (selectedDateState.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(20.dp))
                     Button(onClick = {
-                        if (selectedCourse != null) {
-                            sharedViewModel.selectCourse(selectedCourse!!)
-                            val selectedTraining = selectedCourse?.trainings?.find { it.datum == selectedDate }
+                        if (selectedCourseState != null) {
+                            sharedViewModel.selectCourse(selectedCourseState!!)
+                            val selectedTraining = selectedCourseState?.trainings?.find { it.datum == selectedDateState }
                             if (selectedTraining != null) {
                                 sharedViewModel.selectTraining(selectedTraining)
                             }
@@ -124,10 +129,10 @@ fun KursVerwaltungScreen(navController: NavHostController, sharedViewModel: Shar
                     }
                 }
             } else {
-                selectedCourse?.let { course ->
-                    val selectedTraining = course.trainings.find { it.datum == selectedDate }
+                selectedCourseState?.let { course ->
+                    val selectedTraining = course.trainings.find { it.datum == selectedDateState }
                     if (selectedTraining != null) {
-                        KursDetails(course, selectedTraining.id, selectedDate, trainingRepository, mitgliedRepository, navController, sharedViewModel)
+                        KursDetails(course, selectedTraining.id, selectedDateState, trainingRepository, mitgliedRepository, navController, sharedViewModel)
                     }
                 }
             }
@@ -192,7 +197,7 @@ fun KursDetails(
                 if (selectedTask == null) {
                     TasksTab(levelId = course.levelId, kursId = course.id, onTaskSelected = { task ->
                         selectedTask = task
-                    }, navController = navController)
+                    }, navController = navController, sharedViewModel = sharedViewModel)
                 } else {
                     MitgliedAufgabeTab(
                         taskId = selectedTask!!.id,
@@ -206,5 +211,3 @@ fun KursDetails(
         }
     }
 }
-
-

@@ -19,6 +19,7 @@ import com.example.myswimsmartdb.db.Reposetory.AufgabeRepository
 import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Aufgabe
 import com.example.myswimsmartdb.db.entities.Mitglied
+import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
 
 @Composable
 fun TaskItem(
@@ -49,7 +50,7 @@ fun TaskItem(
 }
 
 @Composable
-fun TasksTab(levelId: Int, kursId: Int, onTaskSelected: (Aufgabe) -> Unit, navController: NavHostController) {
+fun TasksTab(levelId: Int, kursId: Int, onTaskSelected: (Aufgabe) -> Unit, navController: NavHostController, sharedViewModel: SharedViewModel) {
     val context = LocalContext.current
     val aufgabeRepository = AufgabeRepository(context)
     val mitgliedRepository = MitgliedRepository(context)
@@ -124,6 +125,7 @@ fun TasksTab(levelId: Int, kursId: Int, onTaskSelected: (Aufgabe) -> Unit, navCo
                 },
                 confirmButton = {
                     Button(onClick = {
+                        sharedViewModel.selectMembers(selectedMitglieder)
                         navController.navigate("stoppuhr/${selectedMitglieder.joinToString(",") { it.id.toString() }}")
                         showDialog = false
                     }) {
