@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.entities.Bahnenzaehlen
 import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
+import com.example.myswimsmartdb.ui.screens.ProcessImageContent
 import com.example.myswimsmartdb.ui.theme.Cerulean
 import com.example.myswimsmartdb.ui.theme.SkyBlue
 import kotlinx.coroutines.delay
@@ -36,6 +37,7 @@ import kotlin.time.toDuration
 @Composable
 fun BahnenzaehlenContent() {
     MitgliederVerwaltung()
+    ProcessImageContent()
 }
 
 @Composable
@@ -76,7 +78,6 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    // Eingabefeld für den Vornamen
                     OutlinedTextField(
                         value = vorname,
                         onValueChange = { vorname = it },
@@ -88,7 +89,6 @@ fun MitgliederVerwaltung(innerPadding: PaddingValues = PaddingValues()) {
 
                     Spacer(modifier = Modifier.width(4.dp))
 
-                    // Eingabefeld für den Nachnamen
                     OutlinedTextField(
                         value = nachname,
                         onValueChange = { nachname = it },
@@ -157,7 +157,7 @@ fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
     var showLapDialog by remember { mutableStateOf(false) }
     var editedLapCount by remember { mutableStateOf(bahnen.bahnen.toString()) }
     val coroutineScope = rememberCoroutineScope()
-    val openString = stringResource(id = R.string.open) // Verwende stringResource außerhalb von LaunchedEffect
+    val openString = stringResource(id = R.string.open)
 
     LaunchedEffect(isRunning) {
         if (isRunning) {
@@ -332,7 +332,6 @@ fun BahnenzaehlenMitTimer(bahnen: Bahnenzaehlen, onDelete: () -> Unit) {
                 )
             }
 
-            // Always show the add button
             Box(
                 modifier = Modifier
                     .size(50.dp)

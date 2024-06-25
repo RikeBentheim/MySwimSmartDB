@@ -57,18 +57,14 @@ fun StoppuhrContent(mitglieder: List<Mitglied>, navController: NavHostController
 
 @Composable
 fun MitgliederVerwaltung(sharedViewModel: SharedViewModel, innerPadding: PaddingValues = PaddingValues()) {
-    // Liste für Stoppuhren
     val stoppuhren = remember { mutableStateListOf<Stoppuhr>() }
-    // Zustände für Vorname und Nachname
     var vorname by remember { mutableStateOf("") }
     var nachname by remember { mutableStateOf("") }
-    // ID-Zähler für die Stoppuhren
     var idCounter by remember { mutableStateOf(1) }
 
     Column(modifier = Modifier.padding(innerPadding)) {
         Spacer(modifier = Modifier.height(30.dp))
 
-        // Zeile für Eingabefelder und Hinzufügen-Button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -76,7 +72,6 @@ fun MitgliederVerwaltung(sharedViewModel: SharedViewModel, innerPadding: Padding
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom
         ) {
-            // Eingabefeld für den Vornamen
             OutlinedTextField(
                 value = vorname,
                 onValueChange = { vorname = it },
@@ -88,7 +83,6 @@ fun MitgliederVerwaltung(sharedViewModel: SharedViewModel, innerPadding: Padding
 
             Spacer(modifier = Modifier.width(4.dp))
 
-            // Eingabefeld für den Nachnamen
             OutlinedTextField(
                 value = nachname,
                 onValueChange = { nachname = it },
@@ -100,7 +94,6 @@ fun MitgliederVerwaltung(sharedViewModel: SharedViewModel, innerPadding: Padding
 
             Spacer(modifier = Modifier.width(4.dp))
 
-            // Button zum Hinzufügen einer neuen Stoppuhr
             IconButton(onClick = {
                 if (vorname.isNotBlank() && nachname.isNotBlank()) {
                     stoppuhren.add(Stoppuhr(idCounter++, idCounter, vorname, " ", nachname))
@@ -114,10 +107,8 @@ fun MitgliederVerwaltung(sharedViewModel: SharedViewModel, innerPadding: Padding
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Liste der Stoppuhren
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             itemsIndexed(stoppuhren) { index, stoppuhr ->
-                // Einzelne Zeile für jede Stoppuhr
                 StoppuhrMitTimer(stoppuhr, onDelete = { stoppuhren.removeAt(index) }, sharedViewModel)
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -179,7 +170,6 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    // Timer-Logik
     LaunchedEffect(isRunning) {
         if (isRunning) {
             coroutineScope.launch {
@@ -192,7 +182,6 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
         }
     }
 
-    // Dialog zum Zurücksetzen des Timers oder Löschen des Mitglieds
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
@@ -239,7 +228,6 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
         )
     }
 
-    // Dialog zum Speichern der gestoppten Zeit, Schwimmart und Bemerkung
     if (showSaveDialog) {
         var selectedSchwimmart by remember { mutableStateOf(stoppuhr.schwimmarten.first()) }
         var bemerkung by remember { mutableStateOf(stoppuhr.bemerkung) }
@@ -313,7 +301,6 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
         )
     }
 
-    // Layout der Stoppuhrzeile
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -333,7 +320,6 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Box für das Zurücksetzen/Löschen der Stoppuhr und Speichern der Daten
                 Box(
                     modifier = Modifier
                         .size(50.dp)
@@ -353,12 +339,10 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                // Anzeige des Namens des Mitglieds
                 Text("${stoppuhr.vorname} ${stoppuhr.nachname}", modifier = Modifier.weight(1f))
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                // Button zum Starten/Stoppen des Timers
                 Button(
                     onClick = {
                         if (isRunning) {
@@ -377,7 +361,6 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
                     Text(if (isRunning) stringResource(id = R.string.stop) else stringResource(id = R.string.start))
                 }
 
-                // Anzeige der gestoppten Zeit
                 val hours = (time.inWholeSeconds / 3600).toString().padStart(2, '0')
                 val minutes = ((time.inWholeSeconds % 3600) / 60).toString().padStart(2, '0')
                 val seconds = (time.inWholeSeconds % 60).toString().padStart(2, '0')

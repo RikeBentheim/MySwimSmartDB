@@ -19,12 +19,11 @@ fun AppNavigation(navController: NavHostController, sharedViewModel: SharedViewM
             StoppuhrScreen(navController, null, sharedViewModel)
         }
 
-        composable("stoppuhr/{mitgliedIds}",
-            arguments = listOf(navArgument("mitgliedIds") { defaultValue = "" })) { backStackEntry ->
-            val mitgliedIdsString = backStackEntry.arguments?.getString("mitgliedIds") ?: ""
-            val mitgliedIds = mitgliedIdsString.split(",").filter { it.isNotEmpty() }.map { it.toInt() }
-            StoppuhrScreen(navController, mitgliedIds, sharedViewModel)
+        composable("stoppuhr/{mitgliedIds}") { backStackEntry ->
+            val mitgliedIds = backStackEntry.arguments?.getString("mitgliedIds")?.split(",")?.map { it.toInt() }
+            StoppuhrScreen(navController = navController, mitgliedIds = mitgliedIds, sharedViewModel = sharedViewModel)
         }
+
 
         composable("bahnenschwimmen") { BahnenschwimmenScreen(navController) }
         composable("kursBearbeiten") { KursScreen(navController) }
