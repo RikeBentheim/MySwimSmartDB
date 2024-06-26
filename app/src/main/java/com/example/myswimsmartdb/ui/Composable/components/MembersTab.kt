@@ -100,6 +100,7 @@ fun MembersTab(kursId: Int, mitgliedRepository: MitgliedRepository) {
 fun MemberDetail(member: Mitglied, onBack: () -> Unit) {
     var showTasks by remember { mutableStateOf(false) }
     var showAttendance by remember { mutableStateOf(false) }
+    var showStopwatch by remember { mutableStateOf(false) }
     val allTasksCompleted = member.aufgaben.all { it.erledigt }
 
     Column(
@@ -177,6 +178,33 @@ fun MemberDetail(member: Mitglied, onBack: () -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // New section for Stopwatch Times
+        Text(
+            text = stringResource(id = R.string.stoppuhr),
+            modifier = Modifier.clickable { showStopwatch = !showStopwatch },
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        if (showStopwatch) {
+            Column {
+                member.Stoppuhr.forEach { stoppuhr ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Bemerkung: ${stoppuhr.bemerkung}")
+                            Text(text = "Zeit: ${formatTime(stoppuhr.zeit)}")
+                            Text(text = "Datum: ${stoppuhr.datumString}")
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Button(onClick = onBack) {
             Text(text = stringResource(id = R.string.back_to_tasks))
         }
@@ -203,3 +231,13 @@ fun MemberDetail(member: Mitglied, onBack: () -> Unit) {
         }
     }
 }
+
+fun formatTime(milliseconds: Long): String {
+    val seconds = milliseconds / 1000
+    val minutes = seconds / 60
+    val hours = minutes / 60
+    val remainingMinutes = minutes % 60
+    val remainingSeconds = seconds % 60
+    return String.format("%02d:%02d:%02d", hours, remainingMinutes, remainingSeconds)
+}
+

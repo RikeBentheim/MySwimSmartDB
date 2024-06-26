@@ -96,7 +96,7 @@ fun MitgliederVerwaltung(sharedViewModel: SharedViewModel, innerPadding: Padding
 
             IconButton(onClick = {
                 if (vorname.isNotBlank() && nachname.isNotBlank()) {
-                    stoppuhren.add(Stoppuhr(idCounter++, idCounter, vorname, " ", nachname))
+                    stoppuhren.add(Stoppuhr(idCounter++, idCounter, vorname, nachname))
                     vorname = ""
                     nachname = ""
                 }
@@ -128,7 +128,6 @@ fun MitgliederStoppuhrVerwaltung(mitglieder: List<Mitglied>, navController: NavH
                 mitgliedId = mitglied.id,
                 vorname = mitglied.vorname,
                 nachname = mitglied.nachname,
-                datumString = "",
                 datum = Date()
             ))
         }

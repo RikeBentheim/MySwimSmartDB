@@ -23,22 +23,12 @@ class StoppuhrRepository(context: Context) {
             put("NACHNAME", stoppuhr.nachname)
             put("ZEIT", stoppuhr.zeit)
             put("RUNNING", if (stoppuhr.running) 1 else 0)
-            put("DATUMSTRING", stoppuhr.datumString)
+            put("DATUMSTRING", currentDate) // Set datumString to current date
             put("BEMERKUNG", stoppuhr.bemerkung)
             put("SCHWIMMARTEN", stoppuhr.schwimmarten.joinToString(","))
             put("DATUM", currentDate)
         }
         return db.insert(DatabaseHelper.TABLE_STOPPUHR, null, values)
-    }
-
-    fun deleteStoppuhrByMitgliedId(mitgliedId: Int): Int {
-        val db: SQLiteDatabase = dbHelper.writableDatabase
-        return db.delete(DatabaseHelper.TABLE_STOPPUHR, "mitgliedId = ?", arrayOf(mitgliedId.toString()))
-    }
-
-    fun deleteStoppuhrById(id: Int): Int {
-        val db: SQLiteDatabase = dbHelper.writableDatabase
-        return db.delete(DatabaseHelper.TABLE_STOPPUHR, "id = ?", arrayOf(id.toString()))
     }
 
     fun getStoppuhrenByMitgliedId(mitgliedId: Int): List<Stoppuhr> {
@@ -58,7 +48,7 @@ class StoppuhrRepository(context: Context) {
                 val schwimmarten = cursor.getString(cursor.getColumnIndexOrThrow("SCHWIMMARTEN")).split(",")
                 val datum = dateFormat.parse(cursor.getString(cursor.getColumnIndexOrThrow("DATUM")))
 
-                stoppuhren.add(Stoppuhr(id, mitgliedId, vorname, nachname, datumString, zeit, running, bemerkung, schwimmarten, datum!!))
+                stoppuhren.add(Stoppuhr(id, mitgliedId, vorname, nachname, zeit, running, bemerkung, schwimmarten, datum!!))
             }
         }
 
@@ -78,20 +68,20 @@ class StoppuhrRepository(context: Context) {
                     nachname = mitglied.nachname,
                     zeit = 0L, // assuming you want to reset the time
                     running = false,
-                    datumString = currentDate,
+                    datum = Date(), // Use current date for datum
                     bemerkung = "",
                     schwimmarten = listOf()
                 )
                 val values = ContentValues().apply {
-                    put("mitgliedId", stoppuhr.mitgliedId)
-                    put("vorname", stoppuhr.vorname)
-                    put("nachname", stoppuhr.nachname)
-                    put("zeit", stoppuhr.zeit)
-                    put("running", if (stoppuhr.running) 1 else 0)
-                    put("datumString", stoppuhr.datumString)
-                    put("bemerkung", stoppuhr.bemerkung)
-                    put("schwimmarten", stoppuhr.schwimmarten.joinToString(","))
-                    put("datum", currentDate) // Store the current date
+                    put("MITGLIED_ID", stoppuhr.mitgliedId)
+                    put("VORNAME", stoppuhr.vorname)
+                    put("NACHNAME", stoppuhr.nachname)
+                    put("ZEIT", stoppuhr.zeit)
+                    put("RUNNING", if (stoppuhr.running) 1 else 0)
+                    put("DATUMSTRING", dateFormat.format(stoppuhr.datum)) // Convert date to string
+                    put("BEMERKUNG", stoppuhr.bemerkung)
+                    put("SCHWIMMARTEN", stoppuhr.schwimmarten.joinToString(","))
+                    put("DATUM", dateFormat.format(stoppuhr.datum)) // Store the current date
                 }
                 db.insert(DatabaseHelper.TABLE_STOPPUHR, null, values)
             }
@@ -99,5 +89,14 @@ class StoppuhrRepository(context: Context) {
         } finally {
             db.endTransaction()
         }
+    }
+    fun deleteStoppuhrByMitgliedId(mitgliedId: Int): Int {
+        val db: SQLiteDatabase = dbHelper.writableDatabase
+        return db.delete(DatabaseHelper.TABLE_STOPPUHR, "mitgliedId = ?", arrayOf(mitgliedId.toString()))
+    }
+
+    fun deleteStoppuhrById(id: Int): Int {
+        val db: SQLiteDatabase = dbHelper.writableDatabase
+        return db.delete(DatabaseHelper.TABLE_STOPPUHR, "id = ?", arrayOf(id.toString()))
     }
 }
