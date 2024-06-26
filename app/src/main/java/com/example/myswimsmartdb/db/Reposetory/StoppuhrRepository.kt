@@ -26,6 +26,8 @@ class StoppuhrRepository(context: Context) {
             put("DATUMSTRING", currentDate) // Set datumString to current date
             put("BEMERKUNG", stoppuhr.bemerkung)
             put("SCHWIMMARTEN", stoppuhr.schwimmarten.joinToString(","))
+            put("SCHWIMMART", stoppuhr.schwimmart) // Neues Feld
+            put("LAENGE", stoppuhr.laenge) // Neues Feld
             put("DATUM", currentDate)
         }
         return db.insert(DatabaseHelper.TABLE_STOPPUHR, null, values)
@@ -46,9 +48,11 @@ class StoppuhrRepository(context: Context) {
                 val datumString = cursor.getString(cursor.getColumnIndexOrThrow("DATUMSTRING"))
                 val bemerkung = cursor.getString(cursor.getColumnIndexOrThrow("BEMERKUNG"))
                 val schwimmarten = cursor.getString(cursor.getColumnIndexOrThrow("SCHWIMMARTEN")).split(",")
+                val schwimmart = cursor.getString(cursor.getColumnIndexOrThrow("SCHWIMMART"))
+                val laenge = cursor.getString(cursor.getColumnIndexOrThrow("LAENGE"))
                 val datum = dateFormat.parse(cursor.getString(cursor.getColumnIndexOrThrow("DATUM")))
 
-                stoppuhren.add(Stoppuhr(id, mitgliedId, vorname, nachname, zeit, running, bemerkung, schwimmarten, datum!!))
+                stoppuhren.add(Stoppuhr(id, mitgliedId, vorname, nachname, zeit, running, bemerkung, schwimmarten, schwimmart, laenge, datum!!))
             }
         }
 
@@ -70,7 +74,9 @@ class StoppuhrRepository(context: Context) {
                     running = false,
                     datum = Date(), // Use current date for datum
                     bemerkung = "",
-                    schwimmarten = listOf()
+                    schwimmarten = listOf(),
+                    schwimmart = "", // Neues Feld
+                    laenge = "" // Neues Feld
                 )
                 val values = ContentValues().apply {
                     put("MITGLIED_ID", stoppuhr.mitgliedId)
@@ -81,6 +87,8 @@ class StoppuhrRepository(context: Context) {
                     put("DATUMSTRING", dateFormat.format(stoppuhr.datum)) // Convert date to string
                     put("BEMERKUNG", stoppuhr.bemerkung)
                     put("SCHWIMMARTEN", stoppuhr.schwimmarten.joinToString(","))
+                    put("SCHWIMMART", stoppuhr.schwimmart) // Neues Feld
+                    put("LAENGE", stoppuhr.laenge) // Neues Feld
                     put("DATUM", dateFormat.format(stoppuhr.datum)) // Store the current date
                 }
                 db.insert(DatabaseHelper.TABLE_STOPPUHR, null, values)
@@ -90,6 +98,7 @@ class StoppuhrRepository(context: Context) {
             db.endTransaction()
         }
     }
+
     fun deleteStoppuhrByMitgliedId(mitgliedId: Int): Int {
         val db: SQLiteDatabase = dbHelper.writableDatabase
         return db.delete(DatabaseHelper.TABLE_STOPPUHR, "mitgliedId = ?", arrayOf(mitgliedId.toString()))

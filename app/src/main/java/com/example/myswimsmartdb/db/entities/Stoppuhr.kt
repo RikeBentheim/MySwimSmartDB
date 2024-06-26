@@ -13,6 +13,8 @@ class Stoppuhr(
     var running: Boolean = false,
     var bemerkung: String = "",
     var schwimmarten: List<String> = listOf("Brust", "Rücken", "Kraul", "Freistil", "Lagen", "Delfin"),
+    var schwimmart: String = "", // Neues Feld
+    var laenge: String = "", // Neues Feld
     var datum: Date = Date()
 ) {
     val datumString: String

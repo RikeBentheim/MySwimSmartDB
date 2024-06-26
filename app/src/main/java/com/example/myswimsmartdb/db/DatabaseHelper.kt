@@ -8,7 +8,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         private const val DATABASE_NAME = "deine_datenbank_name.db"
-        private const val DATABASE_VERSION = 6 // Increment the version to 6 for new columns
+        private const val DATABASE_VERSION = 7 // Increment the version to 7 for new columns
 
         public const val TABLE_LEVEL = "TABLE_LEVEL"
         public const val TABLE_KURS = "TABLE_KURS"
@@ -115,7 +115,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 DATUMSTRING TEXT,
                 BEMERKUNG TEXT,
                 SCHWIMMARTEN TEXT,
-                DATUM DATE  
+                SCHWIMMART TEXT,  -- Neues Feld
+                LAENGE TEXT,  -- Neues Feld
+                DATUM DATE
             )
         """
 
@@ -196,6 +198,14 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 db?.execSQL("ALTER TABLE $TABLE_BAHNENZAEHLEN ADD COLUMN DATUM DATE")
             } catch (e: Exception) {
                 // Ignoriere den Fehler, falls die Spalte bereits existiert
+            }
+        }
+        if (oldVersion < 7) {
+            try {
+                db?.execSQL("ALTER TABLE $TABLE_STOPPUHR ADD COLUMN SCHWIMMART TEXT")
+                db?.execSQL("ALTER TABLE $TABLE_STOPPUHR ADD COLUMN LAENGE TEXT")
+            } catch (e: Exception) {
+                // Ignoriere den Fehler, falls die Spalten bereits existieren
             }
         }
     }
