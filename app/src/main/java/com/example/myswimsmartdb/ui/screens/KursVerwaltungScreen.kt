@@ -19,6 +19,7 @@ import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.ui.Composable.components.KursSaver
 import com.example.myswimsmartdb.db.Reposetory.KursRepository
 import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
+import com.example.myswimsmartdb.db.Reposetory.StoppuhrRepository
 import com.example.myswimsmartdb.db.Reposetory.TrainingRepository
 import com.example.myswimsmartdb.db.entities.Aufgabe
 import com.example.myswimsmartdb.db.entities.Kurs
@@ -46,6 +47,7 @@ fun KursVerwaltungScreen(
     val kursRepository = KursRepository(context)
     val trainingRepository = TrainingRepository(context)
     val mitgliedRepository = MitgliedRepository(context)
+    val stoppuhrRepository = StoppuhrRepository(context)
 
     val courses = kursRepository.getAllKurseWithDetails()
     var selectedCourseState by rememberSaveable(stateSaver = KursSaver) { mutableStateOf<Kurs?>(selectedCourse) }
@@ -132,13 +134,14 @@ fun KursVerwaltungScreen(
                 selectedCourseState?.let { course ->
                     val selectedTraining = course.trainings.find { it.datum == selectedDateState }
                     if (selectedTraining != null) {
-                        KursDetails(course, selectedTraining.id, selectedDateState, trainingRepository, mitgliedRepository, navController, sharedViewModel)
+                        KursDetails(course, selectedTraining.id, selectedDateState, trainingRepository, mitgliedRepository, stoppuhrRepository, navController, sharedViewModel)
                     }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun KursDetails(
@@ -147,6 +150,7 @@ fun KursDetails(
     trainingsDatum: String,
     trainingRepository: TrainingRepository,
     mitgliedRepository: MitgliedRepository,
+    stoppuhrRepository: StoppuhrRepository,
     navController: NavHostController,
     sharedViewModel: SharedViewModel
 ) {
@@ -207,7 +211,8 @@ fun KursDetails(
                     )
                 }
             }
-            2 -> MembersTab(course.id, mitgliedRepository)
+            2 -> MembersTab(course.id, mitgliedRepository, stoppuhrRepository)
         }
     }
 }
+

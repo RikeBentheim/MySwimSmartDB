@@ -20,6 +20,8 @@ import com.example.myswimsmartdb.db.entities.Mitglied
 import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.ui.theme.SkyBlue
 import com.example.myswimsmartdb.db.DateConverter
+import com.example.myswimsmartdb.db.Reposetory.StoppuhrRepository
+import com.example.myswimsmartdb.db.entities.Stoppuhr
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import nl.dionsegijn.konfetti.compose.KonfettiView
@@ -31,7 +33,7 @@ import nl.dionsegijn.konfetti.core.models.Size
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MembersTab(kursId: Int, mitgliedRepository: MitgliedRepository) {
+fun MembersTab(kursId: Int, mitgliedRepository: MitgliedRepository, stoppuhrRepository: StoppuhrRepository) {
     val members = remember { mutableStateOf(emptyList<Mitglied>()) }
     var selectedMember by remember { mutableStateOf<Mitglied?>(null) }
 
@@ -62,7 +64,8 @@ fun MembersTab(kursId: Int, mitgliedRepository: MitgliedRepository) {
         } else {
             MemberDetail(
                 member = selectedMember!!,
-                onBack = { selectedMember = null }
+                onBack = { selectedMember = null },
+                stoppuhrRepository = stoppuhrRepository
             )
         }
 
@@ -97,10 +100,12 @@ fun MembersTab(kursId: Int, mitgliedRepository: MitgliedRepository) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MemberDetail(member: Mitglied, onBack: () -> Unit) {
+fun MemberDetail(member: Mitglied, onBack: () -> Unit, stoppuhrRepository: StoppuhrRepository) {
     var showTasks by remember { mutableStateOf(false) }
     var showAttendance by remember { mutableStateOf(false) }
     var showStopwatch by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var stoppuhrToDelete by remember { mutableStateOf<Stoppuhr?>(null) }
     val allTasksCompleted = member.aufgaben.all { it.erledigt }
 
     Column(
@@ -192,6 +197,10 @@ fun MemberDetail(member: Mitglied, onBack: () -> Unit) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
+                            .clickable {
+                                stoppuhrToDelete = stoppuhr
+                                showDeleteDialog = true
+                            }
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(text = "Bemerkung: ${stoppuhr.bemerkung}")
@@ -229,6 +238,32 @@ fun MemberDetail(member: Mitglied, onBack: () -> Unit) {
                         emitter = Emitter(duration = 5, TimeUnit.SECONDS).perSecond(300)
                     )
                 )
+            )
+        }
+
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text(text = "Eintrag löschen") },
+                text = { Text(text = "Möchten Sie diesen Eintrag wirklich löschen?") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            stoppuhrToDelete?.let {
+                                stoppuhrRepository.deleteStoppuhrById(it.id)
+                                member.Stoppuhr = member.Stoppuhr.filter { stoppuhr -> stoppuhr.id != it.id }
+                            }
+                            showDeleteDialog = false
+                        }
+                    ) {
+                        Text("Ja")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { showDeleteDialog = false }) {
+                        Text("Nein")
+                    }
+                }
             )
         }
     }

@@ -103,11 +103,11 @@ class StoppuhrRepository(context: Context) {
 
     fun deleteStoppuhrByMitgliedId(mitgliedId: Int): Int {
         val db: SQLiteDatabase = dbHelper.writableDatabase
-        return db.delete(DatabaseHelper.TABLE_STOPPUHR, "mitgliedId = ?", arrayOf(mitgliedId.toString()))
+        return db.delete(DatabaseHelper.TABLE_STOPPUHR, "MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
     }
 
     fun deleteStoppuhrById(id: Int): Int {
         val db: SQLiteDatabase = dbHelper.writableDatabase
-        return db.delete(DatabaseHelper.TABLE_STOPPUHR, "id = ?", arrayOf(id.toString()))
+        return db.delete(DatabaseHelper.TABLE_STOPPUHR, "STOPPUHR_ID = ?", arrayOf(id.toString()))
     }
 }
