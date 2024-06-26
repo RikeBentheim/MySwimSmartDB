@@ -156,8 +156,12 @@ fun MemberDetail(member: Mitglied, onBack: () -> Unit, stoppuhrRepository: Stopp
         )
 
         if (showAttendance) {
+            val sortedAttendance = remember(member.anwesenheiten) {
+                member.anwesenheiten.sortedBy { DateConverter.stringToDate(it.trainingDatum) }
+            }
+
             Column {
-                member.anwesenheiten.forEach { anwesenheit ->
+                sortedAttendance.forEach { anwesenheit ->
                     val trainingDate = DateConverter.stringToDate(anwesenheit.trainingDatum)
                     val isFutureDate = trainingDate?.after(Date()) ?: false
                     val textColor = if (isFutureDate) IndigoDye else SkyBlue
