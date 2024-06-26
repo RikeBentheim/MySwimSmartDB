@@ -197,6 +197,8 @@ fun MemberDetail(member: Mitglied, onBack: () -> Unit) {
                             Text(text = "Bemerkung: ${stoppuhr.bemerkung}")
                             Text(text = "Zeit: ${formatTime(stoppuhr.zeit)}")
                             Text(text = "Datum: ${stoppuhr.datumString}")
+                            Text(text = "Länge (in Metern): ${stoppuhr.laenge}")
+                            Text(text = "Schwimmart: ${stoppuhr.schwimmart}")
                         }
                     }
                 }
@@ -240,4 +242,3 @@ fun formatTime(milliseconds: Long): String {
     val remainingSeconds = seconds % 60
     return String.format("%02d:%02d:%02d", hours, remainingMinutes, remainingSeconds)
 }
-

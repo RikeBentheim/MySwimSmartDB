@@ -41,18 +41,20 @@ class StoppuhrRepository(context: Context) {
         db.rawQuery(query, arrayOf(mitgliedId.toString())).use { cursor ->
             while (cursor.moveToNext()) {
                 val id = cursor.getInt(cursor.getColumnIndexOrThrow("STOPPUHR_ID"))
-                val vorname = cursor.getString(cursor.getColumnIndexOrThrow("VORNAME"))
-                val nachname = cursor.getString(cursor.getColumnIndexOrThrow("NACHNAME"))
+                val vorname = cursor.getString(cursor.getColumnIndexOrThrow("VORNAME")) ?: ""
+                val nachname = cursor.getString(cursor.getColumnIndexOrThrow("NACHNAME")) ?: ""
                 val zeit = cursor.getLong(cursor.getColumnIndexOrThrow("ZEIT"))
                 val running = cursor.getInt(cursor.getColumnIndexOrThrow("RUNNING")) > 0
-                val datumString = cursor.getString(cursor.getColumnIndexOrThrow("DATUMSTRING"))
-                val bemerkung = cursor.getString(cursor.getColumnIndexOrThrow("BEMERKUNG"))
-                val schwimmarten = cursor.getString(cursor.getColumnIndexOrThrow("SCHWIMMARTEN")).split(",")
-                val schwimmart = cursor.getString(cursor.getColumnIndexOrThrow("SCHWIMMART"))
-                val laenge = cursor.getString(cursor.getColumnIndexOrThrow("LAENGE"))
-                val datum = dateFormat.parse(cursor.getString(cursor.getColumnIndexOrThrow("DATUM")))
+                val datumString = cursor.getString(cursor.getColumnIndexOrThrow("DATUMSTRING")) ?: ""
+                val bemerkung = cursor.getString(cursor.getColumnIndexOrThrow("BEMERKUNG")) ?: ""
+                val schwimmarten = cursor.getString(cursor.getColumnIndexOrThrow("SCHWIMMARTEN"))?.split(",") ?: emptyList()
+                val schwimmart = cursor.getString(cursor.getColumnIndexOrThrow("SCHWIMMART")) ?: ""
+                val laenge = cursor.getString(cursor.getColumnIndexOrThrow("LAENGE")) ?: ""
+                val datum = cursor.getString(cursor.getColumnIndexOrThrow("DATUM"))?.let {
+                    dateFormat.parse(it)
+                } ?: Date()
 
-                stoppuhren.add(Stoppuhr(id, mitgliedId, vorname, nachname, zeit, running, bemerkung, schwimmarten, schwimmart, laenge, datum!!))
+                stoppuhren.add(Stoppuhr(id, mitgliedId, vorname, nachname, zeit, running, bemerkung, schwimmarten, schwimmart, laenge, datum))
             }
         }
 

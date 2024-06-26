@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -21,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -232,6 +234,7 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
     if (showSaveDialog) {
         var selectedSchwimmart by remember { mutableStateOf(stoppuhr.schwimmarten.first()) }
         var bemerkung by remember { mutableStateOf(stoppuhr.bemerkung) }
+        var laenge by remember { mutableStateOf(stoppuhr.laenge) }
         var expanded by remember { mutableStateOf(false) }
 
         AlertDialog(
@@ -281,12 +284,24 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
                         onValueChange = { bemerkung = it },
                         label = { Text("Bemerkung") }
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = laenge,
+                        onValueChange = {
+                            if (it.all { char -> char.isDigit() }) {
+                                laenge = it
+                            }
+                        },
+                        label = { Text("Länge (in Metern)") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
                 }
             },
             confirmButton = {
                 Button(onClick = {
                     stoppuhr.bemerkung = bemerkung
-                    stoppuhr.schwimmarten = listOf(selectedSchwimmart)
+                    stoppuhr.schwimmart = selectedSchwimmart
+                    stoppuhr.laenge = laenge
                     val stoppuhrRepository = StoppuhrRepository(context)
                     stoppuhrRepository.insertStoppuhr(stoppuhr)
                     showSaveDialog = false

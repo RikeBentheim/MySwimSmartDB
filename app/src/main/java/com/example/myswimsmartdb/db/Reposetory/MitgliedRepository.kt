@@ -208,7 +208,6 @@ class MitgliedRepository(private val context: Context) {
         }
         return mitglieder
     }
-
     fun updateMitgliedAufgabeErreicht(mitgliedId: Int, aufgabeId: Int, erreicht: Boolean) {
         val db = dbHelper.writableDatabase
         val contentValues = ContentValues().apply {
