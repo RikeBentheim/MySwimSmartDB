@@ -18,16 +18,15 @@ class StoppuhrRepository(context: Context) {
         val currentDate = dateFormat.format(Date()) // Get the current date
 
         val values = ContentValues().apply {
-            put("id", stoppuhr.id)
-            put("mitgliedId", stoppuhr.mitgliedId)
-            put("vorname", stoppuhr.vorname)
-            put("nachname", stoppuhr.nachname)
-            put("zeit", stoppuhr.zeit)
-            put("running", if (stoppuhr.running) 1 else 0)
-            put("datumString", stoppuhr.datumString)
-            put("bemerkung", stoppuhr.bemerkung)
-            put("schwimmarten", stoppuhr.schwimmarten.joinToString(","))
-            put("datum", currentDate) // Store the current date
+            put("MITGLIED_ID", stoppuhr.mitgliedId)
+            put("VORNAME", stoppuhr.vorname)
+            put("NACHNAME", stoppuhr.nachname)
+            put("ZEIT", stoppuhr.zeit)
+            put("RUNNING", if (stoppuhr.running) 1 else 0)
+            put("DATUMSTRING", stoppuhr.datumString)
+            put("BEMERKUNG", stoppuhr.bemerkung)
+            put("SCHWIMMARTEN", stoppuhr.schwimmarten.joinToString(","))
+            put("DATUM", currentDate)
         }
         return db.insert(DatabaseHelper.TABLE_STOPPUHR, null, values)
     }

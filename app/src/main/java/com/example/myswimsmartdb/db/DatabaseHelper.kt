@@ -115,7 +115,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 DATUMSTRING TEXT,
                 BEMERKUNG TEXT,
                 SCHWIMMARTEN TEXT,
-                DATUM DATE  -- Add the new column for date saved
+                DATUM DATE  
             )
         """
 

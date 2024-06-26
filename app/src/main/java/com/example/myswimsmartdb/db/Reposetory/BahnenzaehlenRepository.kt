@@ -17,7 +17,6 @@ class BahnenzaehlenRepository(context: Context) {
         val currentDate = dateFormat.format(Date()) // Get the current date
 
         val values = ContentValues().apply {
-            put("id", bahnenzaehlen.id)
             put("mitgliedId", bahnenzaehlen.mitgliedId)
             put("vorname", bahnenzaehlen.vorname)
             put("nachname", bahnenzaehlen.nachname)
