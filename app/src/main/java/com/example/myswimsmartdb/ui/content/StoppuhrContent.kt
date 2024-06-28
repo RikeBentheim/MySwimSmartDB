@@ -177,9 +177,9 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
         if (isRunning) {
             coroutineScope.launch {
                 while (isRunning) {
-                    delay(1000L)
-                    time += 1.toDuration(DurationUnit.SECONDS)
-                    stoppuhr.addTime(1000L)
+                    delay(10L)
+                    time += 10.toDuration(DurationUnit.MILLISECONDS)
+                    stoppuhr.addTime(10L)
                 }
             }
         }
@@ -380,12 +380,13 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
                 val hours = (time.inWholeSeconds / 3600).toString().padStart(2, '0')
                 val minutes = ((time.inWholeSeconds % 3600) / 60).toString().padStart(2, '0')
                 val seconds = (time.inWholeSeconds % 60).toString().padStart(2, '0')
+                val centiseconds = ((time.inWholeMilliseconds % 1000) / 10).toString().padStart(2, '0')
 
                 Text(
-                    text = "$hours:$minutes:$seconds",
+                    text = "$hours:$minutes:$seconds:$centiseconds",
                     modifier = Modifier
                         .padding(start = 8.dp, end = 8.dp)
-                        .requiredWidth(80.dp)
+                        .requiredWidth(100.dp)
                 )
             }
         }

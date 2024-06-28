@@ -314,10 +314,10 @@ fun MemberDetail(
 }
 
 fun formatTime(milliseconds: Long): String {
-    val seconds = milliseconds / 1000
-    val minutes = seconds / 60
-    val hours = minutes / 60
-    val remainingMinutes = minutes % 60
-    val remainingSeconds = seconds % 60
-    return String.format("%02d:%02d:%02d", hours, remainingMinutes, remainingSeconds)
+    val hours = milliseconds / 3600000
+    val minutes = (milliseconds % 3600000) / 60000
+    val seconds = (milliseconds % 60000) / 1000
+    val centiseconds = (milliseconds % 1000) / 10
+    return String.format("%02d:%02d:%02d:%02d", hours, minutes, seconds, centiseconds)
 }
+
