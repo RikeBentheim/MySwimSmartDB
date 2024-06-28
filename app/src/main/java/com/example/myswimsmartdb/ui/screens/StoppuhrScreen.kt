@@ -1,7 +1,10 @@
 package com.example.myswimsmartdb.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -22,6 +25,40 @@ import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
 
 @Composable
 fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?, sharedViewModel: SharedViewModel) {
+    var canNavigate by remember { mutableStateOf(true) }
+    var showConfirmationDialog by remember { mutableStateOf(false) }
+
+    // Handle back press
+    BackHandler {
+        if (!canNavigate) {
+            showConfirmationDialog = true
+        } else {
+            navController.popBackStack()
+        }
+    }
+
+    if (showConfirmationDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmationDialog = false },
+            title = { Text(text = "Bestätigung erforderlich") },
+            text = { Text(text = "Sie haben noch nicht gespeicherte Zeiten. Möchten Sie die Seite wirklich verlassen?") },
+            confirmButton = {
+                Button(onClick = {
+                    showConfirmationDialog = false
+                    canNavigate = true
+                    navController.popBackStack()
+                }) {
+                    Text("Verlassen")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showConfirmationDialog = false }) {
+                    Text("Abbrechen")
+                }
+            }
+        )
+    }
+
     BasisScreen(navController = navController) { innerPadding ->
         Column(
             modifier = Modifier
@@ -56,7 +93,9 @@ fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?, sh
                     mitglieder = mitgliedRepository.getMitgliederByIds(mitgliedIds)
                 }
 
-                MitgliederStoppuhrVerwaltung(mitglieder, navController, sharedViewModel)
+                MitgliederStoppuhrVerwaltung(mitglieder, navController, sharedViewModel) { running ->
+                    canNavigate = !running
+                }
             }
         }
     }

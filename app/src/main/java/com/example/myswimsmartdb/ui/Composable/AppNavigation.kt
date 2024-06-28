@@ -8,8 +8,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.myswimsmartdb.ui.screens.*
 import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
-import com.example.myswimsmartdb.ui.screens.KursVerwaltungScreen
-
 
 @Composable
 fun AppNavigation(navController: NavHostController, sharedViewModel: SharedViewModel) {
