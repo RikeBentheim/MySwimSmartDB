@@ -1,5 +1,6 @@
 package com.example.myswimsmartdb.ui.Composable.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -22,6 +24,9 @@ import com.example.myswimsmartdb.ui.theme.SkyBlue
 import com.example.myswimsmartdb.db.DateConverter
 import com.example.myswimsmartdb.db.Reposetory.StoppuhrRepository
 import com.example.myswimsmartdb.db.entities.Stoppuhr
+import com.example.myswimsmartdb.ui.theme.Cerulean
+import com.example.myswimsmartdb.ui.theme.Platinum
+import kotlinx.coroutines.delay
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import nl.dionsegijn.konfetti.compose.KonfettiView
@@ -36,6 +41,8 @@ import nl.dionsegijn.konfetti.core.models.Size
 fun MembersTab(kursId: Int, mitgliedRepository: MitgliedRepository, stoppuhrRepository: StoppuhrRepository) {
     val members = remember { mutableStateOf(emptyList<Mitglied>()) }
     var selectedMember by remember { mutableStateOf<Mitglied?>(null) }
+    val showConfetti = remember { mutableStateOf(false) }
+    var showCongratulations by remember { mutableStateOf(false) }
 
     LaunchedEffect(kursId) {
         members.value = mitgliedRepository.getFullMitgliederDetailsByKursId(kursId)
@@ -65,48 +72,80 @@ fun MembersTab(kursId: Int, mitgliedRepository: MitgliedRepository, stoppuhrRepo
             MemberDetail(
                 member = selectedMember!!,
                 onBack = { selectedMember = null },
-                stoppuhrRepository = stoppuhrRepository
+                stoppuhrRepository = stoppuhrRepository,
+                showConfetti = showConfetti
             )
-        }
-
-        val showConfetti = remember { mutableStateOf(false) }
-
-        if (selectedMember != null && selectedMember!!.aufgaben.all { it.erledigt }) {
-            showConfetti.value = true
         }
 
         if (showConfetti.value) {
-            KonfettiView(
-                modifier = Modifier.fillMaxSize(),
-                parties = listOf(
-                    Party(
-                        colors = listOf(0x8ecae6, 0x219ebc, 0x023047, 0xffb703, 0xfb8500),
-                        angle = 0,
-                        spread = 360,
-                        speed = 1f,
-                        maxSpeed = 10f,
-                        fadeOutEnabled = true,
-                        timeToLive = 2000L,
-                        shapes = listOf(Shape.Square, Shape.Circle),
-                        size = listOf(Size(12)),
-                        position = Position.Relative(0.0, 0.0).between(Position.Relative(1.0, 0.0)),
-                        emitter = Emitter(duration = 5, TimeUnit.SECONDS).perSecond(300)
+            LaunchedEffect(Unit) {
+                showCongratulations = true
+                delay(8000)
+                showConfetti.value = false
+                showCongratulations = false
+            }
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (showCongratulations) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Platinum),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Herzlichen Glückwunsch, du hast alle Aufgaben gemeistert",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = Cerulean,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+
+                KonfettiView(
+                    modifier = Modifier.fillMaxSize(),
+                    parties = listOf(
+                        Party(
+                            colors = listOf(0x8ecae6, 0x219ebc, 0x023047, 0xffb703, 0xfb8500),
+                            angle = 0,
+                            spread = 360,
+                            speed = 1f,
+                            maxSpeed = 10f,
+                            fadeOutEnabled = true,
+                            timeToLive = 2000L,
+                            shapes = listOf(Shape.Square, Shape.Circle),
+                            size = listOf(Size(12)),
+                            position = Position.Relative(0.0, 0.0)
+                                .between(Position.Relative(1.0, 0.0)),
+                            emitter = Emitter(duration = 5, TimeUnit.SECONDS).perSecond(300)
+                        )
                     )
                 )
-            )
+            }
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MemberDetail(member: Mitglied, onBack: () -> Unit, stoppuhrRepository: StoppuhrRepository) {
+fun MemberDetail(
+    member: Mitglied,
+    onBack: () -> Unit,
+    stoppuhrRepository: StoppuhrRepository,
+    showConfetti: MutableState<Boolean>
+) {
     var showTasks by remember { mutableStateOf(false) }
     var showAttendance by remember { mutableStateOf(false) }
     var showStopwatch by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var stoppuhrToDelete by remember { mutableStateOf<Stoppuhr?>(null) }
     val allTasksCompleted = member.aufgaben.all { it.erledigt }
+
+    LaunchedEffect(allTasksCompleted) {
+        if (allTasksCompleted) {
+            showConfetti.value = true
+        }
+    }
 
     Column(
         modifier = Modifier
