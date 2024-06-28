@@ -155,6 +155,7 @@ fun MitgliederVerwaltung(sharedViewModel: SharedViewModel, innerPadding: Padding
     }
 }
 
+
 @Composable
 fun MitgliederStoppuhrVerwaltung(
     mitglieder: List<Mitglied>,
