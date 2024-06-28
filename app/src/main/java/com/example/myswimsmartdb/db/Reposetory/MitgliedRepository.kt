@@ -8,12 +8,14 @@ import com.example.myswimsmartdb.db.entities.*
 import com.example.myswimsmartdb.db.Reposetory.TrainingRepository
 import com.example.myswimsmartdb.db.Reposetory.BahnenzaehlenRepository
 import com.example.myswimsmartdb.db.Reposetory.StoppuhrRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MitgliedRepository(private val context: Context) {
 
     private val dbHelper = DatabaseHelper(context)
 
-    fun getMitgliederByKursId(kursId: Int): List<Mitglied> {
+    suspend fun getMitgliederByKursId(kursId: Int): List<Mitglied> = withContext(Dispatchers.IO) {
         val db = dbHelper.readableDatabase
         val query = "SELECT * FROM ${DatabaseHelper.TABLE_MITGLIED} WHERE MITGLIED_KURS_ID = ?"
         val mitglieder = mutableListOf<Mitglied>()
@@ -30,10 +32,10 @@ class MitgliedRepository(private val context: Context) {
             }
         }
 
-        return mitglieder
+        mitglieder
     }
 
-    fun insertMitgliedWithAufgaben(mitglied: Mitglied, aufgaben: List<Aufgabe>): Long {
+    suspend fun insertMitgliedWithAufgaben(mitglied: Mitglied, aufgaben: List<Aufgabe>): Long = withContext(Dispatchers.IO) {
         val db = dbHelper.writableDatabase
         val mitgliedValues = ContentValues().apply {
             put("MITGLIED_VORNAME", mitglied.vorname)
@@ -46,7 +48,7 @@ class MitgliedRepository(private val context: Context) {
 
         if (mitgliedId == -1L) {
             Log.e("DatabaseError", "Failed to insert Mitglied: $mitgliedValues")
-            return -1
+            return@withContext -1
         }
 
         for (aufgabe in aufgaben) {
@@ -62,10 +64,10 @@ class MitgliedRepository(private val context: Context) {
                 // Optional: Sie könnten hier entscheiden, ob Sie die gesamte Operation zurückrollen möchten
             }
         }
-        return mitgliedId
+        mitgliedId
     }
 
-    fun updateMitglied(mitglied: Mitglied): Int {
+    suspend fun updateMitglied(mitglied: Mitglied): Int = withContext(Dispatchers.IO) {
         val db = dbHelper.writableDatabase
         val mitgliedValues = ContentValues().apply {
             put("MITGLIED_VORNAME", mitglied.vorname)
@@ -74,7 +76,7 @@ class MitgliedRepository(private val context: Context) {
             put("MITGLIED_TELEFON", mitglied.telefon)
             put("MITGLIED_KURS_ID", mitglied.kursId)
         }
-        return db.update(
+        db.update(
             DatabaseHelper.TABLE_MITGLIED,
             mitgliedValues,
             "MITGLIED_ID = ?",
@@ -82,7 +84,7 @@ class MitgliedRepository(private val context: Context) {
         )
     }
 
-    fun deleteMitglied(mitgliedId: Int) {
+    suspend fun deleteMitglied(mitgliedId: Int) = withContext(Dispatchers.IO) {
         val db = dbHelper.writableDatabase
 
         db.delete(

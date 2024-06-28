@@ -24,6 +24,7 @@ import com.example.myswimsmartdb.ui.theme.Platinum
 
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun TrainingManagement(
@@ -35,9 +36,20 @@ fun TrainingManagement(
     // Kontext für den Zugriff auf Ressourcen
     val context = LocalContext.current
 
+    // Coroutine Scope
+    val coroutineScope = rememberCoroutineScope()
+
     // Abrufen der Trainings und Mitglieder für den Kurs
-    var trainings by remember { mutableStateOf(trainingRepository.getTrainingsByKursId(course.id)) }
-    var mitglieder by remember { mutableStateOf(mitgliedRepository.getMitgliederByKursId(course.id)) }
+    var trainings by remember { mutableStateOf(emptyList<Training>()) }
+    var mitglieder by remember { mutableStateOf(emptyList<Mitglied>()) }
+
+    // Initiales Laden der Daten
+    LaunchedEffect(course.id) {
+        coroutineScope.launch {
+            trainings = trainingRepository.getTrainingsByKursId(course.id)
+            mitglieder = mitgliedRepository.getMitgliederByKursId(course.id)
+        }
+    }
 
     // Zustandsvariablen zur Verwaltung des ausgewählten Trainings und Mitglieds, Nachrichten und des ausgewählten Datums
     var selectedTraining by remember { mutableStateOf<Training?>(null) }
@@ -55,7 +67,9 @@ fun TrainingManagement(
             mitgliedRepository = mitgliedRepository,
             onFinish = {
                 showAddMemberScreen = false
-                mitglieder = mitgliedRepository.getMitgliederByKursId(course.id) // Mitglieder aktualisieren
+                coroutineScope.launch {
+                    mitglieder = mitgliedRepository.getMitgliederByKursId(course.id) // Mitglieder aktualisieren
+                }
             },
             existingMitglied = selectedMember // Wenn ein Mitglied bearbeitet wird, wird es an das AddMemberScreen übergeben
         )
@@ -84,12 +98,14 @@ fun TrainingManagement(
                 selectedTraining?.let {
                     Button(
                         onClick = {
-                            selectedTraining?.let { training ->
-                                trainingRepository.deleteTraining(training.id)
-                                trainingRepository.deleteAnwesenheitByTrainingId(training.id)
-                                selectedTraining = null
-                                message = "Der Termin wurde gelöscht."
-                                trainings = trainingRepository.getTrainingsByKursId(course.id) // Trainings aktualisieren
+                            coroutineScope.launch {
+                                selectedTraining?.let { training ->
+                                    trainingRepository.deleteTraining(training.id)
+                                    trainingRepository.deleteAnwesenheitByTrainingId(training.id)
+                                    selectedTraining = null
+                                    message = "Der Termin wurde gelöscht."
+                                    trainings = trainingRepository.getTrainingsByKursId(course.id) // Trainings aktualisieren
+                                }
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Cerulean),
@@ -116,13 +132,15 @@ fun TrainingManagement(
                             { _, year: Int, month: Int, dayOfMonth: Int ->
                                 calendar.set(year, month, dayOfMonth)
                                 selectedDate = dateFormat.format(calendar.time)
-                                val newTraining = Training(0, selectedDate, "")
-                                val newTrainingId = trainingRepository.insertTraining(newTraining, course.id)
-                                mitglieder.forEach { mitglied ->
-                                    trainingRepository.insertAnwesenheit(mitglied.id, newTrainingId)
+                                coroutineScope.launch {
+                                    val newTraining = Training(0, selectedDate, "")
+                                    val newTrainingId = trainingRepository.insertTraining(newTraining, course.id)
+                                    mitglieder.forEach { mitglied ->
+                                        trainingRepository.insertAnwesenheit(mitglied.id, newTrainingId)
+                                    }
+                                    message = "Neuer Termin wurde hinzugefügt."
+                                    trainings = trainingRepository.getTrainingsByKursId(course.id) // Trainings aktualisieren
                                 }
-                                message = "Neuer Termin wurde hinzugefügt."
-                                trainings = trainingRepository.getTrainingsByKursId(course.id) // Trainings aktualisieren
                             },
                             calendar.get(Calendar.YEAR),
                             calendar.get(Calendar.MONTH),
@@ -158,11 +176,13 @@ fun TrainingManagement(
                 selectedMember?.let {
                     Button(
                         onClick = {
-                            selectedMember?.let { member ->
-                                mitgliedRepository.deleteMitglied(member.id)
-                                selectedMember = null
-                                message = "Das Mitglied wurde gelöscht."
-                                mitglieder = mitgliedRepository.getMitgliederByKursId(course.id) // Mitglieder aktualisieren
+                            coroutineScope.launch {
+                                selectedMember?.let { member ->
+                                    mitgliedRepository.deleteMitglied(member.id)
+                                    selectedMember = null
+                                    message = "Das Mitglied wurde gelöscht."
+                                    mitglieder = mitgliedRepository.getMitgliederByKursId(course.id) // Mitglieder aktualisieren
+                                }
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Cerulean),
@@ -245,5 +265,4 @@ fun TrainingManagementPreview() {
         mitgliedRepository = dummyMitgliedRepository,
         onEndEditing = {}
     )
-
 }

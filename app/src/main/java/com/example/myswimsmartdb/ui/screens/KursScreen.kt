@@ -26,6 +26,7 @@ import com.example.myswimsmartdb.ui.content.MitgliederManagement
 import com.example.myswimsmartdb.ui.content.TrainingManagement
 import com.example.myswimsmartdb.ui.theme.Platinum
 import com.example.myswimsmartdb.ui.theme.Cerulean
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,9 +35,10 @@ fun KursScreen(navController: NavHostController) {
     val kursRepository = KursRepository(context)
     val trainingRepository = TrainingRepository(context)
     val mitgliedRepository = MitgliedRepository(context)
+    val coroutineScope = rememberCoroutineScope()
 
     // Liste der verfügbaren Kurse laden
-    var courses by remember { mutableStateOf(kursRepository.getAllKurseWithDetails()) }
+    var courses by remember { mutableStateOf(emptyList<Kurs>()) }
     var selectedCourse by remember { mutableStateOf<Kurs?>(null) }
     var editMode by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -48,6 +50,12 @@ fun KursScreen(navController: NavHostController) {
     val deleteButtonText = stringResource(id = R.string.kurs_loeschen)
     val cancelButtonText = stringResource(id = R.string.abbrechen)
     val deletedMessage = stringResource(id = R.string.kurs_geloescht)
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            courses = kursRepository.getAllKurseWithDetails()
+        }
+    }
 
     BasisScreen(navController = navController) { innerPadding ->
         Column(
@@ -165,13 +173,15 @@ fun KursScreen(navController: NavHostController) {
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                selectedCourse?.let {
-                                    kursRepository.deleteKursWithDetails(it.id)
-                                    deleteMessage = deletedMessage
-                                    selectedCourse = null
-                                    courses = kursRepository.getAllKurseWithDetails()
+                                coroutineScope.launch {
+                                    selectedCourse?.let {
+                                        kursRepository.deleteKursWithDetails(it.id)
+                                        deleteMessage = deletedMessage
+                                        selectedCourse = null
+                                        courses = kursRepository.getAllKurseWithDetails()
+                                    }
+                                    showDeleteDialog = false
                                 }
-                                showDeleteDialog = false
                             }
                         ) {
                             Text(deleteButtonText)

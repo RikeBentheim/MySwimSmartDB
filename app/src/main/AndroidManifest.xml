@@ -7,7 +7,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="SwimSmart"
+        android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MySwimSmartDB"
@@ -15,7 +15,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="SwimmSmart"
+            android:label="@string/app_name"
             android:theme="@style/Theme.MySwimSmartDB"
             android:screenOrientation="portrait"> <!-- Hier wird der Portraitmodus erzwungen -->
             <intent-filter>
@@ -25,4 +25,7 @@
         </activity>
     </application>
 
+    <!-- Berechtigung zum Schreiben auf den externen Speicher hinzufügen -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 </manifest>

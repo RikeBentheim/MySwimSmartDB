@@ -18,6 +18,7 @@ import com.example.myswimsmartdb.ui.theme.Platinum
 import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.Reposetory.KursRepository
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,8 +29,9 @@ fun AddKursScreen(
     onKursSaved: (String, Level, Int) -> Unit
 ) {
     var kursName by remember { mutableStateOf("") }
-    val levels = levelRepository.getAllLevels()
+    val levels by remember { mutableStateOf(levelRepository.getAllLevels()) }
     var selectedLevel by remember { mutableStateOf<Level?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -44,7 +46,7 @@ fun AddKursScreen(
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
 
-        )
+            )
         Spacer(modifier = Modifier.height(20.dp))
 
         StringSelectionDropdown(
@@ -58,17 +60,19 @@ fun AddKursScreen(
         Button(
             onClick = {
                 selectedLevel?.let { level ->
-                    val kurs = Kurs(
-                        id = 0,
-                        name = kursName,
-                        levelId = level.id,
-                        levelName = level.name,
-                        mitglieder = emptyList(),
-                        trainings = emptyList(),
-                        aufgaben = emptyList()
-                    )
-                    val newKursId = kursRepository.insertKursWithDetails(kurs).toInt()
-                    onKursSaved(kursName, level, newKursId)
+                    coroutineScope.launch {
+                        val kurs = Kurs(
+                            id = 0,
+                            name = kursName,
+                            levelId = level.id,
+                            levelName = level.name,
+                            mitglieder = emptyList(),
+                            trainings = emptyList(),
+                            aufgaben = emptyList()
+                        )
+                        val newKursId = kursRepository.insertKursWithDetails(kurs).toInt()
+                        onKursSaved(kursName, level, newKursId)
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()

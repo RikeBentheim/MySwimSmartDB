@@ -18,6 +18,7 @@ import com.example.myswimsmartdb.db.entities.Training
 import com.example.myswimsmartdb.R
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +33,8 @@ fun AddKurstermineScreen(
     val calendar = Calendar.getInstance()
     var showInputFields by remember { mutableStateOf(true) }
     var generatedDates by remember { mutableStateOf(listOf<String>()) }
-    val changes_saved = stringResource(id = R.string.save_changes)
+    val changesSaved = stringResource(id = R.string.save_changes)
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -97,11 +99,13 @@ fun AddKurstermineScreen(
 
             Button(
                 onClick = {
-                    val dates = datesText.split("\n")
-                    saveDates(dates, kursId, trainingRepository, mitgliedRepository)
-                    message = changes_saved
-                    showInputFields = false
-                    onFinish()
+                    coroutineScope.launch {
+                        val dates = datesText.split("\n")
+                        saveDates(dates, kursId, trainingRepository, mitgliedRepository)
+                        message = changesSaved
+                        showInputFields = false
+                        onFinish()
+                    }
                 },
                 modifier = Modifier
                     .padding(vertical = 8.dp)
@@ -139,7 +143,7 @@ fun generateDates(startDate: String): List<String> {
     return dates
 }
 
-fun saveDates(dates: List<String>, kursId: Int, trainingRepository: TrainingRepository, mitgliedRepository: MitgliedRepository) {
+suspend fun saveDates(dates: List<String>, kursId: Int, trainingRepository: TrainingRepository, mitgliedRepository: MitgliedRepository) {
     val trainings = dates.map { date ->
         Training(
             id = 0,
@@ -149,7 +153,8 @@ fun saveDates(dates: List<String>, kursId: Int, trainingRepository: TrainingRepo
     }
     trainings.forEach { training ->
         val trainingId = trainingRepository.insertTraining(training, kursId)
-        mitgliedRepository.getMitgliederByKursId(kursId).forEach { mitglied ->
+        val mitglieder = mitgliedRepository.getMitgliederByKursId(kursId)
+        mitglieder.forEach { mitglied ->
             trainingRepository.insertAnwesenheit(mitglied.id, trainingId)
         }
     }

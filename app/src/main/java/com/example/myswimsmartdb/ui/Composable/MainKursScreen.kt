@@ -12,12 +12,12 @@ import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
 import com.example.myswimsmartdb.db.Reposetory.TrainingRepository
 import com.example.myswimsmartdb.db.entities.Kurs
 import com.example.myswimsmartdb.db.entities.Level
-
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KursScreen(
-    KursRepository: KursRepository,
+    kursRepository: KursRepository,
     levelRepository: LevelRepository,
     mitgliedRepository: MitgliedRepository,
     trainingRepository: TrainingRepository
@@ -31,6 +31,7 @@ fun KursScreen(
 
     val levels = levelRepository.getAllLevels()
     val levelNames = levels.map { it.name }
+    val coroutineScope = rememberCoroutineScope()
 
     if (showAddMember && newKursId != 0L) {
         AddMemberScreen(
@@ -88,21 +89,23 @@ fun KursScreen(
 
             Button(
                 onClick = {
-                    val kurs = Kurs(
-                        id = 0, // Die ID wird von der Datenbank automatisch generiert
-                        name = kursName,
-                        levelId = selectedLevel?.id ?: 0,
-                        levelName = selectedLevel?.name ?: "",
-                        mitglieder = emptyList(),
-                        trainings = emptyList(),
-                        aufgaben = emptyList()
-                    )
-                    newKursId = KursRepository.insertKursWithDetails(kurs)
-                    message = if (newKursId != -1L) {
-                        showAddMember = true
-                        "Kurs erfolgreich hinzugefügt"
-                    } else {
-                        "Fehler beim Hinzufügen des Kurses"
+                    coroutineScope.launch {
+                        val kurs = Kurs(
+                            id = 0, // Die ID wird von der Datenbank automatisch generiert
+                            name = kursName,
+                            levelId = selectedLevel?.id ?: 0,
+                            levelName = selectedLevel?.name ?: "",
+                            mitglieder = emptyList(),
+                            trainings = emptyList(),
+                            aufgaben = emptyList()
+                        )
+                        newKursId = kursRepository.insertKursWithDetails(kurs)
+                        message = if (newKursId != -1L) {
+                            showAddMember = true
+                            "Kurs erfolgreich hinzugefügt"
+                        } else {
+                            "Fehler beim Hinzufügen des Kurses"
+                        }
                     }
                 },
                 modifier = Modifier.padding(vertical = 16.dp),

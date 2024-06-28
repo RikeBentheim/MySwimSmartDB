@@ -1,4 +1,3 @@
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -43,9 +42,10 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
-    packaging {
+    packagingOptions {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += setOf("/META-INF/{AL2.0,LGPL2.1}")
+            merges += setOf("META-INF/native-image/reflect-config.json", "META-INF/native-image/resource-config.json")
         }
     }
 }
@@ -85,6 +85,7 @@ dependencies {
     implementation ("androidx.compose.runtime:runtime:1.6.8")
     implementation("androidx.compose.runtime:runtime-livedata:1.7.0-beta04")
     implementation("androidx.compose.runtime:runtime-rxjava2:1.7.0-beta04")
+    implementation ("com.itextpdf:itext7-core:8.0.4")
 
     // Other dependencies
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0-RC")
@@ -105,5 +106,4 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
 }

@@ -3,6 +3,7 @@ package com.example.myswimsmartdb.db.Reposetory
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import android.util.Log
 import com.example.myswimsmartdb.db.DatabaseHelper
 import com.example.myswimsmartdb.db.entities.Anwesenheit
 import com.example.myswimsmartdb.db.entities.Training
@@ -99,7 +100,10 @@ class TrainingRepository(context: Context) {
     }
     fun deleteAnwesenheitenByMitgliedId(mitgliedId: Int): Int {
         val db: SQLiteDatabase = dbHelper.writableDatabase
-        return db.delete(DatabaseHelper.TABLE_ANWESENHEIT, "ANWESENHEIT_MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
+        Log.d("DatabaseHelper", "Deleting attendance records for member ID: $mitgliedId")
+        val result = db.delete(DatabaseHelper.TABLE_ANWESENHEIT, "ANWESENHEIT_MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
+        Log.d("DatabaseHelper", "Deleted $result attendance records for member ID: $mitgliedId")
+        return result
     }
 
 }

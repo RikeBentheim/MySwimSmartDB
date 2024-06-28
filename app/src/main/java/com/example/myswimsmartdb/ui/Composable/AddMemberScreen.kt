@@ -16,6 +16,7 @@ import com.example.myswimsmartdb.db.entities.Level
 import com.example.myswimsmartdb.db.entities.Mitglied
 import com.example.layout.ui.layout.components.DatePickerButton
 import com.example.myswimsmartdb.R
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,9 +33,14 @@ fun AddMemberScreen(
     var telefon by remember { mutableStateOf(existingMitglied?.telefon ?: "") }
     var message by remember { mutableStateOf("") }
 
-    val mitglieder = remember { mutableStateOf(mitgliedRepository.getMitgliederByKursId(kursId)) }
     val scrollState = rememberScrollState()
     var showInputFields by remember { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
+    var mitglieder by remember { mutableStateOf(listOf<Mitglied>()) }
+
+    LaunchedEffect(kursId) {
+        mitglieder = mitgliedRepository.getMitgliederByKursId(kursId)
+    }
 
     val mitgliedHinzugefuegt = stringResource(id = R.string.mitglied_hinzugefuegt)
     val mitgliedHinzufuegenFehler = stringResource(id = R.string.mitglied_hinzufuegen_fehler)
@@ -51,7 +57,7 @@ fun AddMemberScreen(
         Text(text = stringResource(id = R.string.kurs, selectedLevel.name))
         if (showInputFields) {
             Text(text = stringResource(id = R.string.kursmitglieder))
-            mitglieder.value.forEach { mitglied ->
+            mitglieder.forEach { mitglied ->
                 Text(text = "${mitglied.vorname} ${mitglied.nachname}")
             }
             OutlinedTextField(
@@ -87,38 +93,40 @@ fun AddMemberScreen(
             )
             Button(
                 onClick = {
-                    if (existingMitglied == null) {
-                        // Neues Mitglied erstellen
-                        val mitglied = Mitglied(
-                            id = 0,
-                            vorname = vorname,
-                            nachname = nachname,
-                            geburtsdatumString = geburtsdatum,
-                            telefon = telefon,
-                            kursId = kursId
-                        )
-                        val aufgaben = selectedLevel.aufgaben
-                        val mitgliedId = mitgliedRepository.insertMitgliedWithAufgaben(mitglied, aufgaben)
-                        if (mitgliedId != -1L) {
-                            message = mitgliedHinzugefuegt
-                            mitglieder.value = mitgliedRepository.getMitgliederByKursId(kursId)
-                            vorname = ""
-                            nachname = ""
-                            geburtsdatum = ""
-                            telefon = ""
+                    coroutineScope.launch {
+                        if (existingMitglied == null) {
+                            // Neues Mitglied erstellen
+                            val mitglied = Mitglied(
+                                id = 0,
+                                vorname = vorname,
+                                nachname = nachname,
+                                geburtsdatumString = geburtsdatum,
+                                telefon = telefon,
+                                kursId = kursId
+                            )
+                            val aufgaben = selectedLevel.aufgaben
+                            val mitgliedId = mitgliedRepository.insertMitgliedWithAufgaben(mitglied, aufgaben)
+                            if (mitgliedId != -1L) {
+                                message = mitgliedHinzugefuegt
+                                mitglieder = mitgliedRepository.getMitgliederByKursId(kursId)
+                                vorname = ""
+                                nachname = ""
+                                geburtsdatum = ""
+                                telefon = ""
+                            } else {
+                                message = mitgliedHinzufuegenFehler
+                            }
                         } else {
-                            message = mitgliedHinzufuegenFehler
+                            // Bestehendes Mitglied aktualisieren
+                            val updatedMitglied = existingMitglied.copy(
+                                vorname = vorname,
+                                nachname = nachname,
+                                geburtsdatumString = geburtsdatum,
+                                telefon = telefon
+                            )
+                            mitgliedRepository.updateMitglied(updatedMitglied)
+                            message = mitgliedAktualisiert
                         }
-                    } else {
-                        // Bestehendes Mitglied aktualisieren
-                        val updatedMitglied = existingMitglied.copy(
-                            vorname = vorname,
-                            nachname = nachname,
-                            geburtsdatumString = geburtsdatum,
-                            telefon = telefon
-                        )
-                        mitgliedRepository.updateMitglied(updatedMitglied)
-                        message = mitgliedAktualisiert
                     }
                 },
                 modifier = Modifier.padding(vertical = 16.dp)
@@ -138,7 +146,7 @@ fun AddMemberScreen(
                 Text(text = message, modifier = Modifier.padding(vertical = 8.dp))
             }
         } else {
-            mitglieder.value.forEach { mitglied ->
+            mitglieder.forEach { mitglied ->
                 Text(text = "${mitglied.vorname} ${mitglied.nachname}")
             }
         }

@@ -34,6 +34,7 @@ import com.example.myswimsmartdb.ui.theme.LapisLazuli
 import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,14 +49,21 @@ fun KursVerwaltungScreen(
     val trainingRepository = TrainingRepository(context)
     val mitgliedRepository = MitgliedRepository(context)
     val stoppuhrRepository = StoppuhrRepository(context)
+    val coroutineScope = rememberCoroutineScope()
 
-    val courses = kursRepository.getAllKurseWithDetails()
+    var courses by remember { mutableStateOf(emptyList<Kurs>()) }
     var selectedCourseState by rememberSaveable(stateSaver = KursSaver) { mutableStateOf<Kurs?>(selectedCourse) }
     var selectedDateState by rememberSaveable { mutableStateOf(selectedDate) }
     val showDetails = rememberSaveable { mutableStateOf(selectedCourse != null && selectedDate.isNotEmpty()) }
 
     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     val currentDate = sdf.format(Date())
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            courses = kursRepository.getAllKurseWithDetails()
+        }
+    }
 
     BasisScreen(navController = navController) { innerPadding ->
         Column(
@@ -142,7 +150,6 @@ fun KursVerwaltungScreen(
     }
 }
 
-
 @Composable
 fun KursDetails(
     course: Kurs,
@@ -215,4 +222,3 @@ fun KursDetails(
         }
     }
 }
-

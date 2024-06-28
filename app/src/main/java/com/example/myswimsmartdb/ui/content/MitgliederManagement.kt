@@ -13,6 +13,7 @@ import com.example.myswimsmartdb.db.entities.Level
 import com.example.myswimsmartdb.db.entities.Mitglied
 import com.example.myswimsmartdb.ui.Composable.AddMemberScreen
 import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,9 +23,16 @@ fun MitgliederManagement(
     selectedLevel: Level
 ) {
     var selectedMitglied by remember { mutableStateOf<Mitglied?>(null) }
-    val mitglieder by remember { mutableStateOf(mitgliedRepository.getMitgliederByKursId(kursId)) }
+    var mitglieder by remember { mutableStateOf<List<Mitglied>>(emptyList()) }
     var showAddMemberScreen by remember { mutableStateOf(false) }
     val mitgliedNamen = mitglieder.map { "${it.vorname} ${it.nachname}" }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(kursId) {
+        coroutineScope.launch {
+            mitglieder = mitgliedRepository.getMitgliederByKursId(kursId)
+        }
+    }
 
     if (showAddMemberScreen) {
         AddMemberScreen(
@@ -32,6 +40,9 @@ fun MitgliederManagement(
             selectedLevel = selectedLevel,
             mitgliedRepository = mitgliedRepository,
             onFinish = {
+                coroutineScope.launch {
+                    mitglieder = mitgliedRepository.getMitgliederByKursId(kursId)
+                }
                 showAddMemberScreen = false
                 selectedMitglied = null
             },
@@ -59,15 +70,22 @@ fun MitgliederManagement(
 
             if (selectedMitglied != null) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Button(
                         onClick = {
-                            mitgliedRepository.deleteMitglied(selectedMitglied!!.id)
-                            selectedMitglied = null
+                            coroutineScope.launch {
+                                mitgliedRepository.deleteMitglied(selectedMitglied!!.id)
+                                mitglieder = mitgliedRepository.getMitgliederByKursId(kursId)
+                                selectedMitglied = null
+                            }
                         },
-                        modifier = Modifier.weight(1f).padding(end = 8.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp)
                     ) {
                         Text("Mitglied löschen")
                     }
@@ -75,7 +93,9 @@ fun MitgliederManagement(
                         onClick = {
                             showAddMemberScreen = true
                         },
-                        modifier = Modifier.weight(1f).padding(start = 8.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
                     ) {
                         Text("Mitglied bearbeiten")
                     }

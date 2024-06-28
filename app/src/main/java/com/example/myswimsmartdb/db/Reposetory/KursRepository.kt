@@ -8,13 +8,15 @@ import com.example.myswimsmartdb.db.entities.*
 import com.example.myswimsmartdb.db.Reposetory.StoppuhrRepository
 import com.example.myswimsmartdb.db.Reposetory.BahnenzaehlenRepository
 import com.example.myswimsmartdb.db.Reposetory.TrainingRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 class KursRepository(private val context: Context) {
 
     private val dbHelper = DatabaseHelper(context)
 
-    fun getAllKurseWithDetails(): List<Kurs> {
+    suspend fun getAllKurseWithDetails(): List<Kurs> = withContext(Dispatchers.IO) {
         val db = dbHelper.readableDatabase
         val kursQuery = "SELECT * FROM ${DatabaseHelper.TABLE_KURS}"
         val kursCursor = db.rawQuery(kursQuery, null)
@@ -99,10 +101,10 @@ class KursRepository(private val context: Context) {
         }
         kursCursor.close()
 
-        return kurse
+        kurse
     }
 
-    fun insertKursWithDetails(kurs: Kurs): Long {
+    suspend fun insertKursWithDetails(kurs: Kurs): Long = withContext(Dispatchers.IO) {
         val db = dbHelper.writableDatabase
         val kursValues = ContentValues().apply {
             put("KURS_NAME", kurs.name)
@@ -139,10 +141,10 @@ class KursRepository(private val context: Context) {
                 }
             }
         }
-        return kursId
+        kursId
     }
 
-    fun deleteKursWithDetails(kursId: Int) {
+    suspend fun deleteKursWithDetails(kursId: Int) = withContext(Dispatchers.IO) {
         val db = dbHelper.writableDatabase
 
         db.beginTransaction()
@@ -202,7 +204,7 @@ class KursRepository(private val context: Context) {
         }
     }
 
-    private fun deleteAllDataByMitgliedId(mitgliedId: Int, context: Context) {
+    private suspend fun deleteAllDataByMitgliedId(mitgliedId: Int, context: Context) = withContext(Dispatchers.IO) {
         val db = dbHelper.writableDatabase
         val trainingRepository = TrainingRepository(context)
         val stoppuhrRepository = StoppuhrRepository(context)
@@ -234,11 +236,10 @@ class KursRepository(private val context: Context) {
         }
     }
 
-    private fun deleteMitgliedAufgabenByMitgliedId(mitgliedId: Int): Int {
+    private suspend fun deleteMitgliedAufgabenByMitgliedId(mitgliedId: Int): Int = withContext(Dispatchers.IO) {
         val db: SQLiteDatabase = dbHelper.writableDatabase
-        return db.delete(DatabaseHelper.TABLE_MITGLIED_AUFGABE, "MITGLIED_AUFGABE_MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
+        db.delete(DatabaseHelper.TABLE_MITGLIED_AUFGABE, "MITGLIED_AUFGABE_MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
     }
-
     fun getMitgliederForKurs(kursId: Int): List<Mitglied> {
         val db = dbHelper.readableDatabase
         val mitglieder = mutableListOf<Mitglied>()

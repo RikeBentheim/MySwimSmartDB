@@ -35,6 +35,7 @@ import nl.dionsegijn.konfetti.core.Position
 import nl.dionsegijn.konfetti.core.emitter.Emitter
 import nl.dionsegijn.konfetti.core.models.Shape
 import nl.dionsegijn.konfetti.core.models.Size
+import java.io.IOException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
