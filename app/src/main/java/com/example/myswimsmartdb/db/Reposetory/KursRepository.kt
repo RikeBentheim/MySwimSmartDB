@@ -217,13 +217,13 @@ class KursRepository(private val context: Context) {
             deleteMitgliedAufgabenByMitgliedId(mitgliedId)
 
             // Delete attendance records related to the member
-            trainingRepository.deleteAnwesenheitenByMitgliedId(mitgliedId)
+            db.delete(DatabaseHelper.TABLE_ANWESENHEIT, "ANWESENHEIT_MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
 
             // Delete Bahnenzaehlen records related to the member
-            bahnenzaehlenRepository.deleteBahnenzaehlenByMitgliedId(mitgliedId)
+            db.delete(DatabaseHelper.TABLE_BAHNENZAEHLEN, "MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
 
             // Delete Stoppuhr records related to the member
-            stoppuhrRepository.deleteStoppuhrByMitgliedId(mitgliedId)
+            db.delete(DatabaseHelper.TABLE_STOPPUHR, "MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
 
             // Delete the member itself
             db.delete(DatabaseHelper.TABLE_MITGLIED, "MITGLIED_ID = ?", arrayOf(mitgliedId.toString()))
