@@ -203,7 +203,7 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
                 Column {
                     Button(
                         onClick = {
-                            stoppuhr.reset()
+                            stoppuhr.reset ()
                             time = stoppuhr.zeit.toDuration(DurationUnit.MILLISECONDS)
                             showDialog = false
                         },

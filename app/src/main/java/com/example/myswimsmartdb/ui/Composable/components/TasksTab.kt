@@ -126,7 +126,7 @@ fun TasksTab(levelId: Int, kursId: Int, onTaskSelected: (Aufgabe) -> Unit, navCo
                 confirmButton = {
                     Button(onClick = {
                         sharedViewModel.selectMembers(selectedMitglieder)
-                        navController.navigate("stoppuhr/${selectedMitglieder.joinToString(",") { it.id.toString() }}")
+                        navController.navigate("stoppuhr")
                         showDialog = false
                     }) {
                         Text("Starten")

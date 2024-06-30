@@ -1,6 +1,8 @@
 package com.example.myswimsmartdb.db.entities
 
 import android.content.Context
+import android.os.Parcel
+import android.os.Parcelable
 import com.example.myswimsmartdb.db.DatabaseHelper
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -10,7 +12,7 @@ data class Training(
     val id: Int,
     val datumString: String, // Store the date as a String
     val bemerkung: String
-) {
+) : Parcelable {
 
     var datum: String = datumString
         set(value) {
@@ -37,6 +39,17 @@ data class Training(
                 null
             }
         }
+
+        @JvmField
+        val CREATOR: Parcelable.Creator<Training> = object : Parcelable.Creator<Training> {
+            override fun createFromParcel(parcel: Parcel): Training {
+                return Training(parcel)
+            }
+
+            override fun newArray(size: Int): Array<Training?> {
+                return arrayOfNulls(size)
+            }
+        }
     }
 
     // Function to get Anwesenheit by Mitglied and Training
@@ -59,5 +72,26 @@ data class Training(
             cursor.close()
             null
         }
+    }
+
+    // Parcelable implementation
+    constructor(parcel: Parcel) : this(
+        parcel.readInt(),
+        parcel.readString() ?: "",
+        parcel.readString() ?: ""
+    ) {
+        datum = parcel.readString() ?: datumString
+        datumAsDate = stringToDate(datum)
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(id)
+        parcel.writeString(datumString)
+        parcel.writeString(bemerkung)
+        parcel.writeString(datum)
+    }
+
+    override fun describeContents(): Int {
+        return 0
     }
 }

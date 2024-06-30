@@ -116,8 +116,7 @@ fun MembersTab(kursId: Int, mitgliedRepository: MitgliedRepository, stoppuhrRepo
                             timeToLive = 2000L,
                             shapes = listOf(Shape.Square, Shape.Circle),
                             size = listOf(Size(12)),
-                            position = Position.Relative(0.0, 0.0)
-                                .between(Position.Relative(1.0, 0.0)),
+                            position = Position.Relative(0.0, 0.0).between(Position.Relative(1.0, 0.0)),
                             emitter = Emitter(duration = 5, TimeUnit.SECONDS).perSecond(300)
                         )
                     )
@@ -227,7 +226,6 @@ fun MemberDetail(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // New section for Stopwatch Times
         Text(
             text = stringResource(id = R.string.stoppuhr),
             modifier = Modifier.clickable { showStopwatch = !showStopwatch },
@@ -236,7 +234,7 @@ fun MemberDetail(
 
         if (showStopwatch) {
             Column {
-                member.Stoppuhr.forEach { stoppuhr ->
+                member.stoppuhr.forEach { stoppuhr ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -295,7 +293,7 @@ fun MemberDetail(
                         onClick = {
                             stoppuhrToDelete?.let {
                                 stoppuhrRepository.deleteStoppuhrById(it.id)
-                                member.Stoppuhr = member.Stoppuhr.filter { stoppuhr -> stoppuhr.id != it.id }
+                                member.stoppuhr = member.stoppuhr.filter { s -> s.id != it.id }
                             }
                             showDeleteDialog = false
                         }
@@ -320,4 +318,3 @@ fun formatTime(milliseconds: Long): String {
     val centiseconds = (milliseconds % 1000) / 10
     return String.format("%02d:%02d:%02d:%02d", hours, minutes, seconds, centiseconds)
 }
-

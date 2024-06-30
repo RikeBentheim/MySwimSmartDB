@@ -28,7 +28,6 @@ fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?, sh
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Header-Bild
             Image(
                 painter = painterResource(id = R.drawable.schwimmhalle),
                 contentDescription = stringResource(id = R.string.app_name),
@@ -38,25 +37,26 @@ fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?, sh
                 contentScale = ContentScale.FillBounds
             )
             Spacer(modifier = Modifier.height(30.dp))
-            // Titeltext
+
             Text(
                 text = stringResource(id = R.string.stoppuhr),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(12.dp),
                 color = Platinum
             )
-            if (mitgliedIds.isNullOrEmpty()) {
-                MitgliederVerwaltung(sharedViewModel = sharedViewModel)
+
+            val selectedMembers = if (mitgliedIds.isNullOrEmpty()) {
+                sharedViewModel.selectedMembers
             } else {
                 val context = LocalContext.current
                 val mitgliedRepository = MitgliedRepository(context)
-                var mitglieder by remember { mutableStateOf(listOf<Mitglied>()) }
+                mitgliedRepository.getMitgliederByIds(mitgliedIds)
+            }
 
-                LaunchedEffect(mitgliedIds) {
-                    mitglieder = mitgliedRepository.getMitgliederByIds(mitgliedIds)
-                }
-
-                MitgliederStoppuhrVerwaltung(mitglieder, navController, sharedViewModel)
+            if (selectedMembers.isNullOrEmpty()) {
+                MitgliederVerwaltung(sharedViewModel = sharedViewModel)
+            } else {
+                MitgliederStoppuhrVerwaltung(selectedMembers, navController, sharedViewModel)
             }
         }
     }

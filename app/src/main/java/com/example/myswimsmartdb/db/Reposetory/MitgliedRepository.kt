@@ -198,11 +198,11 @@ class MitgliedRepository(private val context: Context) {
 
                     // Bahnenzaehlen für das Mitglied laden
                     val bahnenzaehlen = bahnenzaehlenRepository.getBahnenzaehlenByMitgliedId(mitglied.id)
-                    mitglied.Bahnenzaehlen = bahnenzaehlen
+                    mitglied.bahnenzaehlen = bahnenzaehlen
 
                     // Stoppuhr für das Mitglied laden
                     val stoppuhr = stoppuhrRepository.getStoppuhrenByMitgliedId(mitglied.id)
-                    mitglied.Stoppuhr = stoppuhr
+                    mitglied.stoppuhr = stoppuhr
 
                     mitglieder.add(mitglied)
                 } while (cursor.moveToNext())
