@@ -6,11 +6,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import androidx.navigation.navOptions
-import com.example.myswimsmartdb.db.entities.Training
+import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
 import com.example.myswimsmartdb.ui.screens.*
-import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
-import com.example.myswimsmartdb.ui.screens.KursVerwaltungScreen
 
 @Composable
 fun AppNavigation(navController: NavHostController, sharedViewModel: SharedViewModel) {
@@ -23,15 +20,9 @@ fun AppNavigation(navController: NavHostController, sharedViewModel: SharedViewM
             StoppuhrScreen(navController, null, sharedViewModel)
         }
 
-        composable("stoppuhr/{mitgliedIds}/{training}",
-            arguments = listOf(
-                navArgument("mitgliedIds") { type = NavType.StringType },
-                navArgument("training") { type = NavType.ParcelableType(Training::class.java) }
-            )) { backStackEntry ->
+        composable("stoppuhr/{mitgliedIds}", arguments = listOf(navArgument("mitgliedIds") { type = NavType.StringType })) { backStackEntry ->
             val mitgliedIds = backStackEntry.arguments?.getString("mitgliedIds")?.split(",")?.map { it.toInt() }
-            val training = backStackEntry.arguments?.getParcelable<Training>("training")
-            sharedViewModel.selectedTraining = training
-            StoppuhrScreen(navController = navController, mitgliedIds = mitgliedIds, sharedViewModel = sharedViewModel)
+            StoppuhrScreen(navController, mitgliedIds, sharedViewModel)
         }
 
         composable("bahnenschwimmen") { BahnenschwimmenScreen(navController) }

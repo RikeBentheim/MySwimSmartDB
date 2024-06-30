@@ -36,7 +36,7 @@ import com.example.myswimsmartdb.ui.content.MitgliederVerwaltung
 import com.example.myswimsmartdb.ui.theme.Cerulean
 import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.ui.theme.SkyBlue
-import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
+import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Date

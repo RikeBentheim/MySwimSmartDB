@@ -1,4 +1,4 @@
-package com.example.myswimsmartdb.ui.viewmodel
+package com.example.myswimsmartdb.ui.Composable.components
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

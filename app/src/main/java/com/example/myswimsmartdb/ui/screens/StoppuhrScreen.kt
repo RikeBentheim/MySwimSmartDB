@@ -15,8 +15,8 @@ import androidx.navigation.NavHostController
 import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Mitglied
+import com.example.myswimsmartdb.ui.Composable.components.MitgliederStoppuhrVerwaltung
 import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
-import com.example.myswimsmartdb.ui.content.MitgliederStoppuhrVerwaltung
 import com.example.myswimsmartdb.ui.content.MitgliederVerwaltung
 import com.example.myswimsmartdb.ui.theme.Platinum
 
@@ -45,16 +45,23 @@ fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?, sh
                 color = Platinum
             )
 
-            val selectedMembers = if (mitgliedIds.isNullOrEmpty()) {
-                sharedViewModel.selectedMembers
-            } else {
-                val context = LocalContext.current
-                val mitgliedRepository = MitgliedRepository(context)
-                mitgliedRepository.getMitgliederByIds(mitgliedIds)
+            val context = LocalContext.current
+            val mitgliedRepository = MitgliedRepository(context)
+
+            var selectedMembers by remember { mutableStateOf(emptyList<Mitglied>()) }
+
+            LaunchedEffect(mitgliedIds) {
+                selectedMembers = if (mitgliedIds.isNullOrEmpty()) {
+                    sharedViewModel.fetchSelectedMembers()
+                } else {
+                    mitgliedRepository.getMitgliederByIds(mitgliedIds)
+                }
             }
 
             if (selectedMembers.isNullOrEmpty()) {
-                MitgliederVerwaltung(sharedViewModel = sharedViewModel)
+                com.example.myswimsmartdb.ui.Composable.components.MitgliederVerwaltung(
+                    sharedViewModel = sharedViewModel
+                )
             } else {
                 MitgliederStoppuhrVerwaltung(selectedMembers, navController, sharedViewModel)
             }
