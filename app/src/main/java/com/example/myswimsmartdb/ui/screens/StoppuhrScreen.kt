@@ -15,10 +15,10 @@ import androidx.navigation.NavHostController
 import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Mitglied
-import com.example.myswimsmartdb.ui.Composable.components.MitgliederStoppuhrVerwaltung
-import com.example.myswimsmartdb.ui.Composable.components.MitgliederVerwaltung
+import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
+import com.example.myswimsmartdb.ui.content.MitgliederStoppuhrVerwaltung
+import com.example.myswimsmartdb.ui.content.MitgliederVerwaltung
 import com.example.myswimsmartdb.ui.theme.Platinum
-import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
 
 @Composable
 fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?, sharedViewModel: SharedViewModel) {

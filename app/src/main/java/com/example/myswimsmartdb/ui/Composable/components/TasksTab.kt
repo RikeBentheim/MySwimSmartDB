@@ -19,7 +19,7 @@ import com.example.myswimsmartdb.db.Reposetory.AufgabeRepository
 import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Aufgabe
 import com.example.myswimsmartdb.db.entities.Mitglied
-import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
+
 
 @Composable
 fun TaskItem(

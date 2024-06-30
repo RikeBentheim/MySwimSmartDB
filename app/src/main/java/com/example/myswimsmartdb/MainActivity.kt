@@ -16,8 +16,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.myswimsmartdb.ui.Composable.AppNavigation
+import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
 import com.example.myswimsmartdb.ui.theme.AppTheme
-import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

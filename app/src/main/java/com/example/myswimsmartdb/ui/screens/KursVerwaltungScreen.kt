@@ -27,11 +27,11 @@ import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
 import com.example.myswimsmartdb.ui.Composable.components.AttendanceTab
 import com.example.myswimsmartdb.ui.Composable.components.MembersTab
 import com.example.myswimsmartdb.ui.Composable.components.MitgliedAufgabeTab
+import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
 import com.example.myswimsmartdb.ui.Composable.components.TasksTab
 import com.example.myswimsmartdb.ui.theme.Platinum
 import com.example.myswimsmartdb.ui.theme.SkyBlue
 import com.example.myswimsmartdb.ui.theme.LapisLazuli
-import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlinx.coroutines.launch

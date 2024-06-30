@@ -1,18 +1,20 @@
 package com.example.myswimsmartdb.ui.Composable
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
 import com.example.myswimsmartdb.ui.screens.*
-import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
-import com.example.myswimsmartdb.ui.screens.KursVerwaltungScreen
-
 
 @Composable
 fun AppNavigation(navController: NavHostController, sharedViewModel: SharedViewModel) {
+    val selectedCourse by sharedViewModel.selectedCourse.collectAsState()
+
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen(navController) }
         composable("training") { TrainingScreen(navController) }
@@ -38,7 +40,6 @@ fun AppNavigation(navController: NavHostController, sharedViewModel: SharedViewM
                 navArgument("selectedDate") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val selectedCourse = sharedViewModel.selectedCourse
             val selectedDate = backStackEntry.arguments?.getString("selectedDate") ?: ""
             KursVerwaltungScreen(navController, sharedViewModel, selectedCourse, selectedDate)
         }

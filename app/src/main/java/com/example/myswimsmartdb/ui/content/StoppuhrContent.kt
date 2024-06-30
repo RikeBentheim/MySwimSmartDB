@@ -1,4 +1,4 @@
-package com.example.myswimsmartdb.ui.Composable.components
+package com.example.myswimsmartdb.ui.content
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,16 +27,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.myswimsmartdb.db.entities.Stoppuhr
 import com.example.myswimsmartdb.R
 import com.example.myswimsmartdb.db.Reposetory.StoppuhrRepository
 import com.example.myswimsmartdb.db.entities.Mitglied
-import com.example.myswimsmartdb.ui.Composable.StringSelectionDropdown
-import com.example.myswimsmartdb.ui.content.MitgliederVerwaltung
+import com.example.myswimsmartdb.db.entities.Stoppuhr
+import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
 import com.example.myswimsmartdb.ui.theme.Cerulean
 import com.example.myswimsmartdb.ui.theme.IndigoDye
 import com.example.myswimsmartdb.ui.theme.SkyBlue
-import com.example.myswimsmartdb.ui.viewmodel.SharedViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -145,8 +143,8 @@ fun MitgliederStoppuhrVerwaltung(mitglieder: List<Mitglied>, navController: NavH
 
         Button(
             onClick = {
-                val selectedCourse = sharedViewModel.selectedCourse
-                val selectedDate = sharedViewModel.selectedTraining?.datum ?: ""
+                val selectedCourse = sharedViewModel.selectedCourse.collectAsState().value
+                val selectedDate = sharedViewModel.selectedTraining.collectAsState().value?.datum ?: ""
                 navController.navigate("kursVerwaltungBack/${selectedCourse?.id ?: 0}/$selectedDate") {
                     popUpTo(navController.graph.startDestinationId) {
                         saveState = true
@@ -165,23 +163,19 @@ fun MitgliederStoppuhrVerwaltung(mitglieder: List<Mitglied>, navController: NavH
 }
 
 @Composable
-fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: SharedViewModel) {
-    var isRunning by remember { mutableStateOf(stoppuhr.running) }
-    var time by remember { mutableStateOf(stoppuhr.zeit.toDuration(DurationUnit.MILLISECONDS)) }
+fun StoppuhrMitTimer(
+    stoppuhr: Stoppuhr,
+    onDelete: () -> Unit,
+    sharedViewModel: SharedViewModel
+) {
+    val timerState by sharedViewModel.timerState.collectAsState()
+    val time = timerState.time
     var showDialog by remember { mutableStateOf(false) }
     var showSaveDialog by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
 
-    LaunchedEffect(isRunning) {
-        if (isRunning) {
-            coroutineScope.launch {
-                while (isRunning) {
-                    delay(10L)
-                    time += 10.toDuration(DurationUnit.MILLISECONDS)
-                    stoppuhr.addTime(10L)
-                }
-            }
+    LaunchedEffect(timerState.isRunning) {
+        if (timerState.isRunning) {
+            sharedViewModel.startTimer()
         }
     }
 
@@ -193,8 +187,7 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
                 Column {
                     Button(
                         onClick = {
-                            stoppuhr.reset()
-                            time = stoppuhr.zeit.toDuration(DurationUnit.MILLISECONDS)
+                            sharedViewModel.resetTimer()
                             showDialog = false
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
@@ -302,7 +295,7 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
                     stoppuhr.bemerkung = bemerkung
                     stoppuhr.schwimmart = selectedSchwimmart
                     stoppuhr.laenge = laenge
-                    val stoppuhrRepository = StoppuhrRepository(context)
+                    val stoppuhrRepository = StoppuhrRepository(LocalContext.current)
                     stoppuhrRepository.insertStoppuhr(stoppuhr)
                     showSaveDialog = false
                 }) {
@@ -361,20 +354,19 @@ fun StoppuhrMitTimer(stoppuhr: Stoppuhr, onDelete: () -> Unit, sharedViewModel: 
 
                 Button(
                     onClick = {
-                        if (isRunning) {
-                            stoppuhr.stop()
+                        if (timerState.isRunning) {
+                            sharedViewModel.stopTimer()
                         } else {
-                            stoppuhr.start()
+                            sharedViewModel.startTimer()
                         }
-                        isRunning = !isRunning
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isRunning) Cerulean else SkyBlue
+                        containerColor = if (timerState.isRunning) Cerulean else SkyBlue
                     ),
                     shape = MaterialTheme.shapes.extraSmall,
                     modifier = Modifier.height(50.dp)
                 ) {
-                    Text(if (isRunning) stringResource(id = R.string.stop) else stringResource(id = R.string.start))
+                    Text(if (timerState.isRunning) stringResource(id = R.string.stop) else stringResource(id = R.string.start))
                 }
 
                 val hours = (time.inWholeSeconds / 3600).toString().padStart(2, '0')
