@@ -279,12 +279,21 @@ class KursRepository(private val context: Context) {
     fun updateAnwesenheit(trainingId: Int, mitgliedId: Int, anwesend: Boolean) {
         val db = dbHelper.writableDatabase
         val values = ContentValues().apply {
-            put("ANWESENHEIT_TRAINING_ID", trainingId)
-            put("ANWESENHEIT_MITGLIED_ID", mitgliedId)
             put("ANWESENHEIT_ANWESEND", if (anwesend) 1 else 0)
         }
-        db.insertWithOnConflict(DatabaseHelper.TABLE_ANWESENHEIT, null, values, SQLiteDatabase.CONFLICT_REPLACE)
+        val whereClause = "ANWESENHEIT_TRAINING_ID = ? AND ANWESENHEIT_MITGLIED_ID = ?"
+        val whereArgs = arrayOf(trainingId.toString(), mitgliedId.toString())
+
+        val rowsUpdated = db.update(DatabaseHelper.TABLE_ANWESENHEIT, values, whereClause, whereArgs)
+        if (rowsUpdated == 0) {
+            values.apply {
+                put("ANWESENHEIT_TRAINING_ID", trainingId)
+                put("ANWESENHEIT_MITGLIED_ID", mitgliedId)
+            }
+            db.insert(DatabaseHelper.TABLE_ANWESENHEIT, null, values)
+        }
     }
+
 
     fun getKursWithDetailsById(kursId: Int): Kurs? {
         val db = dbHelper.readableDatabase
