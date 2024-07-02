@@ -10,5 +10,5 @@ data class Anwesenheit(
     val trainingId: Int,
     val trainingDatum: String, // Placeholder, adjust if necessary
     val bemerkung: String, // Placeholder, adjust if necessary
-    val anwesend: Boolean
+    var anwesend: Boolean
 )

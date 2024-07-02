@@ -61,7 +61,6 @@ class MitgliedRepository(private val context: Context) {
                 db.insert(DatabaseHelper.TABLE_MITGLIED_AUFGABE, null, mitgliedAufgabeValues)
             if (result == -1L) {
                 Log.e("DatabaseError", "Failed to insert MitgliedAufgabe: $mitgliedAufgabeValues")
-                // Optional: Sie könnten hier entscheiden, ob Sie die gesamte Operation zurückrollen möchten
             }
         }
         mitgliedId

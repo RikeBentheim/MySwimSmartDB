@@ -6,7 +6,7 @@ import android.os.Parcelable
 data class Level(
     val id: Int,
     val name: String,
-    val aufgaben: List<Aufgabe>
+    var aufgaben: List<Aufgabe>
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),

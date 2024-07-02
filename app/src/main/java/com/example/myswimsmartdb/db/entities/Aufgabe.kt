@@ -5,7 +5,7 @@ import android.os.Parcelable
 
 data class Aufgabe(
     val id: Int,
-    val erledigt: Boolean,
+    var erledigt: Boolean,
     val aufgabe: String,
     val beschreibung: String
 ) : Parcelable {

@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.myswimsmartdb.db.Reposetory.AufgabeRepository
 import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Level
 import com.example.myswimsmartdb.db.entities.Mitglied
@@ -37,9 +38,17 @@ fun AddMemberScreen(
     var showInputFields by remember { mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
     var mitglieder by remember { mutableStateOf(listOf<Mitglied>()) }
+    val context = LocalContext.current
+    val aufgabeRepository = AufgabeRepository(context)
 
     LaunchedEffect(kursId) {
         mitglieder = mitgliedRepository.getMitgliederByKursId(kursId)
+    }
+
+    LaunchedEffect(selectedLevel) {
+        if (selectedLevel.aufgaben.isEmpty()) {
+            selectedLevel.aufgaben = aufgabeRepository.getAufgabenByLevelId(selectedLevel.id)
+        }
     }
 
     val mitgliedHinzugefuegt = stringResource(id = R.string.mitglied_hinzugefuegt)
