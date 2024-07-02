@@ -1,12 +1,17 @@
 package com.example.myswimsmartdb.db.entities
 
-
 import android.os.Parcel
 import android.os.Parcelable
+import kotlinx.coroutines.*
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.ExperimentalTime
+import kotlin.time.toDuration
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@OptIn(ExperimentalTime::class)
 data class Stoppuhr(
     val id: Int,
     val mitgliedId: Int,
@@ -20,6 +25,11 @@ data class Stoppuhr(
     var laenge: String = "",
     var datum: Date = Date()
 ) : Parcelable {
+
+    private var job: Job? = null
+    private var startTime = 0L
+    private var elapsedTime = 0L
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
 
     val datumString: String
         get() = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(datum)
@@ -66,22 +76,30 @@ data class Stoppuhr(
         }
     }
 
-
     fun start() {
+        if (running) return
         running = true
+        startTime = System.currentTimeMillis() - elapsedTime
+        job = coroutineScope.launch {
+            while (running) {
+                elapsedTime = System.currentTimeMillis() - startTime
+                delay(10L)
+            }
+        }
     }
 
     fun stop() {
+        if (!running) return
         running = false
+        zeit = elapsedTime
+        job?.cancel()
     }
 
     fun reset() {
-        running = false
+        stop()
+        elapsedTime = 0L
         zeit = 0L
     }
 
-    fun addTime(time: Long) {
-        zeit += time
-    }
+    fun getTime(): Duration = elapsedTime.toDuration(DurationUnit.MILLISECONDS)
 }
-
