@@ -13,9 +13,10 @@ import androidx.navigation.NavController
 import com.example.myswimsmartdb.ui.theme.LapisLazuli
 import com.example.myswimsmartdb.ui.theme.Platinum
 import androidx.compose.ui.unit.dp
+import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
 
 @Composable
-fun DrawerContent(navController: NavController) {
+fun DrawerContent(navController: NavController, sharedViewModel: SharedViewModel) {
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -46,7 +47,10 @@ fun DrawerContent(navController: NavController) {
             "Stoppuhr",
             modifier = Modifier
                 .padding(16.dp)
-                .clickable { navController.navigate("stoppuhr") },
+                .clickable {
+                    sharedViewModel.clearSelectedMembers()
+                    navController.navigate("stoppuhr")
+                },
             color = Platinum
         )
         Text(

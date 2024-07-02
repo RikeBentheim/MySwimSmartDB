@@ -1,7 +1,6 @@
 package com.example.myswimsmartdb.ui.screens
 
 import android.graphics.ImageFormat
-import android.media.Image
 import android.media.ImageReader
 import android.os.Handler
 import android.os.HandlerThread
@@ -21,6 +20,7 @@ import com.example.myswimsmartdb.ui.Composable.DrawerContent
 import com.example.myswimsmartdb.ui.Composable.components.BackgroundImage
 import com.example.myswimsmartdb.ui.Composable.components.CustomBottomBar
 import com.example.myswimsmartdb.ui.Composable.components.CustomTopAppBar
+import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun BasisScreen(
     navController: NavController,
+    sharedViewModel: SharedViewModel,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -36,7 +37,7 @@ fun BasisScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            DrawerContent(navController = navController)
+            DrawerContent(navController = navController, sharedViewModel = sharedViewModel)
         }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -99,7 +100,7 @@ fun ProcessImageContent() {
 @Preview
 @Composable
 fun BasisPreview() {
-    BasisScreen(navController = rememberNavController()) { innerPadding ->
+    BasisScreen(navController = rememberNavController(), sharedViewModel = SharedViewModel()) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             Text("Preview Content")
         }

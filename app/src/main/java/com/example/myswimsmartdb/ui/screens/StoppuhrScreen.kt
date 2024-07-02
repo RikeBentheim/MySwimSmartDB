@@ -17,12 +17,11 @@ import com.example.myswimsmartdb.db.Reposetory.MitgliedRepository
 import com.example.myswimsmartdb.db.entities.Mitglied
 import com.example.myswimsmartdb.ui.Composable.components.MitgliederStoppuhrVerwaltung
 import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
-import com.example.myswimsmartdb.ui.content.MitgliederVerwaltung
 import com.example.myswimsmartdb.ui.theme.Platinum
 
 @Composable
 fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?, sharedViewModel: SharedViewModel) {
-    BasisScreen(navController = navController) { innerPadding ->
+    BasisScreen(navController = navController, sharedViewModel = sharedViewModel) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -54,6 +53,7 @@ fun StoppuhrScreen(navController: NavHostController, mitgliedIds: List<Int>?, sh
                 selectedMembers = if (mitgliedIds.isNullOrEmpty()) {
                     sharedViewModel.fetchSelectedMembers()
                 } else {
+                    sharedViewModel.clearSelectedMembers()  // Clear previous selection if any
                     mitgliedRepository.getMitgliederByIds(mitgliedIds)
                 }
             }

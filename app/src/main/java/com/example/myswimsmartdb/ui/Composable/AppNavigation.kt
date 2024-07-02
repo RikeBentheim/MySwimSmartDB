@@ -12,9 +12,9 @@ import com.example.myswimsmartdb.ui.screens.*
 @Composable
 fun AppNavigation(navController: NavHostController, sharedViewModel: SharedViewModel) {
     NavHost(navController = navController, startDestination = "home") {
-        composable("home") { HomeScreen(navController) }
+        composable("home") { HomeScreen(navController, sharedViewModel) }
         composable("training") { TrainingScreen(navController) }
-        composable("neuerKurs") { NeuerKursScreen(navController) }
+        composable("neuerKurs") { NeuerKursScreen(navController, sharedViewModel) }
 
         composable("stoppuhr") {
             StoppuhrScreen(navController, null, sharedViewModel)
@@ -25,8 +25,8 @@ fun AppNavigation(navController: NavHostController, sharedViewModel: SharedViewM
             StoppuhrScreen(navController, mitgliedIds, sharedViewModel)
         }
 
-        composable("bahnenschwimmen") { BahnenschwimmenScreen(navController) }
-        composable("kursBearbeiten") { KursScreen(navController) }
+        composable("bahnenschwimmen") { BahnenschwimmenScreen(navController, sharedViewModel) }
+        composable("kursBearbeiten") { KursScreen(navController, sharedViewModel) }
         composable("kursVerwaltung") { KursVerwaltungScreen(navController, sharedViewModel) }
 
         composable(

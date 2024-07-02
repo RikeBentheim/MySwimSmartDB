@@ -23,9 +23,10 @@ import com.example.myswimsmartdb.db.entities.Level
 import com.example.myswimsmartdb.ui.theme.Platinum
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
 
 @Composable
-fun NeuerKursScreen(navController: NavHostController) {
+fun NeuerKursScreen(navController: NavHostController, sharedViewModel: SharedViewModel) {
     // Initialisieren der benötigten Repositories
     val context = LocalContext.current
     val kursRepository = KursRepository(context)
@@ -39,7 +40,7 @@ fun NeuerKursScreen(navController: NavHostController) {
     var selectedLevel by remember { mutableStateOf<Level?>(null) }
     var kursId by remember { mutableStateOf<Int?>(null) }
 
-    BasisScreen(navController = navController) { innerPadding ->
+    BasisScreen(navController = navController, sharedViewModel = sharedViewModel) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -109,5 +110,7 @@ fun NeuerKursScreen(navController: NavHostController) {
 @Composable
 @Preview(showBackground = true)
 fun NeuerKursScreenPreview() {
-    NeuerKursScreen(navController = rememberNavController())
+    val navController = rememberNavController()
+    val sharedViewModel = SharedViewModel()
+    NeuerKursScreen(navController = navController, sharedViewModel = sharedViewModel)
 }

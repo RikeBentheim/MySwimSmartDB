@@ -65,7 +65,7 @@ fun KursVerwaltungScreen(
         }
     }
 
-    BasisScreen(navController = navController) { innerPadding ->
+    BasisScreen(navController = navController, sharedViewModel = sharedViewModel) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()

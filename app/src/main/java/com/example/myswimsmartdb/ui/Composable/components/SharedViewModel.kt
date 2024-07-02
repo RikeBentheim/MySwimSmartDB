@@ -28,4 +28,8 @@ class SharedViewModel : ViewModel() {
     fun fetchSelectedMembers(): List<Mitglied> {
         return selectedMembers
     }
+
+    fun clearSelectedMembers() {
+        selectedMembers = emptyList()
+    }
 }

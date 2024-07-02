@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -26,11 +25,12 @@ import com.example.myswimsmartdb.ui.content.MitgliederManagement
 import com.example.myswimsmartdb.ui.content.TrainingManagement
 import com.example.myswimsmartdb.ui.theme.Platinum
 import com.example.myswimsmartdb.ui.theme.Cerulean
+import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun KursScreen(navController: NavHostController) {
+fun KursScreen(navController: NavHostController, sharedViewModel: SharedViewModel) {
     val context = LocalContext.current
     val kursRepository = KursRepository(context)
     val trainingRepository = TrainingRepository(context)
@@ -57,7 +57,7 @@ fun KursScreen(navController: NavHostController) {
         }
     }
 
-    BasisScreen(navController = navController) { innerPadding ->
+    BasisScreen(navController = navController, sharedViewModel = sharedViewModel) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -203,5 +203,7 @@ fun KursScreen(navController: NavHostController) {
 @Composable
 @Preview(showBackground = true)
 fun KursScreenPreview() {
-    KursScreen(navController = rememberNavController())
+    val navController = rememberNavController()
+    val sharedViewModel = SharedViewModel()
+    KursScreen(navController = navController, sharedViewModel = sharedViewModel)
 }

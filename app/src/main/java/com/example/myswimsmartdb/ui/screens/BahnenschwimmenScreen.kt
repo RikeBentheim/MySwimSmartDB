@@ -18,13 +18,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.myswimsmartdb.R
-import com.example.myswimsmartdb.ui.Composable.components.StoppuhrContent
+import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
 import com.example.myswimsmartdb.ui.content.BahnenzaehlenContent
 import com.example.myswimsmartdb.ui.theme.Platinum
 
 @Composable
-fun BahnenschwimmenScreen(navController: NavHostController) {
-    BasisScreen(navController = navController) { innerPadding ->
+fun BahnenschwimmenScreen(navController: NavHostController, sharedViewModel: SharedViewModel) {
+    BasisScreen(navController = navController, sharedViewModel = sharedViewModel) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
