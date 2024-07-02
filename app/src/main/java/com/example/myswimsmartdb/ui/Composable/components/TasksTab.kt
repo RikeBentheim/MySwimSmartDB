@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,7 +38,7 @@ fun TaskItem(
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(text = task.aufgabe, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
             Icon(
-                imageVector = Icons.Default.ArrowForward,
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = stringResource(id = R.string.show_details),
                 modifier = Modifier.clickable { onTaskSelected(task) }
             )

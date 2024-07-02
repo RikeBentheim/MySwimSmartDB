@@ -8,7 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -62,7 +62,7 @@ fun MembersTab(kursId: Int, mitgliedRepository: MitgliedRepository, stoppuhrRepo
                     ) {
                         Text(text = "${member.vorname} ${member.nachname}")
                         Icon(
-                            imageVector = Icons.Default.ArrowForward,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = stringResource(id = R.string.show_details),
                             modifier = Modifier.clickable { selectedMember = member }
                         )

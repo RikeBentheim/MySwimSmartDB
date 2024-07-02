@@ -10,27 +10,27 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val DATABASE_NAME = "deine_datenbank_name.db"
         private const val DATABASE_VERSION = 7 // Increment the version to 7 for new columns
 
-        public const val TABLE_LEVEL = "TABLE_LEVEL"
-        public const val TABLE_KURS = "TABLE_KURS"
-        public const val TABLE_MITGLIED = "TABLE_MITGLIED"
-        public const val TABLE_AUFGABE = "TABLE_AUFGABE"
-        public const val TABLE_ANWESENHEIT = "TABLE_ANWESENHEIT"
-        public const val TABLE_TRAINING = "TABLE_TRAINING"
-        public const val TABLE_KURS_TRAINING = "TABLE_KURS_TRAINING"
-        public const val TABLE_MITGLIED_AUFGABE = "TABLE_MITGLIED_AUFGABE"
-        public const val TABLE_LEVEL_AUFGABE = "TABLE_LEVEL_AUFGABE"
-        public const val TABLE_STOPPUHR = "TABLE_STOPPUHR"
-        public const val TABLE_BAHNENZAEHLEN = "TABLE_BAHNENZAEHLEN"
+        const val TABLE_LEVEL = "TABLE_LEVEL"
+        const val TABLE_KURS = "TABLE_KURS"
+        const val TABLE_MITGLIED = "TABLE_MITGLIED"
+        const val TABLE_AUFGABE = "TABLE_AUFGABE"
+        const val TABLE_ANWESENHEIT = "TABLE_ANWESENHEIT"
+        const val TABLE_TRAINING = "TABLE_TRAINING"
+        const val TABLE_KURS_TRAINING = "TABLE_KURS_TRAINING"
+        const val TABLE_MITGLIED_AUFGABE = "TABLE_MITGLIED_AUFGABE"
+        const val TABLE_LEVEL_AUFGABE = "TABLE_LEVEL_AUFGABE"
+        const val TABLE_STOPPUHR = "TABLE_STOPPUHR"
+        const val TABLE_BAHNENZAEHLEN = "TABLE_BAHNENZAEHLEN"
 
         // SQL statements to create tables
-        public const val CREATE_TABLE_LEVEL = """
+        const val CREATE_TABLE_LEVEL = """
             CREATE TABLE $TABLE_LEVEL (
                 LEVEL_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 LEVEL_NAME TEXT
             )
         """
 
-        public const val CREATE_TABLE_KURS = """
+        const val CREATE_TABLE_KURS = """
             CREATE TABLE $TABLE_KURS (
                 KURS_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 KURS_LEVEL_ID INTEGER,
@@ -39,7 +39,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
         """
 
-        public const val CREATE_TABLE_MITGLIED = """
+        const val CREATE_TABLE_MITGLIED = """
             CREATE TABLE $TABLE_MITGLIED (
                 MITGLIED_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 MITGLIED_VORNAME TEXT,
@@ -50,7 +50,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
         """
 
-        public const val CREATE_TABLE_AUFGABE = """
+        const val CREATE_TABLE_AUFGABE = """
             CREATE TABLE $TABLE_AUFGABE (
                 AUFGABE_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 AUFGABE_ERLEDIGT INTEGER,
@@ -59,7 +59,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
         """
 
-        public const val CREATE_TABLE_ANWESENHEIT = """
+        const val CREATE_TABLE_ANWESENHEIT = """
             CREATE TABLE $TABLE_ANWESENHEIT (
                 ANWESENHEIT_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 ANWESENHEIT_MITGLIED_ID INTEGER,
@@ -68,7 +68,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
         """
 
-        public const val CREATE_TABLE_TRAINING = """
+        const val CREATE_TABLE_TRAINING = """
             CREATE TABLE $TABLE_TRAINING (
                 TRAINING_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 TRAINING_DATUM DATE,
@@ -76,7 +76,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
         """
 
-        public const val CREATE_TABLE_KURS_TRAINING = """
+        const val CREATE_TABLE_KURS_TRAINING = """
             CREATE TABLE $TABLE_KURS_TRAINING (
                 KURS_TRAINING_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 KURS_TRAINING_KURS_ID INTEGER,
@@ -85,7 +85,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         """
 
         // Updated create table statement for TABLE_MITGLIED_AUFGABE
-        public const val CREATE_TABLE_MITGLIED_AUFGABE = """
+        const val CREATE_TABLE_MITGLIED_AUFGABE = """
             CREATE TABLE $TABLE_MITGLIED_AUFGABE (
                 MITGLIED_AUFGABE_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 MITGLIED_AUFGABE_MITGLIED_ID INTEGER,
@@ -94,7 +94,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
         """
 
-        public const val CREATE_TABLE_LEVEL_AUFGABE = """
+        const val CREATE_TABLE_LEVEL_AUFGABE = """
             CREATE TABLE $TABLE_LEVEL_AUFGABE (
                 LEVEL_AUFGABE_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 LEVEL_AUFGABE_AUFGABE_ID INTEGER,
@@ -104,7 +104,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
         """
 
-        public const val CREATE_TABLE_STOPPUHR = """
+        const val CREATE_TABLE_STOPPUHR = """
             CREATE TABLE $TABLE_STOPPUHR (
                 STOPPUHR_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 MITGLIED_ID INTEGER,
@@ -121,7 +121,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
         """
 
-        public const val CREATE_TABLE_BAHNENZAEHLEN = """
+        const val CREATE_TABLE_BAHNENZAEHLEN = """
             CREATE TABLE $TABLE_BAHNENZAEHLEN (
                 BAHNENZAEHLEN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 MITGLIED_ID INTEGER,
