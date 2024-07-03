@@ -15,7 +15,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
+            android:label="SwimSmart"
             android:theme="@style/Theme.MySwimSmartDB"
             android:screenOrientation="portrait"> <!-- Hier wird der Portraitmodus erzwungen -->
             <intent-filter>
