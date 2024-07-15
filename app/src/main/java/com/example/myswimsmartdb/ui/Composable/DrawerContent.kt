@@ -74,5 +74,12 @@ fun DrawerContent(navController: NavController, sharedViewModel: SharedViewModel
                 .clickable { navController.navigate("kursVerwaltung") },
             color = Platinum
         )
+        Text(
+            "Quiz", // Added Quiz navigation item
+            modifier = Modifier
+                .padding(16.dp)
+                .clickable { navController.navigate("quiz") },
+            color = Platinum
+        )
     }
 }

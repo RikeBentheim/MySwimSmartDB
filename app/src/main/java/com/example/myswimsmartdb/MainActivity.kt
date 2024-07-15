@@ -18,21 +18,25 @@ import androidx.navigation.compose.rememberNavController
 import com.example.myswimsmartdb.ui.Composable.AppNavigation
 import com.example.myswimsmartdb.ui.Composable.components.SharedViewModel
 import com.example.myswimsmartdb.ui.theme.AppTheme
-
+import com.example.myswimsmartdb.db.Reposetory.BaderegelRepository
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val sharedViewModel = SharedViewModel()
-            MyApp(sharedViewModel)
+            val baderegelRepository = BaderegelRepository(this)
+            if (baderegelRepository.isTableEmpty()) {
+                baderegelRepository.populateDefaultData()
+            }
+            MyApp(sharedViewModel, baderegelRepository)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyApp(sharedViewModel: SharedViewModel) {
+fun MyApp(sharedViewModel: SharedViewModel, baderegelRepository: BaderegelRepository) {
     AppTheme {
         val navController = rememberNavController()
         val context = LocalContext.current
@@ -59,7 +63,7 @@ fun MyApp(sharedViewModel: SharedViewModel) {
 
         Scaffold { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
-                AppNavigation(navController = navController, sharedViewModel = sharedViewModel)
+                AppNavigation(navController = navController, sharedViewModel = sharedViewModel, baderegelRepository = baderegelRepository)
             }
         }
     }

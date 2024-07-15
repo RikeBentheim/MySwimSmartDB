@@ -8,7 +8,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         private const val DATABASE_NAME = "deine_datenbank_name.db"
-        private const val DATABASE_VERSION = 7 // Increment the version to 7 for new columns
+        private const val DATABASE_VERSION = 9 // Increment the version to 9 for new columns
 
         const val TABLE_LEVEL = "TABLE_LEVEL"
         const val TABLE_KURS = "TABLE_KURS"
@@ -21,6 +21,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         const val TABLE_LEVEL_AUFGABE = "TABLE_LEVEL_AUFGABE"
         const val TABLE_STOPPUHR = "TABLE_STOPPUHR"
         const val TABLE_BAHNENZAEHLEN = "TABLE_BAHNENZAEHLEN"
+        const val TABLE_BADEREGELN = "TABLE_BADEREGELN"
+        const val TABLE_BADEREGEL_LEVEL = "TABLE_BADEREGEL_LEVEL"
 
         // SQL statements to create tables
         const val CREATE_TABLE_LEVEL = """
@@ -84,13 +86,12 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
         """
 
-        // Updated create table statement for TABLE_MITGLIED_AUFGABE
         const val CREATE_TABLE_MITGLIED_AUFGABE = """
             CREATE TABLE $TABLE_MITGLIED_AUFGABE (
                 MITGLIED_AUFGABE_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 MITGLIED_AUFGABE_MITGLIED_ID INTEGER,
                 MITGLIED_AUFGABE_AUFGABE_ID INTEGER,
-                ERREICHT INTEGER DEFAULT 0  -- Add the new column
+                ERREICHT INTEGER DEFAULT 0
             )
         """
 
@@ -115,8 +116,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 DATUMSTRING TEXT,
                 BEMERKUNG TEXT,
                 SCHWIMMARTEN TEXT,
-                SCHWIMMART TEXT,  -- Neues Feld
-                LAENGE TEXT,  -- Neues Feld
+                SCHWIMMART TEXT,
+                LAENGE TEXT,
                 DATUM DATE
             )
         """
@@ -135,7 +136,25 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 DATUMSTRING TEXT,
                 BEMERKUNG TEXT,
                 SCHWIMMARTEN TEXT,
-                DATUM DATE  -- Add the new column for date saved
+                DATUM DATE
+            )
+        """
+
+        const val CREATE_TABLE_BADEREGELN = """
+            CREATE TABLE $TABLE_BADEREGELN (
+                ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                IMAGE_RES_ID INTEGER NOT NULL,
+                DESCRIPTION TEXT NOT NULL
+            )
+        """
+
+        const val CREATE_TABLE_BADEREGEL_LEVEL = """
+            CREATE TABLE $TABLE_BADEREGEL_LEVEL (
+                ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                BADEREGEL_ID INTEGER NOT NULL,
+                LEVEL_ID INTEGER NOT NULL,
+                FOREIGN KEY(BADEREGEL_ID) REFERENCES $TABLE_BADEREGELN(ID),
+                FOREIGN KEY(LEVEL_ID) REFERENCES $TABLE_LEVEL(LEVEL_ID)
             )
         """
     }
@@ -152,6 +171,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db?.execSQL(CREATE_TABLE_LEVEL_AUFGABE)
         db?.execSQL(CREATE_TABLE_STOPPUHR)
         db?.execSQL(CREATE_TABLE_BAHNENZAEHLEN)
+        db?.execSQL(CREATE_TABLE_BADEREGELN)
+        db?.execSQL(CREATE_TABLE_BADEREGEL_LEVEL)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -207,6 +228,12 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             } catch (e: Exception) {
                 // Ignoriere den Fehler, falls die Spalten bereits existieren
             }
+        }
+        if (oldVersion < 8) {
+            db?.execSQL(CREATE_TABLE_BADEREGELN)
+        }
+        if (oldVersion < 9) {
+            db?.execSQL(CREATE_TABLE_BADEREGEL_LEVEL)
         }
     }
 }
